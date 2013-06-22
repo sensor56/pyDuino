@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# exemple pyDUino - par X. HINAULT - www.mon-club-elec.fr
+# exemple pyDuino - par X. HINAULT - www.mon-club-elec.fr
 # Juin 2013 - Tous droits réservés - GPLv3
 # voir : https://github.com/sensor56/pyDuino
 
