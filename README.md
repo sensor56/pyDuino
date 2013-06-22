@@ -7,10 +7,11 @@ pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utili
 
 ## Fonctions Arduino implémentées 
 
-* pinMode(), digitalWrite()
+* pinMode(), digitalWrite(), digitalRead()
+* analogRead()
 * delay()
 
-* Emulation affichage Série, dans la console système avec : Serial.println(), Serial.print()
+* Serial.println(), Serial.print() (Emulation affichage Série dans la console système) 
 
 ## Utilisation 
 
