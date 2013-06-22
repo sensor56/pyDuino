@@ -21,42 +21,42 @@ L'utilisation ensuite est simple : importation du module sous la forme :
 from arduino import * # importe les fonctions Arduino pour Python
 
 En fin de code, on ajoute les lignes suivantes pour rendre le script exécutable : 
-if __name__=="__main__": # pour rendre le code executable 
-  setup() # appelle la fonction main
-	while(1): loop() # appelle fonction loop sans fin
+	if __name__=="__main__": # pour rendre le code executable 
+  		setup() # appelle la fonction main
+		while(1): loop() # appelle fonction loop sans fin
 
 Une fois fait, on accède au sein du code Python aux fonctions Arduino comme on le ferait dans un code Arduino natif. 
 
 !! Exemple : 
 
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+	#!/usr/bin/python
+	# -*- coding: utf-8 -*-
 
-from arduino import * # importe les fonctions Arduino pour Python
+	from arduino import * # importe les fonctions Arduino pour Python
 
-# entete declarative
-LED=2   # broche utilisée pour la LED
-
-#--- setup --- 
-def setup():
-  
-	pinMode(LED,OUTPUT) # met la broche en sortie
-
-# -- loop -- 
-def loop():
+	# entete declarative
+	LED=2   # broche utilisée pour la LED
 	
-	digitalWrite(LED, HIGH) # allume la LED
-	Serial.println('LED allumée')
-	delay(1000)  # pause en millisecondes
+	#--- setup --- 
+	def setup():
+ 	 
+		pinMode(LED,OUTPUT) # met la broche en sortie
+
+	# -- loop -- 
+	def loop():
 	
-	digitalWrite(LED,LOW) # eteint LED
-	Serial.println('LED éteinte')
-	delay(1000) # pause en millisecondes
+		digitalWrite(LED, HIGH) # allume la LED
+		Serial.println('LED allumée')
+		delay(1000)  # pause en millisecondes
+		
+		digitalWrite(LED,LOW) # eteint LED
+		Serial.println('LED éteinte')
+		delay(1000) # pause en millisecondes
 
-# fin loop
-
-#--- obligatoire pour lancement du code -- 
-if __name__=="__main__": # pour rendre le code executable 
-	setup() # appelle la fonction main
-	while(1): loop() # appelle fonction loop sans fin
+	# fin loop
+	
+	#--- obligatoire pour lancement du code -- 
+	if __name__=="__main__": # pour rendre le code executable 
+		setup() # appelle la fonction main
+		while(1): loop() # appelle fonction loop sans fin
 
