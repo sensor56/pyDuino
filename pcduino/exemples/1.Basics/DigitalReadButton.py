@@ -15,7 +15,7 @@ APPUI=LOW # valeur broche lors appui
 
 #--- setup --- 
 def setup():
-  pinMode(BP,PULLUP) # met la broche en entree avec rappel au plus actif
+	pinMode(BP,PULLUP) # met la broche en entree avec rappel au plus actif
 	Serial.println("La broche 2 est en entrée avec rappel au plus actif !")
 
 # -- fin setup -- 
