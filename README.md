@@ -21,10 +21,12 @@ L'utilisation ensuite est simple : importation du module sous la forme :
 from arduino import * # importe les fonctions Arduino pour Python
 
 En fin de code, on ajoute les lignes suivantes pour rendre le script exécutable : 
+
 	if __name__=="__main__": # pour rendre le code executable 
   		setup() # appelle la fonction main
 		while(1): loop() # appelle fonction loop sans fin
-
+	
+	
 Une fois fait, on accède au sein du code Python aux fonctions Arduino comme on le ferait dans un code Arduino natif. 
 
 !! Exemple : 
