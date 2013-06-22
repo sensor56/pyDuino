@@ -1,20 +1,20 @@
 pyDuino
 =======
 
-!! Intro
+## Intro
 
 pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utiliser les broches E/S de mini-PC tels que RaspberryPi ou le pcDuino avec des instructions identiques au langage Arduino. 
 
-!! Fonctions Arduino implémentées 
+## Fonctions Arduino implémentées 
 
 * pinMode(), digitalWrite()
 * delay()
 
 * Emulation affichage Série, dans la console système avec : Serial.println(), Serial.print()
 
-!! Utilisation 
+## Utilisation 
 
-L'utilisation se veut la plus simple possible : un seul fichier à installer dans le répertoire du/des scripts Python. 
+L'utilisation se veut la plus simple possible : un seul fichier à installer dans le répertoire du/des scripts Python. Un module système sera disponible prochainement. 
 
 L'utilisation ensuite est simple : importation du module sous la forme : 
 	
@@ -29,7 +29,7 @@ En fin de code, on ajoute les lignes suivantes pour rendre le script exécutable
 	
 Une fois fait, on accède au sein du code Python aux fonctions Arduino comme on le ferait dans un code Arduino natif. 
 
-!! Exemple : 
+## Exemple : 
 
 	#!/usr/bin/python
 	# -*- coding: utf-8 -*-
