@@ -14,7 +14,7 @@ from arduino import * # importe les fonctions Arduino pour Python
 def setup():
   return 
 
-# -- fin seutp -- 
+# -- fin setup -- 
 
 # -- loop -- 
 def loop():
