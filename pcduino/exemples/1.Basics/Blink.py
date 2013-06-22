@@ -14,7 +14,7 @@ LED=2  # declare la broche a utiliser
 
 #--- setup --- 
 def setup():
-  pinMode(LED,OUTPUT) # met la broche en sortie
+	pinMode(LED,OUTPUT) # met la broche en sortie
 	Serial.println("La broche " +str(LED)+ " est en sortie !")
 
 # -- fin setup -- 
