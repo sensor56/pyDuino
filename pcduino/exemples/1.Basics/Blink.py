@@ -37,7 +37,7 @@ def loop():
 
 #--- obligatoire pour lancement du code -- 
 if __name__=="__main__": # pour rendre le code executable 
-	setup() # appelle la fonction loop
+	setup() # appelle la fonction setup
 	while(1): loop() # appelle fonction loop sans fin
 
 
