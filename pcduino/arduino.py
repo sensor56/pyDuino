@@ -32,33 +32,67 @@ INPUT="0"
 OUTPUT="1"
 PULLUP="8"
 
-HIGH = "1"
-LOW =  "0"
+HIGH = 1
+LOW =  0
 
+A0, A1, A2, A3, A4,A5 =0,1,2,3,4,5 # identifiant broches analogiques
 
 # --- fonctions Arduino ---- 
 
 # pinMode 
 def pinMode(pin, mode):
-  
+	
 	pin=int(pin) # numéro de la broche (int)
 	mode=str(mode) # mode de fonctionnement (str)
 	
 	# fixe le mode de la broche E/S
 	file=open(pathMode+"gpio"+str(pin),'w') # ouvre le fichier en ecriture
-	file.write(OUTPUT)
+	file.write(mode) # ecrit dans le fichier le mode voulu
 	file.close()
 
 # digitalWrite 
 def digitalWrite(pin, state):
 	
 	pin=int(pin)
-	state=str(state)
+	state=str(state) # transforme en chaine
 	
 	# met la broche dans etat voulu
-	file=open(pathState+"gpio"+str(pin),'w') # ouvre le fichier en lecture
+	file=open(pathState+"gpio"+str(pin),'w') # ouvre le fichier en ecriture
 	file.write(state)
 	file.close()
+	
+
+# digitalRead
+def digitalRead(pin):
+	
+	pin=int(pin)
+	
+	# met la broche dans etat voulu
+	file=open(pathState+"gpio"+str(pin),'r') # ouvre le fichier en lecture
+	file.seek(0) # se place au debut du fichier
+	state=file.read()  #lit le fichier
+	#print state #debug
+	file.close()
+	
+	return int(state)  # renvoie valeur entiere
+	
+
+# analogRead
+def analogRead(pin):
+	
+	pin=int(pin) # pin est un int entre 0 et 5 - utilisation identifiant predefini possible
+	
+	# lecture du fichier
+	file=open('/proc/adc'+str(pin),'r')
+	file.seek(0)  # en debut du fichier
+	out=file.read() # lit la valeur = un str de la forme adc 0 : valeur
+	file.close()
+	
+	# extraction de la valeur
+	out=out.split(":") # scinde la chaine en 2
+	out=out[1] # garde la 2eme partie = la valeur
+	
+	return int(out) # renvoie la valeur
 
 # delay
 def delay(ms):
