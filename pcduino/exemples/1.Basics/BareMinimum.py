@@ -13,13 +13,13 @@ from arduino import * # importe les fonctions Arduino pour Python
 
 #--- setup --- 
 def setup():
-  return 
+	return # si vide
 
 # -- fin setup -- 
 
 # -- loop -- 
 def loop():
-	return
+	return # si vide
 
 # -- fin loop --
 
