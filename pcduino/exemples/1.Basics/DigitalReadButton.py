@@ -7,7 +7,7 @@
 
 # test digitalRead avec bouton poussoir
 
-from arduino import * # importe les fonctions Arduino pour Python
+from pyduino import * # importe les fonctions Arduino pour Python
 
 # entete declarative
 BP=2  # declare la broche a utiliser
