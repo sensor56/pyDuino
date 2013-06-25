@@ -19,7 +19,7 @@ L'utilisation se veut la plus simple possible : un seul fichier à installer dan
 
 L'utilisation ensuite est simple : importation du module sous la forme : 
 	
-	from arduino import * # importe les fonctions Arduino pour Python
+	from pyduino import * # importe les fonctions Arduino pour Python 
 	
 En fin de code, on ajoute les lignes suivantes pour rendre le script exécutable : 
 
