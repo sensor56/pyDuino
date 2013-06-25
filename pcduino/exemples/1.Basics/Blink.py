@@ -7,7 +7,7 @@
 
 # LED clignote
 
-from arduino import * # importe les fonctions Arduino pour Python
+from pyduino import * # importe les fonctions Arduino pour Python
 
 # entete declarative
 LED=2  # declare la broche a utiliser
