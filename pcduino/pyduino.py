@@ -16,10 +16,14 @@ un seul fichier à installer.
 
 Ce fichier est la version pour le pcDuino
 """
+
 # modules utiles 
 import time
 
 # -- declarations --
+# NB : les variables déclarées ici ne sont pas modifiables en dehors du module
+# pour modifier la valeur d'une variable de ce module, la seule solution est de la réaffecter dans le programme 
+# par exemple noLoop
 
 # sur le pcDuino, la plupart des operations passent par des fichiers systeme
 
@@ -36,7 +40,23 @@ HIGH = 1
 LOW =  0
 
 A0, A1, A2, A3, A4,A5 =0,1,2,3,4,5 # identifiant broches analogiques
+PWM0, PWM1, PWM2, PWM3, PWM4,PWM5 =3,5,6,9,10,11 # identifiant broches PWM
 
+# constantes utiles pyDuino
+noLoop=False # pour stopper loop
+
+# Fonctions pyDuino 
+
+"""
+def stop(): # pour arret de loop
+	
+	global noLoop  # globale mais dans ce module seulement... !!
+	
+	noLoop=True # n'a pas d'effet dans le prog principal
+	print noLoop
+	
+"""
+	
 # --- fonctions Arduino ---- 
 
 # pinMode 
@@ -94,28 +114,51 @@ def analogRead(pin):
 	
 	return int(out) # renvoie la valeur
 
+#--- temps ---
+ 
 # delay
 def delay(ms):
-	
 	int(ms)
-	
 	time.sleep(ms/1000.0) # pause en secondes
 
+# fonction millisSyst : renvoie le nombre de millisecondes courant de l'horloge systeme
+def millisSyst():
+	return(int(round(time.time() * 1000))) # millisecondes de l'horloge systeme
 
+# fonction millis : renvoie le nombre de millisecondes depuis le debut du programme
+def millis():
+	return millisSyst()-millis0Syst # renvoie difference entre milliSyst courant et millisSyst debut code
+	
+
+#-- Console -- 
 
 # classe Serial pour émulation affichage message en console
 class Serial():
 	
 	# def __init__(self): # constructeur principal
 	
-	def println(self,text):
+	def println(self,text):  # message avec saut de ligne
 		
-		#text=str(txt)
+		text=str(text) # au cas où
 		
 		print(text)
 		
+	"""
+	def print(self,text): # affiche message sans saut de ligne
+		
+		#text=str(txt)
+		
+		print(text), # avec virgule pour affichage sans saus de ligne
+	"""
+	
+	def begin(self,rate): # fonction pour émulation de begin... Ne fait rien... 
+		return
 
 
 # fin classe Serial 
-  
+
+# initialisation 
+
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
+
+millis0Syst=millisSyst() # mémorise millisSyst au démarrage
