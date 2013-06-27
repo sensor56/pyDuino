@@ -19,6 +19,7 @@ Ce fichier est la version pour le pcDuino
 
 # modules utiles 
 import time
+import math
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -121,6 +122,10 @@ def delay(ms):
 	int(ms)
 	time.sleep(ms/1000.0) # pause en secondes
 
+# delayMicroseconds
+def delayMicroseconds(us):
+	time.sleep(us/1000000.0) # pause en secondes
+	
 # fonction millisSyst : renvoie le nombre de millisecondes courant de l'horloge systeme
 def millisSyst():
 	return(int(round(time.time() * 1000))) # millisecondes de l'horloge systeme
@@ -129,6 +134,50 @@ def millisSyst():
 def millis():
 	return millisSyst()-millis0Syst # renvoie difference entre milliSyst courant et millisSyst debut code
 	
+
+# fonction microsSyst : renvoie le nombre de microsecondes courant de l'horloge systeme
+def microsSyst():
+	return(int(round(time.time() * 1000000))) # microsecondes de l'horloge systeme
+
+# fonction millis : renvoie le nombre de millisecondes depuis le debut du programme
+def micros():
+	return microsSyst()-micros0Syst # renvoie difference entre microsSyst courant et microsSyst debut code
+	
+
+#----------- MATH -------------
+
+#-- min(x,y) --> Python
+
+#-- max(x,y) --> Python
+
+#-- abs(x) --> Python 
+
+#-- constrain(x,a,b)
+def constrain(x,valMin,valMax):
+	if x < valMin : 
+		return valMin
+
+	elif valMax < x :
+		return valMax
+
+	else :
+		return x
+
+#-- map(valeur, fromLow, fromHigh, toLow, toHigh) --> renommée rescale
+def rescale(valeur, in_min, in_max, out_min, out_max):
+	return (valeur - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+	# d'après la fonction map du fichier wirin.c du core Arduino
+
+#-- pow(x,y) : calcul x à la puissance y --> Python
+
+#-- sq(x) -- calcule le carré de x
+def sq(x):
+	return x*x
+
+#-- sqrt(x) -- calcule la racine carrée de x
+def sqrt(x):
+	return math.sqrt(x)
+
 
 #-- Console -- 
 
@@ -143,6 +192,8 @@ class Serial():
 		
 		print(text)
 		
+		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
+		# si type est long ou int
 	"""
 	def print(self,text): # affiche message sans saut de ligne
 		
@@ -161,4 +212,5 @@ class Serial():
 
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
 
+micros0Syst=microsSyst() # mémorise microsSyst au démarrage
 millis0Syst=millisSyst() # mémorise millisSyst au démarrage
