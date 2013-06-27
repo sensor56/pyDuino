@@ -1,5 +1,5 @@
 L'intégralité du code de la librairie Pyduino est sous licence GPLv3, une licence libre et opénsource garantie par la Free Software Fondation. 
-Les contenus du site ont été réalisés par Xavier HINAULT (2010) (www.mon-club-elec.fr) et sont sous licence Creative Commons Attribution-ShareAlike 3.0.
+Les contenus du site de la documentation Pyduino ont été réalisés par Xavier HINAULT (2010) (www.mon-club-elec.fr) et sont sous licence Creative Commons Attribution-ShareAlike 3.0.
 
 
 # Conditions de copie, distribution et modification de la Licence Publique Générale GNU.
