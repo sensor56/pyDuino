@@ -9,6 +9,8 @@ pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utili
 
 * pinMode(), digitalWrite(), digitalRead()
 * analogRead()
+
+* millis()
 * delay()
 
 * Serial.println(), Serial.print() (Emulation affichage Série dans la console système) 
