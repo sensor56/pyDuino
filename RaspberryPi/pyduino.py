@@ -38,6 +38,10 @@ Ce fichier est la version pour le raspberryPi version B
 import time
 import subprocess
 
+# import math
+from math import *  # pour acces direct aux fonctions math..
+import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
+
 # on presuppose ici que wiringPi est present sur le systeme: 
 # sudo apt-get install git 
 # git clone git://git.drogon.net/wiringPi
@@ -72,7 +76,7 @@ noLoop=False
 
 # pinMode 
 def pinMode(pin, mode):
-  
+	
 	pin=int(pin) # numéro de la broche (int)
 	mode=str(mode) # mode de fonctionnement (str)
 	
@@ -131,6 +135,10 @@ def delay(ms):
 	int(ms)
 	time.sleep(ms/1000.0) # pause en secondes
 
+# delayMicroseconds
+def delayMicroseconds(us):
+	time.sleep(us/1000000.0) # pause en secondes
+	
 # fonction millisSyst : renvoie le nombre de millisecondes courant de l'horloge systeme
 def millisSyst():
 	return(int(round(time.time() * 1000))) # millisecondes de l'horloge systeme
@@ -139,6 +147,74 @@ def millisSyst():
 def millis():
 	return millisSyst()-millis0Syst # renvoie difference entre milliSyst courant et millisSyst debut code
 	
+
+# fonction microsSyst : renvoie le nombre de microsecondes courant de l'horloge systeme
+def microsSyst():
+	return(int(round(time.time() * 1000000))) # microsecondes de l'horloge systeme
+
+# fonction millis : renvoie le nombre de millisecondes depuis le debut du programme
+def micros():
+	return microsSyst()-micros0Syst # renvoie difference entre microsSyst courant et microsSyst debut code
+	
+
+#----------- MATH -------------
+
+#-- min(x,y) --> Python
+
+#-- max(x,y) --> Python
+
+#-- abs(x) --> Python 
+
+#-- constrain(x,a,b)
+def constrain(x,valMin,valMax):
+	if x < valMin : 
+		return valMin
+
+	elif valMax < x :
+		return valMax
+
+	else :
+		return x
+
+#-- map(valeur, fromLow, fromHigh, toLow, toHigh) --> renommée rescale
+def rescale(valeur, in_min, in_max, out_min, out_max):
+	return (valeur - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+	# d'après la fonction map du fichier wirin.c du core Arduino
+
+#-- pow(x,y) : calcul x à la puissance y --> Python
+
+#-- sq(x) -- calcule le carré de x
+def sq(x):
+	return pow(x,2)
+
+#-- sqrt(x) -- calcule la racine carrée de x --> module math
+#def sqrt(x):
+	#return math.sqrt(x)
+	
+#-- sin(x) -- sinus de l'angle en radians --> module math
+
+#-- cos(x) cosinus de l'angle en radians --> module math
+
+#-- tan(x) cosinus de l'angle en radians --> module math
+
+#-- radians(x) --> module math
+
+#-- degrees(x) --> module math
+
+#-- randomSeed()  initialise le générateur de nombre aléatoire
+def randomSeed(x):
+	rd.seed(x) # appelle fonction seed du module random
+	
+#-- random(max) et random(min,max) : renvoie valeur aléatoire entière
+def random(*arg): # soit forme random(max), soit forme random(min,max)
+	if len(arg)==1:
+		return rd.randint(0,arg[0])
+	elif len(arg)==2:
+		return rd.randint(arg[0],arg[1])
+	else:
+		 return 0 # si argument invalide
+
+		
 
 #-- Console -- 
 
@@ -153,6 +229,8 @@ class Serial():
 		
 		print(text)
 		
+		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
+		# si type est long ou int
 	"""
 	def print(self,text): # affiche message sans saut de ligne
 		
@@ -171,4 +249,5 @@ class Serial():
 
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
 
+micros0Syst=microsSyst() # mémorise microsSyst au démarrage
 millis0Syst=millisSyst() # mémorise millisSyst au démarrage
