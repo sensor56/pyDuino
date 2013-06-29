@@ -4,23 +4,6 @@
 # par X. HINAULT - Tous droits réservés - 2013
 # www.mon-club-elec.fr - Licence GPLv3
 
-"""
-// ------- Licence du code de ce programme -----
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License,
-//  or any later version.
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Voir : http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.Licence
-
-"""
-
 """"
 Ce fichier est partie intégrante  du projet pyDuino.
 
@@ -35,13 +18,25 @@ Ce fichier est la version pour le pcDuino
 """
 
 # modules utiles 
+
+#-- temps --
 import time
-import math
+
+#-- math -- 
+# import math
+from math import *  # pour acces direct aux fonctions math..
+import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
+
+#-- pour PWM - accès kernel + transposition C to Python -- 
+import fcntl # module pour fonction ioctl
+#from ctypes import *
+import ctypes # module pour types C en Python 
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
 # pour modifier la valeur d'une variable de ce module, la seule solution est de la réaffecter dans le programme 
 # par exemple noLoop
+
 
 # sur le pcDuino, la plupart des operations passent par des fichiers systeme
 
@@ -63,22 +58,74 @@ PWM0, PWM1, PWM2, PWM3, PWM4,PWM5 =3,5,6,9,10,11 # identifiant broches PWM
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
 
-# Fonctions pyDuino 
+# -- pour PWM --
+
+# le chemin fichier config PWM
+pwm_dev = "/dev/pwmtimer"
+
+# les adresses registres PWM 
+PWMTMR_START =0x101
+PWMTMR_STOP =0x102
+PWMTMR_FUNC=0x103
+PWMTMR_TONE =0x104
+PWM_CONFIG=0x105
+HWPWM_DUTY=0x106
+PWM_FREQ=0x107
+
+# Les frequences max
+MAX_PWMTMR_FREQ=2000 # 2kHz pin 3,9,10,11 
+MIN_PWMTMR_FREQ=126 # 126Hz pin 3,9,10,11 
+MAX_PWMHW_FREQ=20000 # 20kHz pin 5,6
+
+MAX_PWM_LEVEL=255 # limite max duty cycle
+
+
+
+#==== diverses classes utiles utilisées par les fonctions Pyduino ===
+
+# -- pour config PWM -- 
+
+"""	 
+	 typedef struct tagPWM_Config {
+    int channel;
+    int dutycycle;
+} PWM_Config,*pPWM_Config;
+"""
+
+class PWM_Config(ctypes.Structure):
+    _fields_ = [
+        ('channel', ctypes.c_int),
+        ('dutycycle', ctypes.c_int)
+    ]
 
 """
-def stop(): # pour arret de loop
-	
-	global noLoop  # globale mais dans ce module seulement... !!
-	
-	noLoop=True # n'a pas d'effet dans le prog principal
-	print noLoop
-	
+typedef struct tagPWM_Freq {
+    int channel;
+    int step;
+    int pre_scale;
+    unsigned int freq;
+} PWM_Freq,*pPWM_Freq;
 """
-	
-# --- fonctions Arduino ---- 
+
+class PWM_Freq(ctypes.Structure):
+    _fields_ = [
+        ('channel', ctypes.c_int),
+        ('step', ctypes.c_int),
+        ('pre_scale', ctypes.c_int),
+        ('freq', ctypes.c_uint)
+    ]
+
+
+# ==================== Fonctions spécifiques pour une plateforme donnée =============================
+# =====================>>>>>>>>>> version pcDuino <<<<<<<<<<< =======================================
+
+
+# ---- gestion broches E/S numériques ---
 
 # pinMode 
 def pinMode(pin, mode):
+	# fixe le mode de fonctionnement de la broche
+	# mode parmi : OUTPUT, INPUT ou PULLUP
 	
 	pin=int(pin) # numéro de la broche (int)
 	mode=str(mode) # mode de fonctionnement (str)
@@ -90,6 +137,8 @@ def pinMode(pin, mode):
 
 # digitalWrite 
 def digitalWrite(pin, state):
+	# met la broche dans l'état voulu
+	# state parmi : HIGH ou LOW
 	
 	pin=int(pin)
 	state=str(state) # transforme en chaine
@@ -102,6 +151,8 @@ def digitalWrite(pin, state):
 
 # digitalRead
 def digitalRead(pin):
+	# lit l'état de la broche numérique
+	# renvoie int : LOW ou HIGH
 	
 	pin=int(pin)
 	
@@ -115,22 +166,138 @@ def digitalRead(pin):
 	return int(state)  # renvoie valeur entiere
 	
 
-# analogRead
-def analogRead(pin):
+#----- gestion broches analogique -----
+
+# analogRead - entrées analogiques 
+def analogRead(pinAnalog):
+	# A0 et A1 : résolution 6 bits (0-63) en 0-2V
+	# A2, A3, A4, A5 : résolution 12 bits (0-4095) en 0-3.3V
 	
 	pin=int(pin) # pin est un int entre 0 et 5 - utilisation identifiant predefini possible
 	
 	# lecture du fichier
-	file=open('/proc/adc'+str(pin),'r')
+	file=open('/proc/adc'+str(pinAnalog),'r')
 	file.seek(0)  # en debut du fichier
 	out=file.read() # lit la valeur = un str de la forme adc 0 : valeur
 	file.close()
 	
 	# extraction de la valeur
-	out=out.split(":") # scinde la chaine en 2
+	out=out.split(":") # scinde en 2 la chaine "adc 0 : valeur"
 	out=out[1] # garde la 2eme partie = la valeur
 	
 	return int(out) # renvoie la valeur
+
+# setFrequence - fixe fréquence PWM 
+# D'après : https://github.com/pcduino/c_enviroment/blob/master/hardware/arduino/cores/arduino/wiring_analog.c 
+# adaptation C to Python by X. HINAULT - Juin 2013
+def setFrequencePWM(pinPWMIn, frequencePWMIn):
+	# broches PWM 3/9/10/11 supporte frequences[125-2000]Hz à differents dutycycle
+	# broches PWM 5/6 supporte frequences [195,260,390,520,781]Hz à 256 dutycycle
+	
+	pin=ctypes.c_int(pinPWMIn) # broche
+	freq=ctypes.c_uint(frequencePWMIn) #frequence 
+	
+	print pin
+	# attention : utiliser pinPWMIn pour les conditions - pin est c_type.
+	
+	pwmfreq = PWM_Freq() # declare objet structure
+	
+	if (pinPWMIn==3 or pinPWMIn==5 or pinPWMIn==6 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11) and frequencePWMIn>0 :
+		pwmfreq.channel=pin
+		pwmfreq.freq=freq
+		pwmfreq.step=0
+		
+		# ouverture fichier
+		fd=open(pwm_dev,'r')
+		
+		if pinPWMIn==5 or pinPWMIn==6 : # si broches 5 et 6 
+			# pin(5/6) support frequency[195,260,390,520,781] @256 dutycycle
+			if freq==195 or freq==260 or freq==390 or freq==520 or freq==781: 
+				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)  # fixe la frequence voulue 
+				print ret # debug
+				if ret<0 :
+					print ("Problème lors configuration PWM")
+					if fd : fd.close()
+					return
+			else:
+				print("Fréquence incompatible : choisir parmi 195,260,390,520,781 Hz")
+			
+		elif pinPWMIn==3 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11 : 
+			# broches PWM 3/9/10/11 supporte frequences[125-2000]Hz à differents dutycycle
+			if frequencePWMIn >= MIN_PWMTMR_FREQ and frequencePWMIn <= MAX_PWMTMR_FREQ :  # si freq entre 126 et 2000Hz
+				
+				# -- stop pwmtmr sur broche ---
+				ret=fcntl.ioctl(fd, PWMTMR_STOP, ctypes.c_ulong(pwmfreq.channel))
+				print ret
+				if ret<0 :
+					print ("Probleme lors arret PWM")
+					if fd : fd.close()
+					return
+				
+				# -- fixe frequence pwm
+				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)
+				print ret
+				if ret<0 :
+					print ("Probleme lors configuration PWM")
+					if fd : fd.close()
+					return
+				
+			
+		
+		if fd : fd.close() # ferme fichier si existe 
+	else : print("Broche non autrisee pour PWM")
+	
+
+# analogWrite - sortie analogique = PWM
+def analogWrite(pinPWMIn, largeurIn):
+	
+	pin=ctypes.c_int(pinPWMIn) # broche
+	value=ctypes.c_int(largeurIn)  # largeur impulsion
+	
+	pwmconfig = PWM_Config() # declare objet structure
+	
+	pwmconfig.channel=pin
+	pwmconfig.dutycycle=value
+	
+	
+	if (pinPWMIn==3 or pinPWMIn==5 or pinPWMIn==6 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11) and  largeurIn>=0 and largeurIn <= MAX_PWM_LEVEL : 
+	# utiliser largeurIn car value est ctype...
+		
+		# ouverture fichier
+		fd=open(pwm_dev,'r')
+		
+		if pinPWMIn==5 or pinPWMIn==6 : # si broches 5 et 6 
+			
+			# -- fixe largeur pwm
+			ret=fcntl.ioctl(fd, HWPWM_DUTY, pwmconfig)
+			print ret
+			if ret<0 :
+				print ("Probleme lors configuration HWPWM_DUTY")
+				if fd : fd.close()
+				return
+			
+		elif pinPWMIn==3 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11 : 
+			# -- fixe largeur pwm
+			ret=fcntl.ioctl(fd, PWM_CONFIG, pwmconfig)
+			print ret
+			if ret<0 :
+				print ("Probleme lors configuration PWM")
+				if fd : fd.close()
+				return
+				
+			# -- stop pwmtmr sur broche ---
+			ret=fcntl.ioctl(fd, PWMTMR_START, ctypes.c_ulong(0))
+			print ret
+			if ret<0 :
+				print ("Probleme lors configuration PWM")
+				if fd : fd.close()
+				return
+		
+		if fd : fd.close() # ferme fichier si existe 
+	else : print("Broche non autrisee pour PWM")
+	
+
+################ Fonctions communes ####################
 
 #--- temps ---
  
@@ -189,12 +356,36 @@ def rescale(valeur, in_min, in_max, out_min, out_max):
 
 #-- sq(x) -- calcule le carré de x
 def sq(x):
-	return x*x
+	return pow(x,2)
 
-#-- sqrt(x) -- calcule la racine carrée de x
-def sqrt(x):
-	return math.sqrt(x)
+#-- sqrt(x) -- calcule la racine carrée de x --> module math
+#def sqrt(x):
+	#return math.sqrt(x)
+	
+#-- sin(x) -- sinus de l'angle en radians --> module math
 
+#-- cos(x) cosinus de l'angle en radians --> module math
+
+#-- tan(x) cosinus de l'angle en radians --> module math
+
+#-- radians(x) --> module math
+
+#-- degrees(x) --> module math
+
+#-- randomSeed()  initialise le générateur de nombre aléatoire
+def randomSeed(x):
+	rd.seed(x) # appelle fonction seed du module random
+	
+#-- random(max) et random(min,max) : renvoie valeur aléatoire entière
+def random(*arg): # soit forme random(max), soit forme random(min,max)
+	if len(arg)==1:
+		return rd.randint(0,arg[0])
+	elif len(arg)==2:
+		return rd.randint(arg[0],arg[1])
+	else:
+		 return 0 # si argument invalide
+
+		
 
 #-- Console -- 
 
