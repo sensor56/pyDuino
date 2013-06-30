@@ -5,6 +5,10 @@ pyDuino
 
 pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utiliser les broches E/S de mini-PC tels que RaspberryPi ou le pcDuino avec des instructions identiques au langage Arduino. 
 
+## Documentation officielle 
+
+http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.HomePage
+
 ## Fonctions Arduino implémentées 
 
 * pinMode()
