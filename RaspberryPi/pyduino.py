@@ -23,6 +23,7 @@ Voir : http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.Li
 
 """
 Ce fichier est partie intégrante  du projet pyDuino.
+Site officiel : http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.HomePage
 
 pyDuino apporte une couche d'abstraction au langage Python 
 afin de pouvoir utiliser les broches E/S de mini PC
@@ -53,15 +54,17 @@ import random as rd # pour fonctions aléatoires - alias pour éviter problème 
 
 # -- declarations --
 
-# sur le raspberryPi, la plupart des operations sont accessible vaec la commande gpio 
+# sur le raspberryPi, la plupart des operations sont accessible avec la commande gpio 
 
 # fichiers broches E/S raspberryPi
 pathMain="/sys/class/gpio/gpio"
+pinList=['17', '18', '27', '22', '23', '24', '25', '4'] # definition des borches I/O - version B
+#pin=['17', '18', '21', '22', '23', '24', '25', '4'] # definition des borches I/O - version A
 
 # constantes Arduino like
 INPUT="in"
 OUTPUT="out"
-PULLUP="up"
+PULLUP="up" # accepte par commande gpio
 
 HIGH = 1
 LOW =  0
@@ -74,6 +77,9 @@ noLoop=False
 
 # --- fonctions Arduino ---- 
 
+#====================== fonctions specifiques de la plateforme ===================
+#========================= fonctions RaspberryPi =================================
+
 # pinMode 
 def pinMode(pin, mode):
 	
@@ -82,11 +88,18 @@ def pinMode(pin, mode):
 	
 	# gpio mode <pin> in/out/pwm/clock/up/down/tri
 	
-	# fixe le mode de la broche E/S
-	cmd="gpio mode "+str(pin)+" "+mode
-	subprocess.Popen(cmd, shell=True)
-	print cmd # debug
+	if mode==INPUT or mode==OUTPUT : # si in ou out 
+		# en acces direct = plus rapide 
+		file=open(pathMain+pinList[pin]+"/direction",'w') # ouvre le fichier en écriture
+		file.write(OUTPUT)
+		file.close()
+	elif mode==PULLUP : # sinon = si up
+		# fixe le mode de la broche E/S via ligne commande gpio 
+		cmd="gpio mode "+str(pin)+" "+mode
+		subprocess.Popen(cmd, shell=True)
+		print cmd # debug
 	
+
 # digitalWrite 
 def digitalWrite(pin, state):
 	
@@ -95,10 +108,16 @@ def digitalWrite(pin, state):
 	
 	# gpio mode <pin> in/out/pwm/clock/up/down/tri
 	
-	# met la broche dans etat voulu
-	cmd="gpio write "+str(pin)+" "+str(state)
-	subprocess.Popen(cmd, shell=True)	
+	# met la broche dans etat voulu via ligne de commande gpio
+	#cmd="gpio write "+str(pin)+" "+str(state)
+	#subprocess.Popen(cmd, shell=True)	
 	#print cmd # debug
+	
+	# en acces direct = plus rapide 
+	file=open(pathMain+pinList[pin]+"/value",'w') # ouvre le fichier en écriture
+	file.write(state)
+	file.close()
+	
 
 
 # digitalRead
@@ -108,15 +127,21 @@ def digitalRead(pin):
 	
 	# gpio read <pin>
 	
-	# lit l'etat de la broche
-	cmd="gpio read "+str(pin)
-	print cmd # debug
+	# lit l'etat de la broche en ligne commande avec gpio
+	#cmd="gpio read "+str(pin)
+	#print cmd # debug
 	
-	pipe=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout 
-	state=pipe.read() # lit la sortie console
-	pipe.close() # ferme la sortie console
+	#pipe=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout 
+	#state=pipe.read() # lit la sortie console
+	#pipe.close() # ferme la sortie console
 
-	print state # debug
+	#print state # debug
+	
+	# lit etat de la broche en acces direct 
+	file=open(pathMain+pinList[pin]+"/value",'r') # ouvre le fichier en lecture
+	file.seek(0) # se place au debut du fichier
+	state=file.read() #lit le fichier
+	file.close()
 	
 	return int(state)  # renvoie valeur entiere
 	
@@ -127,6 +152,31 @@ def analogRead(pin):
 	print("analogRead non disponible sur le RaspberryPi : passer au pcDuino !")
 	
 	return 0 # renvoie la valeur
+
+# analogWrite = generation pwm
+def analogWrite(pin, value): 
+	
+	pin=int(pin)
+	value=int(rescale(value,0,255,0,1023))
+	
+	# fixe le mode pwm pour la broche E/S via ligne commande gpio 
+	cmd="gpio mode "+str(pin)+" "+"pwm"
+	subprocess.Popen(cmd, shell=True)
+	print cmd # debug
+	
+	# gpio pwm <pin> <value> avec value entre 0 et 1023
+	
+	# fixe pwm via ligne commande gpio 
+	cmd="gpio pwm "+str(pin)+" "+ str(value)
+	subprocess.Popen(cmd, shell=True)
+	print cmd # debug
+	
+def analogWritePercent(pin, value):
+	analogWrite(pin, rescale(value,0,100,0,255)) # re-echelonne valeur 0-100% vers 0-255
+	
+#############################################################################
+#==================== Fonctions Pyduino communes ============================
+##############################################################################
 
 #--- temps ---
  
@@ -216,7 +266,7 @@ def random(*arg): # soit forme random(max), soit forme random(min,max)
 
 		
 
-#-- Console -- 
+####################### Console #####################
 
 # classe Serial pour émulation affichage message en console
 class Serial():
@@ -245,7 +295,7 @@ class Serial():
 
 # fin classe Serial 
 
-# initialisation 
+########################### initialisation ########################
 
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
 
