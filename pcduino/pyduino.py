@@ -79,7 +79,8 @@ MAX_PWMHW_FREQ=20000 # 20kHz pin 5,6
 
 MAX_PWM_LEVEL=255 # limite max duty cycle
 
-
+initPwmFlag=[False,False,False,False,False, False] # flags init Freq PWM - false tant que pas initialisation freq PWM
+defaultPwmFreq=520 # frequence par defaut
 
 #==== diverses classes utiles utilisées par les fonctions Pyduino ===
 
@@ -156,7 +157,7 @@ def digitalRead(pin):
 	
 	pin=int(pin)
 	
-	# met la broche dans etat voulu
+	# lit etat de la broche 
 	file=open(pathState+"gpio"+str(pin),'r') # ouvre le fichier en lecture
 	file.seek(0) # se place au debut du fichier
 	state=file.read()  #lit le fichier
@@ -190,12 +191,15 @@ def analogRead(pinAnalog):
 # setFrequence - fixe fréquence PWM 
 # D'après : https://github.com/pcduino/c_enviroment/blob/master/hardware/arduino/cores/arduino/wiring_analog.c 
 # adaptation C to Python by X. HINAULT - Juin 2013
-def setFrequencePWM(pinPWMIn, frequencePWMIn):
+def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 	# broches PWM 3/9/10/11 supporte frequences[125-2000]Hz à differents dutycycle
 	# broches PWM 5/6 supporte frequences [195,260,390,520,781]Hz à 256 dutycycle
 	
+	global initPwmFlag
+	
 	pin=ctypes.c_int(pinPWMIn) # broche
 	freq=ctypes.c_uint(frequencePWMIn) #frequence 
+	# ATTENTION : la valeur ctype ne pourra pas etre utilisee comme une valeur Python... 
 	
 	print pin
 	# attention : utiliser pinPWMIn pour les conditions - pin est c_type.
@@ -212,8 +216,10 @@ def setFrequencePWM(pinPWMIn, frequencePWMIn):
 		
 		if pinPWMIn==5 or pinPWMIn==6 : # si broches 5 et 6 
 			# pin(5/6) support frequency[195,260,390,520,781] @256 dutycycle
-			if freq==195 or freq==260 or freq==390 or freq==520 or freq==781: 
+			if frequencePWMIn==195 or frequencePWMIn==260 or frequencePWMIn==390 or frequencePWMIn==520 or frequencePWMIn==781: 
 				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)  # fixe la frequence voulue 
+				#initPwmFlag[pinPWMIn]=True # flag temoin config freq PWM mis à True
+				initPwmFlag[pinPWMIn]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
 				print ret # debug
 				if ret<0 :
 					print ("Problème lors configuration PWM")
@@ -236,6 +242,8 @@ def setFrequencePWM(pinPWMIn, frequencePWMIn):
 				
 				# -- fixe frequence pwm
 				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)
+				#initPwmFlag[pinPWMIn]=True # flag temoin config freq PWM mis à True
+				initPwmFlag[pinPWMIn]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
 				print ret
 				if ret<0 :
 					print ("Probleme lors configuration PWM")
@@ -249,12 +257,17 @@ def setFrequencePWM(pinPWMIn, frequencePWMIn):
 	
 
 # analogWrite - sortie analogique = PWM
-def analogWrite(pinPWMIn, largeurIn):
+def analogWriteHardware(pinPWMIn, largeurIn):
+	
+	global initPwmFlag
+		
+	if initPwmFlag[pinPWMIn]==False :  # si frequence PWM pas initialisee
+		setFrequencyPWM(pinPWMIn,defaultPwmFreq) # utilise la frequence PWM par defaut 
 	
 	pin=ctypes.c_int(pinPWMIn) # broche
 	value=ctypes.c_int(largeurIn)  # largeur impulsion
 	
-	pwmconfig = PWM_Config() # declare objet structure
+	pwmconfig = PWM_Config() # declare objet structure like C  voir classe debut code 
 	
 	pwmconfig.channel=pin
 	pwmconfig.dutycycle=value
@@ -285,7 +298,7 @@ def analogWrite(pinPWMIn, largeurIn):
 				if fd : fd.close()
 				return
 				
-			# -- stop pwmtmr sur broche ---
+			# -- démarre pwmtmr sur broche ---
 			ret=fcntl.ioctl(fd, PWMTMR_START, ctypes.c_ulong(0))
 			print ret
 			if ret<0 :
@@ -295,6 +308,27 @@ def analogWrite(pinPWMIn, largeurIn):
 		
 		if fd : fd.close() # ferme fichier si existe 
 	else : print("Broche non autrisee pour PWM")
+	
+
+# analogWrite # idem Arduino en 0-255
+def analogWrite(pinPWMIn, largeurIn):
+	
+	global initPwmFlag
+	
+	if initPwmFlag[pinPWMIn]==False :  # si frequence PWM pas initialisee
+		setFrequencyPWM(pinPWMIn,defaultPwmFreq) # utilise la frequence PWM par defaut 
+
+	if pinPWMIn==3 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11: # duty natif 0-60 pour ces  broches en 520Hz
+		maxDuty=int(33000/initPwmFlag[pinPWMIn]) # initPwmFlag contient la valeur de la freq courante
+		
+		largeurIn=rescale(largeurIn,0,255,0,maxDuty) # rescale 0-255 vers 0-maxDuty
+	#elif pinPWMIn==5 or pinPWMIn==6: # duty natif 0-255 pour ces 2 broches = inchangé
+	
+	analogWriteHardware(pinPWMIn, largeurIn) # appelle fonction utilisant largeur Hardware
+
+# analogWritePercent(pinPWMIn, largeurIn)=> rescale 0-100 vers 0-255
+def analogWritePercent(pinPWMIn, largeurIn):
+	analogWrite(pinPWMIn,rescale(largeurIn,0,100,0,255))
 	
 
 ################ Fonctions communes ####################
