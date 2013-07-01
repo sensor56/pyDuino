@@ -183,7 +183,7 @@ def analogRead(pinAnalog):
 	# A0 et A1 : résolution 6 bits (0-63) en 0-2V
 	# A2, A3, A4, A5 : résolution 12 bits (0-4095) en 0-3.3V
 	
-	pin=int(pin) # pin est un int entre 0 et 5 - utilisation identifiant predefini possible
+	pin=int(pinAnalog) # pin est un int entre 0 et 5 - utilisation identifiant predefini possible
 	
 	# lecture du fichier
 	file=open('/proc/adc'+str(pinAnalog),'r')
@@ -210,7 +210,7 @@ def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 	freq=ctypes.c_uint(frequencePWMIn) #frequence 
 	# ATTENTION : la valeur ctype ne pourra pas etre utilisee comme une valeur Python... 
 	
-	print pin
+	#print pin
 	# attention : utiliser pinPWMIn pour les conditions - pin est c_type.
 	
 	pwmfreq = PWM_Freq() # declare objet structure
@@ -229,7 +229,7 @@ def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)  # fixe la frequence voulue 
 				#initPwmFlag[pinPWMIn]=True # flag temoin config freq PWM mis à True
 				initPwmFlag[pinPWMIn]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
-				print ret # debug
+				#print ret # debug
 				if ret<0 :
 					print ("Problème lors configuration PWM")
 					if fd : fd.close()
@@ -243,7 +243,7 @@ def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 				
 				# -- stop pwmtmr sur broche ---
 				ret=fcntl.ioctl(fd, PWMTMR_STOP, ctypes.c_ulong(pwmfreq.channel))
-				print ret
+				#print ret
 				if ret<0 :
 					print ("Probleme lors arret PWM")
 					if fd : fd.close()
@@ -253,7 +253,7 @@ def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)
 				#initPwmFlag[pinPWMIn]=True # flag temoin config freq PWM mis à True
 				initPwmFlag[pinPWMIn]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
-				print ret
+				#print ret
 				if ret<0 :
 					print ("Probleme lors configuration PWM")
 					if fd : fd.close()
@@ -262,7 +262,7 @@ def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 			
 		
 		if fd : fd.close() # ferme fichier si existe 
-	else : print("Broche non autrisee pour PWM")
+	else : print("Broche non autorisee pour PWM")
 	
 
 # analogWrite - sortie analogique = PWM
@@ -292,7 +292,7 @@ def analogWriteHardware(pinPWMIn, largeurIn):
 			
 			# -- fixe largeur pwm
 			ret=fcntl.ioctl(fd, HWPWM_DUTY, pwmconfig)
-			print ret
+			#print ret
 			if ret<0 :
 				print ("Probleme lors configuration HWPWM_DUTY")
 				if fd : fd.close()
@@ -301,7 +301,7 @@ def analogWriteHardware(pinPWMIn, largeurIn):
 		elif pinPWMIn==3 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11 : 
 			# -- fixe largeur pwm
 			ret=fcntl.ioctl(fd, PWM_CONFIG, pwmconfig)
-			print ret
+			#print ret
 			if ret<0 :
 				print ("Probleme lors configuration PWM")
 				if fd : fd.close()
@@ -309,7 +309,7 @@ def analogWriteHardware(pinPWMIn, largeurIn):
 				
 			# -- démarre pwmtmr sur broche ---
 			ret=fcntl.ioctl(fd, PWMTMR_START, ctypes.c_ulong(0))
-			print ret
+			#print ret
 			if ret<0 :
 				print ("Probleme lors configuration PWM")
 				if fd : fd.close()
@@ -514,6 +514,10 @@ class Serial():
 	# def __init__(self): # constructeur principal
 	
 	def println(self,text, *arg):  # message avec saut de ligne
+		# Emulation Serial.println dans console systeme
+		# Supporte formatage chaine façon Arduino avec DEC, BIN, OCT, HEX
+		
+		
 		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
 		text=str(text) # au cas où
 		
