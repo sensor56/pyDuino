@@ -197,6 +197,19 @@ def analogRead(pinAnalog):
 	
 	return int(out) # renvoie la valeur
 
+# analogReadmV - entrées analogiques - renvoie valeur en millivolts
+def analogReadmV(pinAnalog):
+	# A0 et A1 : résolution 6 bits (0-63) en 0-2V
+	# A2, A3, A4, A5 : résolution 12 bits (0-4095) en 0-3.3V
+	
+	mesure=analogRead(pinAnalog)
+	if pinAnalog==A0 or pinAnalog==A1:
+		mesure=rescale(mesure,0,63,0,2000)
+	elif pinAnalog==A2 or pinAnalog==A3 or pinAnalog==A4 or pinAnalog==A5:
+		mesure=rescale(mesure,0,4095,0,3300)
+	
+	return mesure
+
 # setFrequence - fixe fréquence PWM 
 # D'après : https://github.com/pcduino/c_enviroment/blob/master/hardware/arduino/cores/arduino/wiring_analog.c 
 # adaptation C to Python by X. HINAULT - Juin 2013
