@@ -14,7 +14,7 @@ avec des instructions identiques au langage Arduino
 L'utilisation se veut la plus simple possible :
 un seul fichier à installer. 
 
-L'éditeur conseillé pour l'édition des codes Pyduino est Geany 
+L'editeur conseille pour l'edition des codes Pyduino est Geany
 A installer dans un Terminal avec la commande
 $ sudo apt-get install geany
 
@@ -416,6 +416,8 @@ def randomSeed(x):
 	
 #-- random(max) et random(min,max) : renvoie valeur aléatoire entière
 def random(*arg): # soit forme random(max), soit forme random(min,max)
+	# Renvoie une valeur aléatoire entiere
+	
 	if len(arg)==1:
 		return rd.randint(0,arg[0])
 	elif len(arg)==2:
@@ -425,6 +427,9 @@ def random(*arg): # soit forme random(max), soit forme random(min,max)
 
 #-- gestion de bits et octets -- 
 def lowByte(a):
+	# Renvoie l'octet de poids faible de la valeur a
+	
+	
 	out=bin(a) # '0b1011000101100101'
 	out=out[2:] # enleve 0b '1011000101100101'
 	out=out[-8:] # extrait 8 derniers caracteres - LSB a droite / MSB a gauche 
@@ -433,6 +438,9 @@ def lowByte(a):
 	return out
 
 def highByte(a):
+	# renvoie l'octet de poids fort de la valeur a
+	
+	
 	out=bin(a) # '0b1011000101100101'
 	out=out[2:] # enleve 0b '1011000101100101'
 	while len(out)>8:out=out[:-8] # tant que plus de 8 chiffres, enleve 8 par 8 = octets low
@@ -444,6 +452,9 @@ def highByte(a):
 	
 
 def bitRead(a, index):
+	# lit le bit de rang index de la valeur a
+	# le bit de poids faible a l'index 0
+	
 	out=bin(a) # '0b1011000101100101'
 	out=out[2:] # enleve 0b '1011000101100101'
 	out=out[len(out)-index-1] # rang le plus faible = indice 0 = le plus a droite
@@ -453,6 +464,9 @@ def bitRead(a, index):
 	
 
 def bitWrite(a, index, value):
+	# Met le bit d'index voulu de la valeur a a la valeur indiquee (HIGH ou LOW)
+	# le bit de poids faible a l'index 0 
+	
 	out=bin(a) # '0b1011000101100101'
 	out=out[2:] # enleve 0b '1011000101100101'
 	out=list(out) # bascule en list
@@ -465,14 +479,23 @@ def bitWrite(a, index, value):
 	
 
 def bitSet(a,index):
+	# Met le bit d'index voulu de la valeur a a HIGH
+	# le bit de poids faible a l'index 0
+	
 	return bitWrite(a,index,1) # met le bit voulu a 1 - Index 0 pour 1er bit poids faible
 	
 
 def bitClear(a,index):
+	# Met le bit d'index voulu de la valeur a a LOW
+	# le bit de poids faible a l'index 0 
+	
 	return bitWrite(a,index,0) # met le bit voulu a 0 - Index 0 pour 1er bit poids faible
 	
 
 def bit(index): # calcule la valeur du bit d'index specifie (le bits LSB a l'index 0)
+	# calcule la valeur du bit d'index specifie 
+	# le bits de poids faible a l'index 0 - calcule en fait 2 exposant index
+	
 	return pow(2,index) # cette fonction renvoie en fait la valeur 2^index
 	
 
