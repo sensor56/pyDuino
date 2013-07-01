@@ -59,6 +59,11 @@ LOW =  0
 A0, A1, A2, A3, A4,A5 =0,1,2,3,4,5 # identifiant broches analogiques
 PWM0, PWM1, PWM2, PWM3, PWM4,PWM5 =3,5,6,9,10,11 # identifiant broches PWM
 
+DEC=10
+BIN=2
+HEX=16
+OCT=8
+
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
 
@@ -508,11 +513,26 @@ class Serial():
 	
 	# def __init__(self): # constructeur principal
 	
-	def println(self,text):  # message avec saut de ligne
-		
+	def println(self,text, *arg):  # message avec saut de ligne
+		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
 		text=str(text) # au cas où
 		
-		print(text)
+		arg=list(arg) # conversion en list... évite problèmes.. 
+		
+		#print arg - debug
+		
+		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
+			if arg[0]==DEC and text.isdigit():
+				print(text)
+			elif arg[0]==BIN and text.isdigit():
+				print(bin(int(text)))
+			elif arg[0]==OCT and text.isdigit():
+				print(oct(int(text)))
+			elif arg[0]==HEX and text.isdigit():
+				print(hex(int(text)))
+		else: # si pas de formatage de chaine = affiche tel que 
+			print(text)
+		
 		
 		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
 		# si type est long ou int
