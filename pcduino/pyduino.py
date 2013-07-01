@@ -14,7 +14,7 @@ avec des instructions identiques au langage Arduino
 L'utilisation se veut la plus simple possible :
 un seul fichier à installer. 
 
-Ce fichier est la version pour le pcDuino
+Ce fichier est la version 0.1c pour le pcDuino
 """
 
 # modules utiles 
@@ -419,7 +419,60 @@ def random(*arg): # soit forme random(max), soit forme random(min,max)
 	else:
 		 return 0 # si argument invalide
 
-		
+#-- gestion de bits et octets -- 
+def lowByte(a):
+	out=bin(a) # '0b1011000101100101'
+	out=out[2:] # enleve 0b '1011000101100101'
+	out=out[-8:] # extrait 8 derniers caracteres - LSB a droite / MSB a gauche 
+	while len(out)<8:out="0"+out # complete jusqu'a 8 O/1
+	out="0b"+out # re-ajoute 0b 
+	return out
+
+def highByte(a):
+	out=bin(a) # '0b1011000101100101'
+	out=out[2:] # enleve 0b '1011000101100101'
+	while len(out)>8:out=out[:-8] # tant que plus de 8 chiffres, enleve 8 par 8 = octets low
+
+	# une fois obtenu le highbyte, on complete les 0 jusqu'a 8 chiffres
+	while len(out)<8:out="0"+out # complete jusqu'a 8 O/1
+	out="0b"+out # re-ajoute 0b 
+	return out
+	
+
+def bitRead(a, index):
+	out=bin(a) # '0b1011000101100101'
+	out=out[2:] # enleve 0b '1011000101100101'
+	out=out[len(out)-index-1] # rang le plus faible = indice 0 = le plus a droite
+	# extrait le caractere du bit voulu - LSB a droite / MSB a gauche 
+	#out="0b"+out # re-ajoute 0b 
+	return out
+	
+
+def bitWrite(a, index, value):
+	out=bin(a) # '0b1011000101100101'
+	out=out[2:] # enleve 0b '1011000101100101'
+	out=list(out) # bascule en list
+	out[len(out)-index-1]=str(value) # rang le plus faible = indice 0 = le plus a droite
+	#out=str(out) # rebascule en str - pb car reste format liste
+	out="".join(out) # rebascule en str - concatenation des caracteres
+	# remplace le caractere du bit voulu - LSB a droite / MSB a gauche 
+	out="0b"+out # re-ajoute 0b 
+	return out
+	
+
+def bitSet(a,index):
+	return bitWrite(a,index,1) # met le bit voulu a 1 - Index 0 pour 1er bit poids faible
+	
+
+def bitClear(a,index):
+	return bitWrite(a,index,0) # met le bit voulu a 0 - Index 0 pour 1er bit poids faible
+	
+
+def bit(index): # calcule la valeur du bit d'index specifie (le bits LSB a l'index 0)
+	return pow(2,index) # cette fonction renvoie en fait la valeur 2^index
+	
+
+######################## Fonctions par thèmes ################################
 
 #-- Console -- 
 
@@ -450,7 +503,7 @@ class Serial():
 
 # fin classe Serial 
 
-# initialisation 
+########################### --------- initialisation ------------ #################
 
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
 
