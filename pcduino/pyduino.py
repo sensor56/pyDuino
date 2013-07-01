@@ -14,6 +14,10 @@ avec des instructions identiques au langage Arduino
 L'utilisation se veut la plus simple possible :
 un seul fichier à installer. 
 
+L'éditeur conseillé pour l'édition des codes Pyduino est Geany 
+A installer dans un Terminal avec la commande
+$ sudo apt-get install geany
+
 Ce fichier est la version 0.1c pour le pcDuino
 """
 
