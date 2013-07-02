@@ -25,6 +25,7 @@ Ce fichier est la version 0.1c pour le pcDuino
 
 #-- temps --
 import time
+import datetime # gestion date 
 
 #-- math -- 
 # import math
@@ -175,6 +176,14 @@ def digitalRead(pin):
 	
 	return int(state)  # renvoie valeur entiere
 	
+
+def toggle(pin): # inverse l'etat de la broche
+	if digitalRead(pin)==HIGH:
+		digitalWrite(pin,LOW)
+		return LOW
+	else:
+		digitalWrite(pin,HIGH)
+		return HIGH
 
 #----- gestion broches analogique -----
 
@@ -383,6 +392,44 @@ def microsSyst():
 def micros():
 	return microsSyst()-micros0Syst # renvoie difference entre microsSyst courant et microsSyst debut code
 	
+
+# --- fonctions date - RTC - unixtime 
+def year():
+	return str(datetime.datetime.now().year)
+
+def month():
+	if datetime.datetime.now().month<10:
+		return "0"+str(datetime.datetime.now().month) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().month)
+
+def day():
+	if datetime.datetime.now().day<10:
+		return "0"+str(datetime.datetime.now().day) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().day)
+
+def hour():
+	if datetime.datetime.now().hour<10:
+		return "0"+str(datetime.datetime.now().hour) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().hour)
+
+def minute():
+	if datetime.datetime.now().minute<10:
+		return "0"+str(datetime.datetime.now().minute) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().minute)
+
+def second():
+	if datetime.datetime.now().second<10:
+		return "0"+str(datetime.datetime.now().second) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().second)
+
+def unixtime():
+	return str(int(time.time()))
+
 
 #----------- MATH -------------
 
