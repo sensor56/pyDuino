@@ -14,21 +14,21 @@ LED=PWM0 # broche pour la LED - doit être une broche PWM (3,5,6,9,10 ou 11)
 
 #--- setup --- 
 def setup():
-  return # si vide
+	return # si vide
 
 # -- fin setup -- 
 
 # -- loop -- 
 def loop():
 	
-	for impuls in range(255):
-		analogWrite(PWM0, impuls) # applique la largeur fonction de la mesure analogique
+	for impuls in range(0,255):
+		analogWrite(PWM0, impuls) # applique la largeur 
 		Serial.println ("PWM= "+str(impuls))
 		delay(10)# entre 2 changements
 	
-	for impuls in range(255):
-		analogWrite(PWM0, 255-impuls) # applique la largeur fonction de la mesure analogique
-		Serial.println ("PWM= "+str(impuls))
+	for impuls in range(0,255):
+		analogWrite(PWM0, 255-impuls) # applique la largeur 
+		Serial.println ("PWM= "+str(255-impuls))
 		delay(10)# entre 2 changements
 		
 	
