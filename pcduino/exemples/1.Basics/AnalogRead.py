@@ -32,6 +32,10 @@ def loop():
 	
 	Serial.println (" Voie A2 = " + str(mesure) + " soit " + str("%.2f" % tension) + " mV." )
 	
+	#voie A2
+	mesuremV=analogReadmV(A2) # mesure la voie A2 - résultat en mV
+	Serial.println("Voie A2 = " + str(mesuremV) + " mV.")
+	
 	delay(1000)# entre 2 mesures 
 	
 # -- fin loop --
