@@ -11,20 +11,35 @@ http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.HomePage
 
 ## Fonctions Arduino implémentées 
 
-* pinMode()
-* digitalWrite()
-* digitalRead()
+*pinMode(broche, mode)
+*digitalWrite(broche, valeur)
+*digitalRead(broche) --> int
+*toggle(broche) 
 
-* analogRead()
+* analogRead(brocheAnalog) --> int
+* analogReadmV(brocheAnalog) --> float 
 
-* millis()
-* delay()
+* analogWrite(brochePWM, valeur) - PWM 0-255
+* analogWritePercent(brochePWM, valeur) - PWM 0-100%
+* analogWriteHardware(brochePWM, valeur) - PWM
+* setFrequencyPWM(broche, frequence) 
 
-* Serial.println() (Emulation affichage Série dans la console système) 
+* millis() --> int
+* micros() --> int
+* delay(ms)
+* delayMicroseconds(us)
+* year() -->int
+* month() -->int
+* day() -->int
+* hour() -->int
+* minutes() -->int
+* seconds() -->int
+* unixtime() -->int 
 
 ## Utilisation 
 
-L'utilisation se veut la plus simple possible : un seul fichier à installer dans le répertoire du/des scripts Python. Un module système sera disponible prochainement. 
+L'utilisation se veut la plus simple possible : un seul fichier à installer dans le répertoire du/des scripts Python.
+
 
 L'utilisation ensuite est simple : importation du module sous la forme : 
 	
