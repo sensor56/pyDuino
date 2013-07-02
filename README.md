@@ -11,10 +11,10 @@ http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.HomePage
 
 ## Fonctions Arduino implémentées 
 
-*pinMode(broche, mode)
-*digitalWrite(broche, valeur)
-*digitalRead(broche) --> int
-*toggle(broche) 
+* pinMode(broche, mode)
+* digitalWrite(broche, valeur)
+* digitalRead(broche) --> int
+* toggle(broche) 
 
 * analogRead(brocheAnalog) --> int
 * analogReadmV(brocheAnalog) --> float 
