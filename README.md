@@ -5,6 +5,16 @@ pyDuino
 
 pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utiliser les broches E/S de mini-PC tels que RaspberryPi ou le pcDuino avec des instructions identiques au langage Arduino. 
 
+## Installation 
+
+* sur le pcDuino : 
+ sudo wget -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py /usr/lib/python2.7/dist-packages
+
+* sur le raspberryPi :
+
+ sudo wget -N https://raw.github.com/sensor56/pyDuino/master/RaspberryPi/pyduino.py /usr/lib/python2.7/dist-packages
+
+
 ## Documentation officielle 
 
 http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.HomePage
