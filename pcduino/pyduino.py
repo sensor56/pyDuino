@@ -39,6 +39,9 @@ import ctypes # module pour types C en Python
 
 #-- système -- 
 import subprocess
+#import getpass # pour connaitre utilisateur systeme 
+import os  # gestion des chemins
+
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -94,6 +97,31 @@ MAX_PWM_LEVEL=255 # limite max duty cycle
 
 initPwmFlag=[False,False,False,False,False, False] # flags init Freq PWM - false tant que pas initialisation freq PWM
 defaultPwmFreq=520 # frequence par defaut
+
+#--- chemin de reference --- 
+#user_name=getpass.getuser()
+home_dir=os.getenv("HOME")+"/"  # chemin de référence
+main_dir=os.getenv("HOME")+"/"  # chemin de référence
+
+# constantes de SELECTION 
+TEXT='TEXT'
+IMAGE='IMAGE'
+AUDIO='AUDIO'
+VIDEO='VIDEO'
+
+#---- chemins data fichiers texte, sons, image, video
+
+data_dir_text="data/text/" # data texte relatif a main dir
+data_dir_audio="data/audio/" # data audio 
+data_dir_image="data/images/" # data images
+data_dir_video="data/videos/" # data video
+
+#---- chemins sources fichiers texte, sons, images, video
+src_dir_text="sources/text/" # sources texte relatif a main dir
+src_dir_audio="sources/audio/" # sources audio 
+src_dir_image="sources/images/" # sources images
+src_dir_video="sources/videos/" # sources video
+
 
 #==== diverses classes utiles utilisées par les fonctions Pyduino ===
 
@@ -624,18 +652,140 @@ class Serial():
 #============ Système : ligne de commande ======================
 
 def executeCmd(cmd):
+	# execute la ligne de commande systeme passee en parametre
+	# sans attendre la fin de l'execution 
 	
-	#cmd="gpio read "+str(pin)
-	#print cmd # debug
+	#p=subprocess.Popen(cmd, shell=True) # exécute la commande et continue 
+	p=subprocess.Popen("exec "+ cmd, shell=True) # exécute la commande et continue - exec pour processus renvoyé sinon c'est le shell... 
+	# la sortie standard et la sortie erreur ne sont pas interceptées donc s'affieront dans le Terminal mais non accessible depuis le code..
 	
-	pipe=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout
+	return(p)
+
+
+def executeCmdWait(cmd):
+	# execute la ligne de commande systeme passee en parametre
+	# et attend la fin de l'execution 
+	
+	#subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait
+	subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait
+	
+
+
+def executeCmdOutput(cmd):
+	# execute la ligne de commande systeme passee en parametre
+	# capture la sortie console et attend la fin de l'execution 
+	
+	pipe=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout # execute la commande 
 	out=pipe.read() # lit la sortie console
 	pipe.close() # ferme la sortie console
 	
 	return(out)
+	
+
+########################## fichiers et data texte ###############################
+
+##------ gestion fichier et répertoires -------
+
+# les variables de chemin et leur valeur par defaut :
+#--- chemin de reference --- 
+#home_dir=os.getenv("HOME")+"/"  # chemin de référence
+#main_dir=os.getenv("HOME")+"/"  # chemin de référence
+
+#---- chemins data fichiers texte, sons, image, video
+#data_dir_text="data/text/" # data texte relatif a main dir
+#data_dir_audio="data/audio/" # data audio 
+#data_dir_image="data/images/" # data images
+#data_dir_video="data/videos/" # data video
+
+#---- chemins sources fichiers texte, sons, images, video
+#src_dir_text="sources/text/" # sources texte relatif a main dir
+#src_dir_audio="sources/audio/" # sources audio 
+#src_dir_image="sources/images/" # sources images
+#src_dir_video="sources/videos/" # sources video
+
+def homePath():
+	return os.getenv("HOME")+"/"
+
+def mainPath():
+	return main_dir
+	
+
+#-- (get) data Path 
+def dataPath(typeIn):
+	if typeIn==TEXT:
+		return data_dir_text
+	elif typeIn==IMAGE:
+		return data_dir_image
+	elif typeIn==AUDIO:
+		return data_dir_audio
+	elif typeIn==VIDEO:
+		return data_dir_video
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
+
+#--- set data Path
+def setDataPath(typeIn, dirIn):
+	if typeIn==TEXT:
+		global data_dir_text
+		data_dir_text=dirIn
+	elif typeIn==IMAGE:
+		global data_dir_image
+		data_dir_image=dirIn
+	elif typeIn==AUDIO:
+		global data_dir_audio
+		data_dir_audio=dirIn
+	elif typeIn==VIDEO:
+		global data_dir_video
+		data_dir_video=dirIn
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
+
+#-- (get) source Path 
+def sourcePath(typeIn):
+	if typeIn==TEXT:
+		return src_dir_text
+	elif typeIn==IMAGE:
+		return src_dir_image
+	elif typeIn==AUDIO:
+		return src_dir_audio
+	elif typeIn==VIDEO:
+		return src_dir_video
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
+
+#--- set source Path
+def setSourcePath(typeIn, dirIn):
+	if typeIn==TEXT:
+		global src_dir_text
+		src_dir_text=dirIn
+	elif typeIn==IMAGE:
+		global src_dir_image
+		src_dir_image=dirIn
+	elif typeIn==AUDIO:
+		global src_dir_audio
+		src_dir_audio=dirIn
+	elif typeIn==VIDEO:
+		global src_dir_video
+		src_dir_video=dirIn
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
 
 
+#-- fonction gestion répertoires / fichiers 
 
+def exists(filepathIn): # teste si le chemin ou fichier existe
+	try:
+		with open(filepathIn): return True
+	except IOError:
+		#print "Le fichier n'existe pas" # debug
+		return False
+
+def mkdir(pathIn): # crée le répertoire si il n'existe pas
+	# os.mkdir(pathIn) ne créée pas les rep intermediaires
+	try:
+		os.makedirs(pathIn) # cree les rep intermediaires
+	except OSError:
+		print("Le repertoire existe deja")
 
 ########################### --------- initialisation ------------ #################
 
