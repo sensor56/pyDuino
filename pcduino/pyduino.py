@@ -18,7 +18,7 @@ L'editeur conseille pour l'edition des codes Pyduino est Geany
 A installer dans un Terminal avec la commande
 $ sudo apt-get install geany
 
-Ce fichier est la version 0.1d pour le pcDuino
+Ce fichier est la version 0.1.20130706 pour le pcDuino
 """
 
 # modules utiles 
