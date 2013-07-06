@@ -18,7 +18,7 @@ L'editeur conseille pour l'edition des codes Pyduino est Geany
 A installer dans un Terminal avec la commande
 $ sudo apt-get install geany
 
-Ce fichier est la version 0.1c pour le pcDuino
+Ce fichier est la version 0.1d pour le pcDuino
 """
 
 # modules utiles 
@@ -465,6 +465,25 @@ def second():
 def unixtime():
 	return str(int(time.time()))
 
+# -- formes mixees --
+
+def nowtime(*arg):
+	if len(arg)==0:
+		return hour()+minute()+second()  # sans separateur
+	elif len(arg)==1:
+		sep=str(arg[0])
+		return hour()+sep+minute()+sep+second() # avec separateur
+
+def today(*arg):
+	if len(arg)==0:
+		return day()+month()+year() # sans séparateur
+	elif len(arg)==1:
+		sep=str(arg[0])
+		return day()+sep+month()+sep+year()
+	
+def nowdatetime():
+	return today("/") + " " + nowtime(":")
+	
 
 #----------- MATH -------------
 
@@ -774,18 +793,49 @@ def setSourcePath(typeIn, dirIn):
 #-- fonction gestion répertoires / fichiers 
 
 def exists(filepathIn): # teste si le chemin ou fichier existe
-	try:
+	"""try:
 		with open(filepathIn): return True
 	except IOError:
 		#print "Le fichier n'existe pas" # debug
 		return False
-
+	"""
+	if os.path.isfile(filepathIn) or os.path.isdir(filepathIn):
+		return True
+	else :
+		return False
+		
 def mkdir(pathIn): # crée le répertoire si il n'existe pas
 	# os.mkdir(pathIn) ne créée pas les rep intermediaires
 	try:
 		os.makedirs(pathIn) # cree les rep intermediaires
+		return True
 	except OSError:
-		print("Le repertoire existe deja")
+		print("Probleme creation")
+		return False
+
+def rmdir(pathIn): # efface le répertoire
+	try:
+		os.rmdir(pathIn)  #efface repertoire
+		return True
+	except OSError:
+		print "Effacement impossible"
+		return False
+
+# open (path, mode) avec mode parmi r, w ou a -- fonction native Python --> renvoie un objet file 
+
+def remove(filepathIn):
+	try:
+		os.remove(filepathIn)  #efface fichier
+		return True
+	except OSError:
+		print "Effacement impossible"
+		return False
+
+#---- fonctions objet file ----- 
+# voir http://docs.python.org/2/library/stdtypes.html#bltin-file-objects 
+
+def size(filepathIn):
+	return os.path.getsize(filepathIn)
 
 ########################### --------- initialisation ------------ #################
 
