@@ -21,6 +21,58 @@ $ sudo apt-get install geany
 Ce fichier est la version 0.1.20130706 pour le pcDuino
 """
 
+""" 
+La librairie pyduinoMultimedia necessite l'installation prealable de : 
+
+IMAGE : 
+
+installation de la librairie opencv pour Python avec la ligne de commande suivante : 
+$ sudo apt-get install python-opencv
+
+presence sur le systeme du visualisateur lxde gpicview a installer si besoin avec : 
+$ sudo apt-get install gpicview
+
+AUDIO : 
+
+ajout des paquets utiles pour la gestion de l'interface audio du systeme 
+$ sudo apt-get install pulseaudio 
+$ sudo apt-get install pavucontrol
+
+ajout des paquets utiles du lecteur de fichiers audio / video : 
+$ sudo apt-get install mplayer
+$ sudo apt-get install mencoder
+
+quelques fichiers sons pour commencer :
+$ wget  http://www.mon-club-elec.fr/mes_downloads/mes_sons.tar.gz
+
+pour la synthese vocale espeak (un peu metallique...) 
+$ sudo apt-get install espeak
+$ sudo apt-get install gespeaker
+
+pour la synthese vocale "pico" (la mieux) : ajout des sources suivantes à /etc/apt/sources.list :
+# ajout pour pico 
+deb http://ports.ubuntu.com/ubuntu-ports/ precise main multiverse
+deb-src http://ports.ubuntu.com/ubuntu-ports/ precise main multiverse
+#deb http://ports.ubuntu.com/ubuntu-ports/ precise-security main multiverse
+#deb-src http://ports.ubuntu.com/ubuntu-ports/ precise-security main multiverse
+deb http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
+deb-src http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
+
+installation des paquets de synthese vocale pico : 
+$ sudo apt-get install libttspico0 libttspico-utils libttspico-data
+
+
+VIDEO / Webcam : 
+
+installation de la librairie opencv pour Python avec la ligne de commande suivante : 
+$ sudo apt-get install python-opencv
+
+ajout des paquets utiles du lecteur de fichiers audio / video : 
+$ sudo apt-get install mplayer
+$ sudo apt-get install mencoder
+
+"""
+
 # modules utiles 
 
 #-- temps --
@@ -47,6 +99,8 @@ import os  # gestion des chemins
 #from PyQt4.QtCore import * # inclut QTimer..
 
 from cv2 import * # importe module OpenCV Python - le module cv est un sous module de cv2
+
+import re # expressions regulieres
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -132,7 +186,7 @@ src_dir_video="sources/videos/" # sources video
 
 # -- pour config PWM -- 
 
-"""   
+"""	 
 	 typedef struct tagPWM_Config {
     int channel;
     int dutycycle;
@@ -688,10 +742,28 @@ def executeCmd(cmd):
 def executeCmdWait(cmd):
 	# execute la ligne de commande systeme passee en parametre
 	# et attend la fin de l'execution 
+	#subprocess.Popen(cmd, shell=False).wait
+	# subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait # attention - wait attend pas si SHell=True !
+
+	# en cas de commande : cmd -params "chaine"
+	subcmd=cmd.split("\"") # pour extraire chaîne avant pour pas appliquer séparation par espace sur la chaîne
+	#print subcmd
+	subsubcmd=subcmd[0].split(" ") # pour avoir format liste [ arge, arg, arg] attendu par check_call - pose probleme si chaine en param
+	#print subsubcmd  #debug
+	try:
+		subsubcmd.remove('') # enleve '' car bloque commande si present... sinon provoque erreur d'ou try except
+	except:
+		pass
 	
-	#subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait
-	subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait
+	#print subsubcmd  #debug
 	
+	if len(subcmd)==1: # si pas de chaine 
+		subprocess.check_call(subsubcmd)
+	elif len(subcmd)>1: 
+		subsubcmd.append("\"" + str(subcmd[1] )+"\"") # ajoute la chaine en + encadree par " "
+		#print (" \" " + str(subcmd[1] )+"\"") # debug
+		#print subsubcmd # debug
+		subprocess.check_call(subsubcmd ) 
 
 
 def executeCmdOutput(cmd):
@@ -843,6 +915,8 @@ def size(filepathIn):
 
 ########################## FONCTIONS MULTIMEDIA ################################
 
+#================= IMAGE ==========================
+
 # constante brg pour couleur police
 
 blue=(255,0,0)
@@ -939,6 +1013,58 @@ def height(): # renvoie le height (hauteur) courante du Buffer image
 	return Buffer.height
 	
 
+#================= AUDIO ==========================
+
+PICO='pico'
+ESPEAK='espeak'
+
+def playSound(filepathIn):
+	if os.path.dirname(filepathIn)=='':
+		filepathIn=mainPath()+sourcePath(AUDIO)+filepathIn # chemin par défaut si nom fichier seul
+		
+	executeCmdWait("mplayer -msglevel all=-1 " + filepathIn) # seul message erreur cf 0   fatal messages only
+	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
+
+def speak(textIn, *arg):
+	
+	if len(arg)==0 : # si pas précisé = pico par defaut 
+		executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
+		executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
+	elif len(arg)==1 : # sinon, on utilise le moteur tts voulu
+		if arg[0]==PICO:
+			executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
+			executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
+		elif arg[0]==ESPEAK:
+			executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\"" )
+
+def recordSound(filepathIn, dureeIn):
+	if not exists(os.path.dirname(filepathIn)): # cree le rep si existe pas 
+		mkdir(os.path.dirname(filepathIn))
+	
+	executeCmdWait("arecord -d "+str(dureeIn)+" -r 16000 -f cd "+ str(filepathIn)) # enregistre 5 secondes en qualite CD a 16000hz dans fichier voulu
+	
+def analyzeVoice(filepathIn):
+	
+	workdir=os.path.dirname(filepathIn)+"/" # repertoire du fichier son 
+	
+	# formatage du fichier son pour reconnaissance de voix google en ligne 
+	executeCmdWait("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # convertit le fichier *.wav en fichier *.flac avec echantillonage 16000hz
+	print ("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # debug 
+	
+	out=executeCmdOutput("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ")
+	print ("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ") # debug
+	print out # debug
+	
+	# extraction de la chaine reconnue au sein de la reponse google voice a l'aide des expressions regulieres
+	result=re.findall(r'^.*\[\{.*:"(.*)",".*$', out) # trouve le texte place --[{--:"**"-- au niveau des **
+	print (result) # debug
+	
+	if len(result)>0:result=str(result[0])
+	else: result=""
+	
+	print (result) # debug
+	return str(result)
+	
 #---- classes utiles multimedia --------
 
 # ...
