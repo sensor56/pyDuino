@@ -484,6 +484,10 @@ def today(*arg):
 	elif len(arg)==1:
 		sep=str(arg[0])
 		return day()+sep+month()+sep+year()
+	elif len(arg)==2:
+		if arg[1]==-1: # forme inversee
+			sep=str(arg[0])
+			return year()+sep+month()+sep+day()
 	
 def nowdatetime():
 	return today("/") + " " + nowtime(":")
@@ -688,10 +692,28 @@ def executeCmd(cmd):
 def executeCmdWait(cmd):
 	# execute la ligne de commande systeme passee en parametre
 	# et attend la fin de l'execution 
+	#subprocess.Popen(cmd, shell=False).wait
+	# subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait # attention - wait attend pas si SHell=True !
+
+	# en cas de commande : cmd -params "chaine"
+	subcmd=cmd.split("\"") # pour extraire chaîne avant pour pas appliquer séparation par espace sur la chaîne
+	#print subcmd
+	subsubcmd=subcmd[0].split(" ") # pour avoir format liste [ arge, arg, arg] attendu par check_call - pose probleme si chaine en param
+	#print subsubcmd  #debug
+	try:
+		subsubcmd.remove('') # enleve '' car bloque commande si present... sinon provoque erreur d'ou try except
+	except:
+		pass
 	
-	#subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait
-	subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait
+	#print subsubcmd  #debug
 	
+	if len(subcmd)==1: # si pas de chaine 
+		subprocess.check_call(subsubcmd)
+	elif len(subcmd)>1: 
+		subsubcmd.append("\"" + str(subcmd[1] )+"\"") # ajoute la chaine en + encadree par " "
+		#print (" \" " + str(subcmd[1] )+"\"") # debug
+		#print subsubcmd # debug
+		subprocess.check_call(subsubcmd ) 
 
 
 def executeCmdOutput(cmd):
@@ -731,7 +753,10 @@ def homePath():
 
 def mainPath():
 	return main_dir
-	
+
+def setMainPath(pathIn):
+	global main_dir
+	main_dir=pathIn
 
 #-- (get) data Path 
 def dataPath(typeIn):
@@ -764,7 +789,7 @@ def setDataPath(typeIn, dirIn):
 		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
 
 #-- (get) source Path 
-def sourcePath(typeIn):
+def sourcesPath(typeIn):
 	if typeIn==TEXT:
 		return src_dir_text
 	elif typeIn==IMAGE:
@@ -776,8 +801,8 @@ def sourcePath(typeIn):
 	else: 
 		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
 
-#--- set source Path
-def setSourcePath(typeIn, dirIn):
+#--- set sources Path
+def setSourcesPath(typeIn, dirIn):
 	if typeIn==TEXT:
 		global src_dir_text
 		src_dir_text=dirIn
