@@ -9,11 +9,11 @@ pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utili
 
 * sur le pcDuino, dans un Terminal, saisir la commande : 
 
-	sudo wget -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py /usr/lib/python2.7/dist-packages
+	sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py /usr/lib/python2.7/dist-packages
 	
 * sur le raspberryPi, dans un Terminal, saisir la commande :
 
-	sudo wget -N https://raw.github.com/sensor56/pyDuino/master/RaspberryPi/pyduino.py /usr/lib/python2.7/dist-packages
+	sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/RaspberryPi/pyduino.py /usr/lib/python2.7/dist-packages
 	
 
 ## Documentation officielle 
