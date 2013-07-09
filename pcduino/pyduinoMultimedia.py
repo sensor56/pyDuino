@@ -94,13 +94,16 @@ import subprocess
 #import getpass # pour connaitre utilisateur systeme 
 import os  # gestion des chemins
 
+import re # expression regulieres pour analyse de chaines
+
+# reseau 
+import socket 
+
 #--- multimedia --- 
 #from PyQt4.QtGui import *
 #from PyQt4.QtCore import * # inclut QTimer..
 
 from cv2 import * # importe module OpenCV Python - le module cv est un sous module de cv2
-
-import re # expressions regulieres
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -913,6 +916,74 @@ def remove(filepathIn):
 def size(filepathIn):
 	return os.path.getsize(filepathIn)
 
+############################ Reseau ##################################
+
+def httpResponse(): # reponse HTTP par defaut
+	return """
+HTTP/1.0 200 OK
+Content-Type: text/html
+Connnection: close
+
+""" # ligne vide finale obligatoire ++ 
+
+# classe Ethernet - emule classe acces au materiel réseau 
+class Ethernet():
+	# def __init__(self): # constructeur principal
+	
+	def localIP(self):
+		# return socket.gethostbyname(socket.gethostname()) ne fonctionne pas... 
+		
+		sortieConsole=executeCmdOutput("ifconfig") # execute commande et attend 5s
+		#print sortieConsole - debug
+		
+		#result=re.findall(r'^.*inet  adr:(.*\..*\..*\..*) .*$',sortieConsole, re.M) # extrait *.*.*.* de la chaine au format inet adr: *.*.*.* si la chaine est au format valide  + tolerant fin chaine  
+		result=re.findall(r'^.*inet addr:(.*\..*\..*\..*)  B.*$', sortieConsole, re.M)
+		#print result
+		if len(result)>0 :return result[0]
+		else: return
+
+class EthernetServer(socket.socket) : # attention recoit classe du module, pas le module !
+
+	def __init__(self,ipIn, portIn): # constructeur principal
+		#self=socket.socket( socket.AF_INET,socket.SOCK_STREAM) # self est un objet serveur
+		#self.bind((ipIn,portIn)) # lie l'adresse et port au serveur # '' pour interface disponible 
+		
+		super(EthernetServer, self).__init__(socket.AF_INET,socket.SOCK_STREAM) # initialise Ethernet class en tant que socket...
+		
+		# a present self dispose de toutes les fonctions socket ! 
+		#print type(self) # debug
+		#print dir(self) # debug
+		
+		#self.socket(socket.AF_INET,socket.SOCK_STREAM)
+		#self.socket( AF_INET,SOCK_STREAM)  # socket.socket( AF_INET,SOCK_STREAM)    # socket.socket([family[, type[, proto]]])
+		
+		self.bind((ipIn,portIn)) # lie l'adresse et port au serveur # '' pour interface disponible 
+		
+	
+	
+	def begin(self):
+		self.listen(5)
+	
+	def available(self):
+		return self.accept() # attend client entrant
+
+	def readDataFrom(self, clientDistantIn):
+		chaineRecue=clientDistantIn.recv(1024).strip()
+		chaineRecue.decode('utf-8')
+		return chaineRecue
+	
+	def writeDataTo(self, clientDistantIn, reponseIn):
+		clientDistantIn.send(reponseIn)
+"""
+class EthernetClient(socket.socket) : # attention recoit classe du module, pas le module !
+	
+	def read():
+		#--- requete client ---
+		rec=self.recv(1024).strip()
+		rec.decode('utf-8')
+		print rec
+"""
+
 ########################## FONCTIONS MULTIMEDIA ################################
 
 #================= IMAGE ==========================
@@ -1074,6 +1145,7 @@ def analyzeVoice(filepathIn):
 ########################### --------- initialisation ------------ #################
 
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
+Ethernet = Ethernet() # declare instance Ethernet implicite pour acces aux fonctions 
 
 micros0Syst=microsSyst() # mémorise microsSyst au démarrage
 millis0Syst=millisSyst() # mémorise millisSyst au démarrage
