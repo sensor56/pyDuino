@@ -31,7 +31,7 @@ La librairie existe en plusieurs versions :
 	* raspberryPi
 	* à venir : la cubieboard
 
-* La librairie Pyduino est également portée en version PC standard tournant sous Gnu/Linux Lubuntu. Cette version permet également contrôler une carte Arduino connectée au PC !
+* La librairie Pyduino est également portée en version PC standard tournant sous Gnu/Linux Lubuntu. Cette version permet contrôler une carte Arduino connectée au PC !
 
 
 ## Installation 
