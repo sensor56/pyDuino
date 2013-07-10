@@ -8,12 +8,30 @@ pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utili
 ## Versions disponibles
 
 La librairie existe en plusieurs versions : 
-* sur le pcDuino : 
- * en version standard
- *en version multimédia
 
-* sur le RaspberryPi : 
- *en version standard
+* en version standard qui implémente : 
+	* les fonctions Arduino standards
+	* les fonctions système (console, ligne de commande)
+	* les fonctions de gestion des fichiers et données texte (équivalent librairie SD)
+	* les fonctions de gestion du réseau (équivalent de la librairie Ethernet) 
+	* à venir : les fonctions UART, SPI, I2C
+	* à venir : les motorisations : moteurs CC, servomoteurs, pas à pas
+
+* en version multimédia qui implémente en plus : 
+	* la capture d'image, l'inscrustation de texte dans image
+	* la lecture de fichier sons (bruitages, etc...) à partir de fichiers aux formats standards 
+	* la capture audio
+	* la synthèse vocale
+	* la reconnaissance vocale en mode connecté
+
+## Plateformes supportées : 
+
+* La librairie Pyduino est portée sur les bases mini-pc suivantes : 
+	* pcDuino (base conseillée)
+	* raspberryPi
+	* à venir : la cubieboard
+
+* La librairie Pyduino est également portée en version PC standard tournant sous Gnu/Linux Lubuntu. Cette version permet également contrôler une carte Arduino connectée au PC !
 
 
 ## Installation 
