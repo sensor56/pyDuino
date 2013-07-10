@@ -20,12 +20,16 @@ $ sudo apt-get install geany
 
 Ce fichier est la version 0.1.20130706 pour le pcDuino
 """
+# message d'accueil 
+print "Pyduino 0.2 by www.mon-club-elec.fr - 2013 "
 
 # modules utiles 
 
 #-- temps --
 import time
 import datetime # gestion date 
+
+from threading import Timer # importe l'objet Timer du module threading
 
 #-- math -- 
 # import math
@@ -43,6 +47,12 @@ import subprocess
 import os  # gestion des chemins
 
 import re # expression regulieres pour analyse de chaines
+
+# serie 
+try:
+	import serial
+except: 
+	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
 # reseau 
 import socket 
@@ -63,6 +73,12 @@ pathState="/sys/devices/virtual/misc/gpio/pin/"
 INPUT="0"
 OUTPUT="1"
 PULLUP="8"
+
+# pour uart
+UART="3"
+RX=0
+TX=1
+uartPort=None
 
 HIGH = 1
 LOW =  0
@@ -164,7 +180,6 @@ class PWM_Freq(ctypes.Structure):
 
 # ==================== Fonctions spécifiques pour une plateforme donnée =============================
 # =====================>>>>>>>>>> version pcDuino <<<<<<<<<<< =======================================
-
 
 # ---- gestion broches E/S numériques ---
 
@@ -427,6 +442,11 @@ def microsSyst():
 def micros():
 	return microsSyst()-micros0Syst # renvoie difference entre microsSyst courant et microsSyst debut code
 	
+
+#--- fonction timer() : lance fonction avec intervalle en ms
+def timer(delaiIn, fonctionIn):
+	Timer(delaiIn/1000.0, fonctionIn).start() # relance le timer
+
 
 # --- fonctions date - RTC - unixtime 
 def year():
@@ -832,7 +852,27 @@ def exists(filepathIn): # teste si le chemin ou fichier existe
 		return True
 	else :
 		return False
-		
+
+def isdir(pathIn):
+	return os.path.isdir(pathIn)
+	
+
+def isfile(filepathIn):
+	return os.path.isfile(filepathIn)
+
+def dirname(pathIn):
+	return os.path.dirname(pathIn)+"/"
+	
+
+def currentdir():
+	return os.getcwd()+"/"
+
+def changedir(pathIn):
+	os.chdir(pathIn)
+
+def rewindDirectory():
+	os.chdir("..")  # remonte d'un niveau
+
 def mkdir(pathIn): # crée le répertoire si il n'existe pas
 	# os.mkdir(pathIn) ne créée pas les rep intermediaires
 	try:
@@ -861,10 +901,43 @@ def remove(filepathIn):
 		return False
 
 #---- fonctions objet file ----- 
+
 # voir http://docs.python.org/2/library/stdtypes.html#bltin-file-objects 
 
+# close () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.close
+
+# flush () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.flush
+
+# name() -- Python --> http://docs.python.org/2/library/stdtypes.html#file.name
+
+# tell () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.tell
+
+# seek () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.seek
+
+# size () -- Python --> 
 def size(filepathIn):
 	return os.path.getsize(filepathIn)
+
+# read () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.read
+
+# write () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.write 
+
+# readLine() -- Python --> http://docs.python.org/2/library/stdtypes.html#file.readline
+
+# readLines() -- Python --> http://docs.python.org/2/library/stdtypes.html#file.readlines
+
+#-- fonctions Pyduino utiles files --- 
+
+def appendDataLine(filepathIn, dataIn):
+	if exists(filepathIn):
+		dataFile=open(filepathIn,'a') # ouvre pour ajout donnees
+		dataFile.write(str(dataIn)+"\n")
+		dataFile.close()
+	elif not exists(filepathIn):
+		dataFile=open(filepathIn,'w') # cree fichier pour ajout donnees
+		dataFile.write(str(dataIn)+"\n")
+		dataFile.close()
+
 
 ############################ Reseau ##################################
 
@@ -934,10 +1007,127 @@ class EthernetClient(socket.socket) : # attention recoit classe du module, pas l
 		print rec
 """
 
+# classe Uart pour communication série UART 
+class Uart():
+	
+	# def __init__(self): # constructeur principal
+	
+	
+	def begin(self,rateIn, *arg): # fonction pour émulation de begin... Ne fait rien... 
+		
+		global uartPort
+		
+		# configure pin 0 et 1 pour UART (mode = 3)
+		pinMode(RX,UART)
+		pinMode(TX,UART)
+		
+		#-- initialisation port serie uart 
+		try:
+			if len(arg)==0: # si pas d'arguments
+				#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 10) # initialisation port serie uart
+				uartPort=serial.Serial('/dev/ttyS1', rateIn, timeout = 10) # initialisation port serie uart
+			if len(arg)==1 : # si timeout
+				#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
+				uartPort=serial.Serial('/dev/ttyS1', rateIn, timeout = arg[0]) # initialisation port serie uart
+			print("Initialisation Port Serie : /dev/ttyS1 @ " + str(rateIn) +" = OK ") # affiche debug
+			
+		except:
+			print ("Erreur lors initialisation port Serie") 
+			
+	def println(self,text, *arg):  # message avec saut de ligne
+		# Envoi chaine sur port serie uart 
+		# Supporte formatage chaine façon Arduino avec DEC, BIN, OCT, HEX
+		
+		global uartPort
+		
+		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
+		text=str(text) # au cas où
+		
+		arg=list(arg) # conversion en list... évite problèmes.. 
+		
+		#print arg - debug
+		
+		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
+			if arg[0]==DEC and text.isdigit():
+				print(text)
+				out=text
+			elif arg[0]==BIN and text.isdigit():
+				out=bin(int(text))
+				print(out)
+			elif arg[0]==OCT and text.isdigit():
+				out=oct(int(text))
+				print(out)
+			elif arg[0]==HEX and text.isdigit():
+				out=hex(int(text))
+				print(out)
+		else: # si pas de formatage de chaine = affiche tel que 
+			out=text
+			print(out)
+		
+		uartPort.write(out+chr(10)) # + saut de ligne 
+		print "Envoi sur le port serie Uart : " + out+chr(10)
+		
+		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
+		# si type est long ou int
+	"""
+	def print(self,text): # affiche message sans saut de ligne
+		
+		#text=str(txt)
+		
+		print(text), # avec virgule pour affichage sans saus de ligne
+	"""
+	
+	def available(self):
+		global uartPort
+		
+		if uartPort.inWaiting() : return True
+		else: return False
+		
+	def waiting(self, *arg): # lecture d'une chaine en reception sur port serie 
+		
+		global uartPort
+		
+		if len(arg)==0: endLine="\n" # par defaut, saut de ligne
+		elif len(arg)==1: endLine=arg[0] # sinon utilise caractere voulu
+		
+		#-- variables de reception -- 
+		chaineIn=""
+		charIn=""
+		
+		#delay(20) # laisse temps aux caracteres d'arriver
+		
+		while (uartPort.inWaiting()): # tant que au moins un caractere en reception
+			charIn=uartPort.read() # on lit le caractere
+			#print charIn # debug
+			
+			if charIn==endLine: # si caractere fin ligne , on sort du while
+				#print("caractere fin de ligne recu") # debug
+				break # sort du while
+			else: #tant que c'est pas le saut de ligne, on l'ajoute a la chaine 
+				chaineIn=chaineIn+charIn
+				# print chaineIn # debug
+			
+		#-- une fois sorti du while : on se retrouve ici - attention indentation 
+		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
+			# print(chaineIn) # affiche la chaine # debug
+			return chaineIn  # renvoie la chaine 
+		else:
+			return False # si pas de chaine
+			
+		
+
+# ajouter write / read   / flush 
+
+# fin classe Uart
+
+
 ########################### --------- initialisation ------------ #################
 
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
 Ethernet = Ethernet() # declare instance Ethernet implicite pour acces aux fonctions 
+Uart = Uart() # declare instance Uart implicite 
 
 micros0Syst=microsSyst() # mémorise microsSyst au démarrage
 millis0Syst=millisSyst() # mémorise millisSyst au démarrage
+
+
