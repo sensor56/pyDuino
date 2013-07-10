@@ -1,9 +1,9 @@
-pyDuino
+Librairie Pyduino
 =======
 
 ## Intro
 
-pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utiliser les broches E/S de mini-PC tels que RaspberryPi ou le pcDuino avec des instructions identiques au langage Arduino. 
+La librairie Pyduino apporte une couche d'abstraction au langage Python afin de pouvoir utiliser les broches E/S de mini-PC tels que RaspberryPi ou le pcDuino avec des instructions identiques au langage Arduino. 
 
 ## Versions disponibles
 
