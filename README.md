@@ -9,11 +9,11 @@ pyDuino apporte une couche d'abstraction au langage Python afin de pouvoir utili
 
 La librairie existe en plusieurs versions : 
 * sur le pcDuino : 
-** en version standard
-** en version multimédia
+ * en version standard
+ *en version multimédia
 
 * sur le RaspberryPi : 
-** en version standard
+ *en version standard
 
 
 ## Installation 
