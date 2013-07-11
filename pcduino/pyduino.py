@@ -45,7 +45,9 @@ import ctypes # module pour types C en Python
 import subprocess
 #import getpass # pour connaitre utilisateur systeme 
 import os  # gestion des chemins
+import glob # listing de fichiers
 
+#--- expressions regulieres
 import re # expression regulieres pour analyse de chaines
 
 # serie 
@@ -93,6 +95,11 @@ OCT=8
 
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
+
+READ="r"
+WRITE="w"
+APPEND="a"
+
 
 # -- pour PWM --
 
@@ -889,6 +896,35 @@ def rmdir(pathIn): # efface le répertoire
 	except OSError:
 		print "Effacement impossible"
 		return False
+
+def listdirs(pathIn): # liste les repertoires 
+	if exists(pathIn):
+		onlydirs = [ f for f in os.listdir(pathIn) if os.path.isdir(os.path.join(pathIn,f)) ]
+		return sorted(onlydirs)
+	else: 
+		return False
+
+def listfiles(pathIn): # liste les fichiers 
+	if exists(pathIn):
+		onlyfiles = [ f for f in os.listdir(pathIn) if os.path.isfile(os.path.join(pathIn,f)) ]
+		# voir : http://stackoverflow.com/questions/3207219/how-to-list-all-files-of-a-directory-in-python
+		return sorted(onlyfiles)
+	else: 
+		return False
+
+def dircontent(pathIn): # liste rep suivi des fichiers
+	if exists(pathIn):
+		out=""
+		for dirname in listdirs(pathIn): # les rép
+			out=out+dirname+"/\n"
+		
+		for filename in listfiles(pathIn):   # les fichiers
+			out=out+filename+"\n"
+		
+		return out 
+	else: 
+		return False
+
 
 # open (path, mode) avec mode parmi r, w ou a -- fonction native Python --> renvoie un objet file 
 
