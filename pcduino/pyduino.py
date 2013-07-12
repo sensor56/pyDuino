@@ -1046,7 +1046,7 @@ class EthernetServer(socket.socket) : # attention recoit classe du module, pas l
 		return chaineRecue
 	
 	def writeDataTo(self, clientDistantIn, reponseIn):
-		clientDistantIn.send(reponseIn)
+		clientDistantIn.send(reponseIn) # préférer sendAll ? 
 """
 class EthernetClient(socket.socket) : # attention recoit classe du module, pas le module !
 	
@@ -1056,6 +1056,7 @@ class EthernetClient(socket.socket) : # attention recoit classe du module, pas l
 		rec.decode('utf-8')
 		print rec
 """
+# close() -- module socket -- classe socket -- Python --> http://docs.python.org/2/library/socket.html#socket.socket.close
 
 # classe Uart pour communication série UART 
 class Uart():
@@ -1092,6 +1093,7 @@ class Uart():
 		
 		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
 		text=str(text) # au cas où
+		# print "text =" + text # debug
 		
 		arg=list(arg) # conversion en list... évite problèmes.. 
 		
@@ -1115,7 +1117,7 @@ class Uart():
 			print(out)
 		
 		uartPort.write(out+chr(10)) # + saut de ligne 
-		print "Envoi sur le port serie Uart : " + out+chr(10)
+		# print "Envoi sur le port serie Uart : " + out+chr(10) # debug
 		
 		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
 		# si type est long ou int
@@ -1133,6 +1135,8 @@ class Uart():
 		if uartPort.inWaiting() : return True
 		else: return False
 		
+	
+	#--- lecture d'une ligne jusqu'a caractere de fin indique
 	def waiting(self, *arg): # lecture d'une chaine en reception sur port serie 
 		
 		global uartPort
@@ -1146,7 +1150,7 @@ class Uart():
 		
 		#delay(20) # laisse temps aux caracteres d'arriver
 		
-		while (uartPort.inWaiting()): # tant que au moins un caractere en reception
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
 			charIn=uartPort.read() # on lit le caractere
 			#print charIn # debug
 			
@@ -1159,12 +1163,34 @@ class Uart():
 			
 		#-- une fois sorti du while : on se retrouve ici - attention indentation 
 		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
-			# print(chaineIn) # affiche la chaine # debug
+			#print(chaineIn) # affiche la chaine # debug
 			return chaineIn  # renvoie la chaine 
 		else:
 			return False # si pas de chaine
-			
+	
+	#--- lecture de tout ce qui arrive en réception 
+	def waitingAll(self): # lecture de tout en reception sur port serie 
 		
+		global uartPort
+		
+		#-- variables de reception -- 
+		chaineIn=""
+		charIn=""
+		
+		#delay(20) # laisse temps aux caracteres d'arriver
+		
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
+			charIn=uartPort.read() # on lit le caractere
+			#print charIn # debug
+			chaineIn=chaineIn+charIn
+			# print chaineIn # debug
+			
+		#-- une fois sorti du while : on se retrouve ici - attention indentation 
+		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
+			#print(chaineIn) # affiche la chaine # debug
+			return chaineIn  # renvoie la chaine 
+		else:
+			return False # si pas de chaine
 
 # ajouter write / read   / flush 
 
