@@ -59,8 +59,11 @@ deb http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
 deb-src http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
 
 installation des paquets de synthese vocale pico : 
+$ sudo apt-get update 
 $ sudo apt-get install libttspico0 libttspico-utils libttspico-data
 
+installation des paquets utiles pour la reconnaissance vocale : 
+$ sudo apt-get install sox
 
 VIDEO / Webcam : 
 
@@ -1079,19 +1082,33 @@ class EthernetServer(socket.socket) : # attention recoit classe du module, pas l
 		
 	
 	
-	def begin(self):
-		self.listen(5)
+	def begin(self, *arg):
+		
+		
+		if len(arg)==0: # si pas de nombre client precise
+			self.listen(5) # fixe a 5 
+		elif len(arg)==1: # si nombre client
+			self.listen(arg[0]) # fixe au nombre voulu
 	
-	def available(self):
-		return self.accept() # attend client entrant
+	def clientAvailable(self):
+		client,adresseDistante=self.accept() # attend client entrant
+		return client, adresseDistante[0]
+		# l'adresse recue est un tuple - ip est le 1er element
 
-	def readDataFrom(self, clientDistantIn):
-		chaineRecue=clientDistantIn.recv(1024).strip()
+	def readDataFrom(self, clientDistantIn, *arg):
+		
+		# arg = rien ou maxIn
+		if len(arg)==0:
+			maxIn=1024
+		elif len(arg)==1:
+			maxIn=arg[0]
+		
+		chaineRecue=clientDistantIn.recv(maxIn)#.strip() 
 		chaineRecue.decode('utf-8')
 		return chaineRecue
 	
 	def writeDataTo(self, clientDistantIn, reponseIn):
-		clientDistantIn.send(reponseIn)
+		clientDistantIn.send(reponseIn) # préférer sendAll ? 
 """
 class EthernetClient(socket.socket) : # attention recoit classe du module, pas le module !
 	
@@ -1101,6 +1118,7 @@ class EthernetClient(socket.socket) : # attention recoit classe du module, pas l
 		rec.decode('utf-8')
 		print rec
 """
+# close() -- module socket -- classe socket -- Python --> http://docs.python.org/2/library/socket.html#socket.socket.close
 
 # classe Uart pour communication série UART 
 class Uart():
@@ -1137,6 +1155,7 @@ class Uart():
 		
 		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
 		text=str(text) # au cas où
+		# print "text =" + text # debug
 		
 		arg=list(arg) # conversion en list... évite problèmes.. 
 		
@@ -1160,7 +1179,7 @@ class Uart():
 			print(out)
 		
 		uartPort.write(out+chr(10)) # + saut de ligne 
-		print "Envoi sur le port serie Uart : " + out+chr(10)
+		# print "Envoi sur le port serie Uart : " + out+chr(10) # debug
 		
 		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
 		# si type est long ou int
@@ -1178,6 +1197,8 @@ class Uart():
 		if uartPort.inWaiting() : return True
 		else: return False
 		
+	
+	#--- lecture d'une ligne jusqu'a caractere de fin indique
 	def waiting(self, *arg): # lecture d'une chaine en reception sur port serie 
 		
 		global uartPort
@@ -1191,7 +1212,7 @@ class Uart():
 		
 		#delay(20) # laisse temps aux caracteres d'arriver
 		
-		while (uartPort.inWaiting()): # tant que au moins un caractere en reception
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
 			charIn=uartPort.read() # on lit le caractere
 			#print charIn # debug
 			
@@ -1204,16 +1225,39 @@ class Uart():
 			
 		#-- une fois sorti du while : on se retrouve ici - attention indentation 
 		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
-			# print(chaineIn) # affiche la chaine # debug
+			#print(chaineIn) # affiche la chaine # debug
 			return chaineIn  # renvoie la chaine 
 		else:
 			return False # si pas de chaine
-			
+	
+	#--- lecture de tout ce qui arrive en réception 
+	def waitingAll(self): # lecture de tout en reception sur port serie 
 		
+		global uartPort
+		
+		#-- variables de reception -- 
+		chaineIn=""
+		charIn=""
+		
+		#delay(20) # laisse temps aux caracteres d'arriver
+		
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
+			charIn=uartPort.read() # on lit le caractere
+			#print charIn # debug
+			chaineIn=chaineIn+charIn
+			# print chaineIn # debug
+			
+		#-- une fois sorti du while : on se retrouve ici - attention indentation 
+		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
+			#print(chaineIn) # affiche la chaine # debug
+			return chaineIn  # renvoie la chaine 
+		else:
+			return False # si pas de chaine
 
 # ajouter write / read   / flush 
 
 # fin classe Uart
+
 
 ########################## FONCTIONS MULTIMEDIA ################################
 
@@ -1331,14 +1375,18 @@ PICO='pico'
 ESPEAK='espeak'
 
 def playSound(filepathIn):
+	#print os.path.dirname(filepathIn) # debug
 	if os.path.dirname(filepathIn)=='':
-		filepathIn=mainPath()+sourcePath(AUDIO)+filepathIn # chemin par défaut si nom fichier seul
+		filepathIn=mainPath()+sourcesPath(AUDIO)+filepathIn # chemin par défaut si nom fichier seul
 		
+	#print filepathIn  #debug
 	executeCmdWait("mplayer -msglevel all=-1 " + filepathIn) # seul message erreur cf 0   fatal messages only
 	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
 
 def speak(textIn, *arg):
 	
+	
+	# arg : soit rien, soit ESPEAK ou PICO
 	if len(arg)==0 : # si pas précisé = pico par defaut 
 		executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
 		executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
