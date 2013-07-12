@@ -1020,14 +1020,28 @@ class EthernetServer(socket.socket) : # attention recoit classe du module, pas l
 		
 	
 	
-	def begin(self):
-		self.listen(5)
+	def begin(self, *arg):
+		
+		
+		if len(arg)==0: # si pas de nombre client precise
+			self.listen(5) # fixe a 5 
+		elif len(arg)==1: # si nombre client
+			self.listen(arg[0]) # fixe au nombre voulu
 	
-	def available(self):
-		return self.accept() # attend client entrant
+	def clientAvailable(self):
+		client,adresseDistante=self.accept() # attend client entrant
+		return client, adresseDistante[0]
+		# l'adresse recue est un tuple - ip est le 1er element
 
-	def readDataFrom(self, clientDistantIn):
-		chaineRecue=clientDistantIn.recv(1024).strip()
+	def readDataFrom(self, clientDistantIn, *arg):
+		
+		# arg = rien ou maxIn
+		if len(arg)==0:
+			maxIn=1024
+		elif len(arg)==1:
+			maxIn=arg[0]
+		
+		chaineRecue=clientDistantIn.recv(maxIn)#.strip() 
 		chaineRecue.decode('utf-8')
 		return chaineRecue
 	
