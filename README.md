@@ -14,7 +14,8 @@ La librairie existe en plusieurs versions :
 	* les fonctions système (console, ligne de commande)
 	* les fonctions de gestion des fichiers et données texte (équivalent librairie SD)
 	* les fonctions de gestion du réseau (équivalent de la librairie Ethernet) 
-	* à venir : les fonctions UART, SPI, I2C
+	* les fonctions UART
+	* à venir : les fonctions SPI, I2C
 	* à venir : les motorisations : moteurs CC, servomoteurs, pas à pas
 
 * en version multimédia qui implémente en plus : 
@@ -23,12 +24,13 @@ La librairie existe en plusieurs versions :
 	* la capture audio
 	* la synthèse vocale
 	* la reconnaissance vocale en mode connecté
+	* à venir : reconnaissance de lettres dans image, détection objet coloré dans image.. 
 
 ## Plateformes supportées : 
 
 * La librairie Pyduino est portée sur les bases mini-pc suivantes : 
 	* pcDuino (base conseillée)
-	* raspberryPi
+	* raspberryPi (version en cours de mise en place...)
 	* à venir : la cubieboard
 
 * La librairie Pyduino est également portée en version PC standard tournant sous Gnu/Linux Lubuntu. Cette version permet contrôler une carte Arduino connectée au PC !
