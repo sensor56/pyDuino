@@ -1,3 +1,7 @@
+# Memo procedure installation à partir installation distro Lubuntu pcduino
+# par X. HINAULT - www.mon-club-elec.fr
+# en attendant de faire un script de post install...
+
 # 1er boot = écran de config
 # une fois boot ok - redémarrer une 2eme fois
 
