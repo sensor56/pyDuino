@@ -1,6 +1,5 @@
-
 # 1er boot = écran de config
-# une fois boot ok - redémarrer 1 2eme fois
+# une fois boot ok - redémarrer une 2eme fois
 
 # adaptation LXDE
 tableau de bord en haut
@@ -9,9 +8,9 @@ ajout dans lancement rapide : lxterm et virer chromium
 preferences lxterm : modifier police à 8 
 
 # param initial
-clavier : rien - sinon: sudo dpkg-reconfigure keyboard-configuration
+clavier : rien si fait au 1er boot - sinon: sudo dpkg-reconfigure keyboard-configuration
 langue fr : sudo apt-get install language-pack-fr
-maj liste paquets : sudo apt-get update
+maj liste paquets : sudo apt-get update (et pas upgrade !)
 enleve paquets inutiles : sudo apt-get autoremove
 
 # paquets indisp d'emblee
