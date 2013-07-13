@@ -18,12 +18,12 @@ maj liste paquets : sudo apt-get update (et pas upgrade !)
 enleve paquets inutiles : sudo apt-get autoremove
 
 # paquets indisp d'emblee
-sudo apt-get install geany
+sudo apt-get install geany (7MB)
 config geany pour espace et tab  et diminuer police
 
-# install VNC d'emblee
+# install VNC d'emblee (dejà installé...)
 sudo apt-get install vino
-vino-preferences (pas suod +++)
+vino-preferences (pas sudo +++)
 /usr/lib/vino/vino-server (pas sudo)
 ifconfig
 => tester depuis client
