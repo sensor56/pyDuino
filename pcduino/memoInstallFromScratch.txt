@@ -1,0 +1,115 @@
+
+# 1er boot = écran de config
+# une fois boot ok - redémarrer 1 2eme fois
+
+# adaptation LXDE
+tableau de bord en haut
+ajout moniteur systeme 
+ajout dans lancement rapide : lxterm et virer chromium
+preferences lxterm : modifier police à 8 
+
+# param initial
+clavier : rien - sinon: sudo dpkg-reconfigure keyboard-configuration
+langue fr : sudo apt-get install language-pack-fr
+maj liste paquets : sudo apt-get update
+enleve paquets inutiles : sudo apt-get autoremove
+
+# paquets indisp d'emblee
+sudo apt-get install geany
+config geany pour espace et tab  et diminuer police
+
+# install VNC d'emblee
+sudo apt-get install vino
+vino-preferences (pas suod +++)
+/usr/lib/vino/vino-server (pas sudo)
+ifconfig
+=> tester depuis client
+
+# ensuite on reprend sur le pcduino :
+sudo geany /etc/xdg/lxsession/Lubuntu/autostart
+@/usr/lib/vino/vino-server
+
+# logiciels utiles
+sudo apt-get install htop
+xarchiver (1,4MB)
+git (10MB)
+midori (50MB)
+gdebi (5MB)
+
+# +/- enlever ce qui ne sert a rien 
+liste occupation disques : df -h 
+liste paquets lourds : dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+sudo apt-get remove pcduino-arduino-ide
+sudo apt-get remove pcduino-xbmc
+sudo apt-get autoremove 
+
+# espace dev Pyduino
+dreampie (4MB) + modifier couleurs en light
+python-serial
+cd /usr/lib/python2.7/dist-packages
+sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py
+
+# espace dev Pyduino Multimedia
+## image
+guvcview (test : guvcview -s 320x240)
+python-opencv
+gpicview
+
+## audio
+pulseaudio 
+pavucontrol
+mplayer
+mencoder
+audacity
+wget -4 http://www.mon-club-elec.fr/mes_downloads/pyduino_sons.tar.gz
+
+# voice
+espeak
+gespeaker
+
+sudo geany /etc/apt/sources.list
+
+# ajout pour pico
+deb http://ports.ubuntu.com/ubuntu-ports/ precise main multiverse
+deb-src http://ports.ubuntu.com/ubuntu-ports/ precise main multiverse
+deb http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
+deb-src http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
+ 
+sudo apt-get install libttspico0 libttspico-utils libttspico-data
+sox
+ 
+## video = deja fait
+python-opencv
+mplayer
+mencoder
+
+## pyduino multimedia
+cd /usr/lib/python2.7/dist-packages
+sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduinoMultimedia.py
+
+# espace dev Python graphique
+dreampie
+python-qt4 
+pyqt4-dev-tools
+qt4-designer 
+
+# installation pyqtgraph
+python-numpy
+python-scipy
+
+Procedure pyqtgraph
+  cd Downloads 
+	wget http://www.pyqtgraph.org/downloads/pyqtgraph-0.9.7.tar.gz 
+	tar xvfz pyqtgraph-0.9.7.tar.gz 
+	cd pyqtgraph-0.9.7 
+	python setup.py install 
+	test avec : python -m pyqtgraph.examples 
+
+
++/- python-qwt
++/- python-opengl
+
+
+
+
+
