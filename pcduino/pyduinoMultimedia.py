@@ -119,7 +119,10 @@ import socket
 #from PyQt4.QtGui import *
 #from PyQt4.QtCore import * # inclut QTimer..
 
-from cv2 import * # importe module OpenCV Python - le module cv est un sous module de cv2
+try:
+	from cv2 import * # importe module OpenCV Python - le module cv est un sous module de cv2
+except: 
+	print "ATTENTION : Module OpenCV manquant : installer le paquet python-opencv "
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -1126,8 +1129,10 @@ class Uart():
 	# def __init__(self): # constructeur principal
 	
 	
-	def begin(self,rateIn, *arg): # fonction pour émulation de begin... Ne fait rien... 
+	def begin(self,rateIn, *arg): # fonction initialisation port serie 
 		
+		
+		# arg = rien ou timeout ou timeout et port a utiliser
 		global uartPort
 		
 		# configure pin 0 et 1 pour UART (mode = 3)
@@ -1139,11 +1144,17 @@ class Uart():
 			if len(arg)==0: # si pas d'arguments
 				#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 10) # initialisation port serie uart
 				uartPort=serial.Serial('/dev/ttyS1', rateIn, timeout = 10) # initialisation port serie uart
-			if len(arg)==1 : # si timeout
+				print("Initialisation Port Serie : /dev/ttyS1 @ " + str(rateIn) +" = OK ") # affiche debug
+			elif len(arg)==1 : # si timeout
 				#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
 				uartPort=serial.Serial('/dev/ttyS1', rateIn, timeout = arg[0]) # initialisation port serie uart
-			print("Initialisation Port Serie : /dev/ttyS1 @ " + str(rateIn) +" = OK ") # affiche debug
-			
+				print("Initialisation Port Serie : /dev/ttyS1 @ " + str(rateIn) +" = OK ") # affiche debug
+				print ("timeout = " + str(arg[0] ))
+			elif len(arg)==2 : # si timeout et port 
+				#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
+				uartPort=serial.Serial(arg[1], rateIn, timeout = arg[0]) # initialisation port serie uart
+				print("Initialisation Port Serie : "+ arg[1] + " @ " + str(rateIn) +" = OK ") # affiche debug
+				print ("timeout = " + str(arg[0] ))
 		except:
 			print ("Erreur lors initialisation port Serie") 
 			
@@ -1163,32 +1174,65 @@ class Uart():
 		
 		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
 			if arg[0]==DEC and text.isdigit():
-				print(text)
 				out=text
+				#print(out) # debug
 			elif arg[0]==BIN and text.isdigit():
 				out=bin(int(text))
-				print(out)
+				#print(out) # debug
 			elif arg[0]==OCT and text.isdigit():
 				out=oct(int(text))
-				print(out)
+				#print(out) # debug
 			elif arg[0]==HEX and text.isdigit():
 				out=hex(int(text))
-				print(out)
+				#print(out) # debug
 		else: # si pas de formatage de chaine = affiche tel que 
 			out=text
-			print(out)
+			#print(out) # debug
 		
 		uartPort.write(out+chr(10)) # + saut de ligne 
+		# print "Envoi sur le port serie Uart : " + out+chr(10) # debug
+		uartPort.flush()
+		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
+		# si type est long ou int
+	
+	"""
+	# idem println mais sans le saut de ligne... 
+	def print(self,text, *arg):  # message avec saut de ligne
+		# Envoi chaine sur port serie uart 
+		# Supporte formatage chaine façon Arduino avec DEC, BIN, OCT, HEX
+		
+		global uartPort
+		
+		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
+		text=str(text) # au cas où
+		# print "text =" + text # debug
+		
+		arg=list(arg) # conversion en list... évite problèmes.. 
+		
+		#print arg - debug
+		
+		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
+			if arg[0]==DEC and text.isdigit():
+				out=text
+				#print(out) # debug
+			elif arg[0]==BIN and text.isdigit():
+				out=bin(int(text))
+				#print(out) # debug
+			elif arg[0]==OCT and text.isdigit():
+				out=oct(int(text))
+				#print(out) # debug
+			elif arg[0]==HEX and text.isdigit():
+				out=hex(int(text))
+				#print(out) # debug
+		else: # si pas de formatage de chaine = affiche tel que 
+			out=text
+			#print(out) # debug
+		
+		uartPort.write(out) # sans saut de ligne
 		# print "Envoi sur le port serie Uart : " + out+chr(10) # debug
 		
 		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
 		# si type est long ou int
-	"""
-	def print(self,text): # affiche message sans saut de ligne
-		
-		#text=str(txt)
-		
-		print(text), # avec virgule pour affichage sans saus de ligne
 	"""
 	
 	def available(self):
@@ -1197,6 +1241,19 @@ class Uart():
 		if uartPort.inWaiting() : return True
 		else: return False
 		
+	def flush(self):
+		global uartPort
+		return uartPort.flush()
+	
+	def read(self):
+		global uartPort
+		return uartPort.read()
+	
+	def write(self, strIn):
+		global uartPort
+		uartPort.write(strIn)
+		
+	
 	
 	#--- lecture d'une ligne jusqu'a caractere de fin indique
 	def waiting(self, *arg): # lecture d'une chaine en reception sur port serie 
