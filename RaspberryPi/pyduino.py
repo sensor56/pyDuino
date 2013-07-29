@@ -35,13 +35,44 @@ un seul fichier à installer.
 Ce fichier est la version pour le raspberryPi version B
 
 """
-# modules utiles 
-import time
-import subprocess
+# message d'accueil
+print "Pyduino 0.2 by www.mon-club-elec.fr - 2013 "
 
+# modules utiles
+
+#-- temps --
+import time
+import datetime # gestion date
+
+from threading import Timer # importe l'objet Timer du module threading
+
+#-- math --
 # import math
-from math import *  # pour acces direct aux fonctions math..
+from math import * # pour acces direct aux fonctions math..
 import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
+
+#-- pour PWM - accès kernel + transposition C to Python --
+import fcntl # module pour fonction ioctl
+#from ctypes import *
+import ctypes # module pour types C en Python
+
+#-- système --
+import subprocess
+#import getpass # pour connaitre utilisateur systeme
+import os # gestion des chemins
+import glob # listing de fichiers
+
+#--- expressions regulieres
+import re # expression regulieres pour analyse de chaines
+
+# serie
+try:
+	import serial
+except:
+	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
+
+# reseau
+import socket 
 
 # on presuppose ici que wiringPi est present sur le systeme: 
 # sudo apt-get install git 
@@ -66,14 +97,54 @@ INPUT="in"
 OUTPUT="out"
 PULLUP="up" # accepte par commande gpio
 
-HIGH = 1
-LOW =  0
-
 A0, A1, A2, A3, A4,A5 =0,1,2,3,4,5 # identifiant broches analogiques
 PWM0=1 # identifiant broches PWM
 
+HIGH = 1
+LOW =  0
+
+DEC=10
+BIN=2
+HEX=16
+OCT=8
+
+# pour uart
+UART="3"
+RX=0
+TX=1
+
+uartPort=None
+
 # constantes Pyduino
 noLoop=False 
+
+READ="r"
+WRITE="w"
+APPEND="a"
+
+#--- chemin de reference ---
+#user_name=getpass.getuser()
+home_dir=os.getenv("HOME")+"/" # chemin de référence
+main_dir=os.getenv("HOME")+"/" # chemin de référence
+
+# constantes de SELECTION
+TEXT='TEXT'
+IMAGE='IMAGE'
+AUDIO='AUDIO'
+VIDEO='VIDEO'
+
+#---- chemins data fichiers texte, sons, image, video
+
+data_dir_text="data/text/" # data texte relatif a main dir
+data_dir_audio="data/audio/" # data audio
+data_dir_image="data/images/" # data images
+data_dir_video="data/videos/" # data video
+
+#---- chemins sources fichiers texte, sons, images, video
+src_dir_text="sources/text/" # sources texte relatif a main dir
+src_dir_audio="sources/audio/" # sources audio
+src_dir_image="sources/images/" # sources images
+src_dir_video="sources/videos/" # sources video
 
 # --- fonctions Arduino ---- 
 
@@ -188,6 +259,10 @@ def analogWritePercent(pin, value):
 #==================== Fonctions Pyduino communes ============================
 ##############################################################################
 
+################ Fonctions communes ####################
+
+################ Fonctions communes ####################
+
 #--- temps ---
  
 # delay
@@ -215,6 +290,76 @@ def microsSyst():
 # fonction millis : renvoie le nombre de millisecondes depuis le debut du programme
 def micros():
 	return microsSyst()-micros0Syst # renvoie difference entre microsSyst courant et microsSyst debut code
+	
+
+#--- fonction timer() : lance fonction avec intervalle en ms
+def timer(delaiIn, fonctionIn):
+	Timer(delaiIn/1000.0, fonctionIn).start() # relance le timer
+
+
+# --- fonctions date - RTC - unixtime 
+def year():
+	return str(datetime.datetime.now().year)
+
+def month():
+	if datetime.datetime.now().month<10:
+		return "0"+str(datetime.datetime.now().month) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().month)
+
+def day():
+	if datetime.datetime.now().day<10:
+		return "0"+str(datetime.datetime.now().day) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().day)
+
+def dayOfWeek():
+	return str(datetime.datetime.now().weekday()+1)
+	# lundi = 1... Dim=7
+
+def hour():
+	if datetime.datetime.now().hour<10:
+		return "0"+str(datetime.datetime.now().hour) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().hour)
+
+def minute():
+	if datetime.datetime.now().minute<10:
+		return "0"+str(datetime.datetime.now().minute) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().minute)
+
+def second():
+	if datetime.datetime.now().second<10:
+		return "0"+str(datetime.datetime.now().second) # ajoute 0 si < 10
+	else:
+		return str(datetime.datetime.now().second)
+
+def unixtime():
+	return str(int(time.time()))
+
+# -- formes mixees --
+
+def nowtime(*arg):
+	if len(arg)==0:
+		return hour()+minute()+second()  # sans separateur
+	elif len(arg)==1:
+		sep=str(arg[0])
+		return hour()+sep+minute()+sep+second() # avec separateur
+
+def today(*arg):
+	if len(arg)==0:
+		return day()+month()+year() # sans séparateur
+	elif len(arg)==1:
+		sep=str(arg[0])
+		return day()+sep+month()+sep+year()
+	elif len(arg)==2:
+		if arg[1]==-1: # forme inversee
+			sep=str(arg[0])
+			return year()+sep+month()+sep+day()
+	
+def nowdatetime():
+	return today("/") + " " + nowtime(":")
 	
 
 #----------- MATH -------------
@@ -267,6 +412,8 @@ def randomSeed(x):
 	
 #-- random(max) et random(min,max) : renvoie valeur aléatoire entière
 def random(*arg): # soit forme random(max), soit forme random(min,max)
+	# Renvoie une valeur aléatoire entiere
+	
 	if len(arg)==1:
 		return rd.randint(0,arg[0])
 	elif len(arg)==2:
@@ -398,9 +545,559 @@ class Serial():
 
 # fin classe Serial 
 
-########################### initialisation ########################
+#============ Système : ligne de commande ======================
+
+def executeCmd(cmd):
+	# execute la ligne de commande systeme passee en parametre
+	# sans attendre la fin de l'execution 
+	
+	#p=subprocess.Popen(cmd, shell=True) # exécute la commande et continue 
+	p=subprocess.Popen("exec "+ cmd, shell=True) # exécute la commande et continue - exec pour processus renvoyé sinon c'est le shell... 
+	# la sortie standard et la sortie erreur ne sont pas interceptées donc s'affieront dans le Terminal mais non accessible depuis le code..
+	
+	return(p)
+
+
+def executeCmdWait(cmd):
+	# execute la ligne de commande systeme passee en parametre
+	# et attend la fin de l'execution 
+	#subprocess.Popen(cmd, shell=False).wait
+	# subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait # attention - wait attend pas si SHell=True !
+
+	# en cas de commande : cmd -params "chaine"
+	subcmd=cmd.split("\"") # pour extraire chaîne avant pour pas appliquer séparation par espace sur la chaîne
+	#print subcmd
+	subsubcmd=subcmd[0].split(" ") # pour avoir format liste [ arge, arg, arg] attendu par check_call - pose probleme si chaine en param
+	#print subsubcmd  #debug
+	try:
+		subsubcmd.remove('') # enleve '' car bloque commande si present... sinon provoque erreur d'ou try except
+	except:
+		pass
+	
+	#print subsubcmd  #debug
+	
+	if len(subcmd)==1: # si pas de chaine 
+		subprocess.check_call(subsubcmd)
+	elif len(subcmd)>1: 
+		subsubcmd.append("\"" + str(subcmd[1] )+"\"") # ajoute la chaine en + encadree par " "
+		#print (" \" " + str(subcmd[1] )+"\"") # debug
+		#print subsubcmd # debug
+		subprocess.check_call(subsubcmd ) 
+
+
+def executeCmdOutput(cmd):
+	# execute la ligne de commande systeme passee en parametre
+	# capture la sortie console et attend la fin de l'execution 
+	
+	pipe=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout # execute la commande 
+	out=pipe.read() # lit la sortie console
+	pipe.close() # ferme la sortie console
+	
+	return(out)
+	
+
+########################## fichiers et data texte ###############################
+
+##------ gestion fichier et répertoires -------
+
+# les variables de chemin et leur valeur par defaut :
+#--- chemin de reference --- 
+#home_dir=os.getenv("HOME")+"/"  # chemin de référence
+#main_dir=os.getenv("HOME")+"/"  # chemin de référence
+
+#---- chemins data fichiers texte, sons, image, video
+#data_dir_text="data/text/" # data texte relatif a main dir
+#data_dir_audio="data/audio/" # data audio 
+#data_dir_image="data/images/" # data images
+#data_dir_video="data/videos/" # data video
+
+#---- chemins sources fichiers texte, sons, images, video
+#src_dir_text="sources/text/" # sources texte relatif a main dir
+#src_dir_audio="sources/audio/" # sources audio 
+#src_dir_image="sources/images/" # sources images
+#src_dir_video="sources/videos/" # sources video
+
+def homePath():
+	return os.getenv("HOME")+"/"
+
+def mainPath():
+	return main_dir
+
+def setMainPath(pathIn):
+	global main_dir
+	main_dir=pathIn
+
+#-- (get) data Path 
+def dataPath(typeIn):
+	if typeIn==TEXT:
+		return data_dir_text
+	elif typeIn==IMAGE:
+		return data_dir_image
+	elif typeIn==AUDIO:
+		return data_dir_audio
+	elif typeIn==VIDEO:
+		return data_dir_video
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
+
+#--- set data Path
+def setDataPath(typeIn, dirIn):
+	if typeIn==TEXT:
+		global data_dir_text
+		data_dir_text=dirIn
+	elif typeIn==IMAGE:
+		global data_dir_image
+		data_dir_image=dirIn
+	elif typeIn==AUDIO:
+		global data_dir_audio
+		data_dir_audio=dirIn
+	elif typeIn==VIDEO:
+		global data_dir_video
+		data_dir_video=dirIn
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
+
+#-- (get) source Path 
+def sourcesPath(typeIn):
+	if typeIn==TEXT:
+		return src_dir_text
+	elif typeIn==IMAGE:
+		return src_dir_image
+	elif typeIn==AUDIO:
+		return src_dir_audio
+	elif typeIn==VIDEO:
+		return src_dir_video
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
+
+#--- set sources Path
+def setSourcesPath(typeIn, dirIn):
+	if typeIn==TEXT:
+		global src_dir_text
+		src_dir_text=dirIn
+	elif typeIn==IMAGE:
+		global src_dir_image
+		src_dir_image=dirIn
+	elif typeIn==AUDIO:
+		global src_dir_audio
+		src_dir_audio=dirIn
+	elif typeIn==VIDEO:
+		global src_dir_video
+		src_dir_video=dirIn
+	else: 
+		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
+
+
+#-- fonction gestion répertoires / fichiers 
+
+def exists(filepathIn): # teste si le chemin ou fichier existe
+	"""try:
+		with open(filepathIn): return True
+	except IOError:
+		#print "Le fichier n'existe pas" # debug
+		return False
+	"""
+	if os.path.isfile(filepathIn) or os.path.isdir(filepathIn):
+		return True
+	else :
+		return False
+
+def isdir(pathIn):
+	return os.path.isdir(pathIn)
+	
+
+def isfile(filepathIn):
+	return os.path.isfile(filepathIn)
+
+def dirname(pathIn):
+	return os.path.dirname(pathIn)+"/"
+	
+
+def currentdir():
+	return os.getcwd()+"/"
+
+def changedir(pathIn):
+	os.chdir(pathIn)
+
+def rewindDirectory():
+	os.chdir("..")  # remonte d'un niveau
+
+def mkdir(pathIn): # crée le répertoire si il n'existe pas
+	# os.mkdir(pathIn) ne créée pas les rep intermediaires
+	try:
+		os.makedirs(pathIn) # cree les rep intermediaires
+		return True
+	except OSError:
+		print("Probleme creation")
+		return False
+
+def rmdir(pathIn): # efface le répertoire
+	try:
+		os.rmdir(pathIn)  #efface repertoire
+		return True
+	except OSError:
+		print "Effacement impossible"
+		return False
+
+def listdirs(pathIn): # liste les repertoires 
+	if exists(pathIn):
+		onlydirs = [ f for f in os.listdir(pathIn) if os.path.isdir(os.path.join(pathIn,f)) ]
+		return sorted(onlydirs)
+	else: 
+		return False
+
+def listfiles(pathIn): # liste les fichiers 
+	if exists(pathIn):
+		onlyfiles = [ f for f in os.listdir(pathIn) if os.path.isfile(os.path.join(pathIn,f)) ]
+		# voir : http://stackoverflow.com/questions/3207219/how-to-list-all-files-of-a-directory-in-python
+		return sorted(onlyfiles)
+	else: 
+		return False
+
+def dircontent(pathIn): # liste rep suivi des fichiers
+	if exists(pathIn):
+		out=""
+		for dirname in listdirs(pathIn): # les rép
+			out=out+dirname+"/\n"
+		
+		for filename in listfiles(pathIn):   # les fichiers
+			out=out+filename+"\n"
+		
+		return out 
+	else: 
+		return False
+
+
+# open (path, mode) avec mode parmi r, w ou a -- fonction native Python --> renvoie un objet file 
+
+def remove(filepathIn):
+	try:
+		os.remove(filepathIn)  #efface fichier
+		return True
+	except OSError:
+		print "Effacement impossible"
+		return False
+
+#---- fonctions objet file ----- 
+
+# voir http://docs.python.org/2/library/stdtypes.html#bltin-file-objects 
+
+# close () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.close
+
+# flush () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.flush
+
+# name() -- Python --> http://docs.python.org/2/library/stdtypes.html#file.name
+
+# tell () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.tell
+
+# seek () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.seek
+
+# size () -- Python --> 
+def size(filepathIn):
+	return os.path.getsize(filepathIn)
+
+# read () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.read
+
+# write () -- Python --> http://docs.python.org/2/library/stdtypes.html#file.write 
+
+# readLine() -- Python --> http://docs.python.org/2/library/stdtypes.html#file.readline
+
+# readLines() -- Python --> http://docs.python.org/2/library/stdtypes.html#file.readlines
+
+#-- fonctions Pyduino utiles files --- 
+
+def appendDataLine(filepathIn, dataIn):
+	if exists(filepathIn):
+		dataFile=open(filepathIn,'a') # ouvre pour ajout donnees
+		dataFile.write(str(dataIn)+"\n")
+		dataFile.close()
+	elif not exists(filepathIn):
+		dataFile=open(filepathIn,'w') # cree fichier pour ajout donnees
+		dataFile.write(str(dataIn)+"\n")
+		dataFile.close()
+
+
+############################ Reseau ##################################
+
+def httpResponse(): # reponse HTTP par defaut
+	return """
+HTTP/1.0 200 OK
+Content-Type: text/html
+Connnection: close
+
+""" # ligne vide finale obligatoire ++ 
+
+# classe Ethernet - emule classe acces au materiel réseau 
+class Ethernet():
+	# def __init__(self): # constructeur principal
+	
+	def localIP(self):
+		# return socket.gethostbyname(socket.gethostname()) ne fonctionne pas... 
+		
+		sortieConsole=executeCmdOutput("ifconfig") # execute commande et attend 5s
+		#print sortieConsole - debug
+		
+		#result=re.findall(r'^.*inet  adr:(.*\..*\..*\..*) .*$',sortieConsole, re.M) # extrait *.*.*.* de la chaine au format inet adr: *.*.*.* si la chaine est au format valide  + tolerant fin chaine  
+		result=re.findall(r'^.*inet addr:(.*\..*\..*\..*)  B.*$', sortieConsole, re.M)
+		#print result
+		if len(result)>0 :return result[0]
+		else: return
+
+class EthernetServer(socket.socket) : # attention recoit classe du module, pas le module !
+
+	def __init__(self,ipIn, portIn): # constructeur principal
+		#self=socket.socket( socket.AF_INET,socket.SOCK_STREAM) # self est un objet serveur
+		#self.bind((ipIn,portIn)) # lie l'adresse et port au serveur # '' pour interface disponible 
+		
+		super(EthernetServer, self).__init__(socket.AF_INET,socket.SOCK_STREAM) # initialise Ethernet class en tant que socket...
+		
+		# a present self dispose de toutes les fonctions socket ! 
+		#print type(self) # debug
+		#print dir(self) # debug
+		
+		#self.socket(socket.AF_INET,socket.SOCK_STREAM)
+		#self.socket( AF_INET,SOCK_STREAM)  # socket.socket( AF_INET,SOCK_STREAM)    # socket.socket([family[, type[, proto]]])
+		
+		self.bind((ipIn,portIn)) # lie l'adresse et port au serveur # '' pour interface disponible 
+		
+	
+	
+	def begin(self, *arg):
+		
+		
+		if len(arg)==0: # si pas de nombre client precise
+			self.listen(5) # fixe a 5 
+		elif len(arg)==1: # si nombre client
+			self.listen(arg[0]) # fixe au nombre voulu
+	
+	def clientAvailable(self):
+		client,adresseDistante=self.accept() # attend client entrant
+		return client, adresseDistante[0]
+		# l'adresse recue est un tuple - ip est le 1er element
+
+	def readDataFrom(self, clientDistantIn, *arg):
+		
+		# arg = rien ou maxIn
+		if len(arg)==0:
+			maxIn=1024
+		elif len(arg)==1:
+			maxIn=arg[0]
+		
+		chaineRecue=clientDistantIn.recv(maxIn)#.strip() 
+		chaineRecue.decode('utf-8')
+		return chaineRecue
+	
+	def writeDataTo(self, clientDistantIn, reponseIn):
+		clientDistantIn.send(reponseIn) # préférer sendAll ? 
+"""
+class EthernetClient(socket.socket) : # attention recoit classe du module, pas le module !
+	
+	def read():
+		#--- requete client ---
+		rec=self.recv(1024).strip()
+		rec.decode('utf-8')
+		print rec
+"""
+# close() -- module socket -- classe socket -- Python --> http://docs.python.org/2/library/socket.html#socket.socket.close
+
+# classe Uart pour communication série UART 
+class Uart():
+	
+	# def __init__(self): # constructeur principal
+	
+	
+	def begin(self,rateIn, *arg): # fonction initialisation port serie 
+		
+		
+		# arg = rien ou timeout ou timeout et port a utiliser
+		global uartPort
+		
+		# configure pin 0 et 1 pour UART (mode = 3)
+		#pinMode(RX,UART)
+		#pinMode(TX,UART)
+		
+		#-- initialisation port serie uart 
+		#try:
+		if len(arg)==0: # si pas d'arguments
+			#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 10) # initialisation port serie uart
+			uartPort=serial.Serial('/dev/ttyAMA0', rateIn, timeout = 10) # initialisation port serie uart
+			print("Initialisation Port Serie : /dev/ttyAMA0 @ " + str(rateIn) +" = OK ") # affiche debug
+		elif len(arg)==1 : # si timeout
+			#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
+			uartPort=serial.Serial('/dev/ttyAMA0', rateIn, timeout = arg[0]) # initialisation port serie uart
+			print("Initialisation Port Serie : /dev/ttyAMA0 @ " + str(rateIn) +" = OK ") # affiche debug
+			print ("timeout = " + str(arg[0] ))
+		elif len(arg)==2 : # si timeout et port 
+			#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
+			uartPort=serial.Serial(arg[1], rateIn, timeout = arg[0]) # initialisation port serie uart
+			print("Initialisation Port Serie : "+ arg[1] + " @ " + str(rateIn) +" = OK ") # affiche debug
+			print ("timeout = " + str(arg[0] ))
+		#except:
+		#	print ("Erreur lors initialisation port Serie") 
+			
+	def println(self,text, *arg):  # message avec saut de ligne
+		# Envoi chaine sur port serie uart 
+		# Supporte formatage chaine façon Arduino avec DEC, BIN, OCT, HEX
+		
+		global uartPort
+		
+		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
+		text=str(text) # au cas où
+		# print "text =" + text # debug
+		
+		arg=list(arg) # conversion en list... évite problèmes.. 
+		
+		#print arg - debug
+		
+		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
+			if arg[0]==DEC and text.isdigit():
+				out=text
+				#print(out) # debug
+			elif arg[0]==BIN and text.isdigit():
+				out=bin(int(text))
+				#print(out) # debug
+			elif arg[0]==OCT and text.isdigit():
+				out=oct(int(text))
+				#print(out) # debug
+			elif arg[0]==HEX and text.isdigit():
+				out=hex(int(text))
+				#print(out) # debug
+		else: # si pas de formatage de chaine = affiche tel que 
+			out=text
+			#print(out) # debug
+		
+		uartPort.write(out+chr(10)) # + saut de ligne 
+		# print "Envoi sur le port serie Uart : " + out+chr(10) # debug
+		uartPort.flush()
+		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
+		# si type est long ou int
+	
+	"""
+	# idem println mais sans le saut de ligne... 
+	def print(self,text, *arg):  # message avec saut de ligne
+		# Envoi chaine sur port serie uart 
+		# Supporte formatage chaine façon Arduino avec DEC, BIN, OCT, HEX
+		
+		global uartPort
+		
+		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
+		text=str(text) # au cas où
+		# print "text =" + text # debug
+		
+		arg=list(arg) # conversion en list... évite problèmes.. 
+		
+		#print arg - debug
+		
+		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
+			if arg[0]==DEC and text.isdigit():
+				out=text
+				#print(out) # debug
+			elif arg[0]==BIN and text.isdigit():
+				out=bin(int(text))
+				#print(out) # debug
+			elif arg[0]==OCT and text.isdigit():
+				out=oct(int(text))
+				#print(out) # debug
+			elif arg[0]==HEX and text.isdigit():
+				out=hex(int(text))
+				#print(out) # debug
+		else: # si pas de formatage de chaine = affiche tel que 
+			out=text
+			#print(out) # debug
+		
+		uartPort.write(out) # sans saut de ligne
+		# print "Envoi sur le port serie Uart : " + out+chr(10) # debug
+		
+		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
+		# si type est long ou int
+	"""
+	
+	def available(self):
+		global uartPort
+		
+		if uartPort.inWaiting() : return True
+		else: return False
+		
+	def flush(self):
+		global uartPort
+		return uartPort.flush()
+	
+	def read(self):
+		global uartPort
+		return uartPort.read()
+	
+	def write(self, strIn):
+		global uartPort
+		uartPort.write(strIn)
+		
+	
+	
+	#--- lecture d'une ligne jusqu'a caractere de fin indique
+	def waiting(self, *arg): # lecture d'une chaine en reception sur port serie 
+		
+		global uartPort
+		
+		if len(arg)==0: endLine="\n" # par defaut, saut de ligne
+		elif len(arg)==1: endLine=arg[0] # sinon utilise caractere voulu
+		
+		#-- variables de reception -- 
+		chaineIn=""
+		charIn=""
+		
+		#delay(20) # laisse temps aux caracteres d'arriver
+		
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
+			charIn=uartPort.read() # on lit le caractere
+			#print charIn # debug
+			
+			if charIn==endLine: # si caractere fin ligne , on sort du while
+				#print("caractere fin de ligne recu") # debug
+				break # sort du while
+			else: #tant que c'est pas le saut de ligne, on l'ajoute a la chaine 
+				chaineIn=chaineIn+charIn
+				# print chaineIn # debug
+			
+		#-- une fois sorti du while : on se retrouve ici - attention indentation 
+		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
+			#print(chaineIn) # affiche la chaine # debug
+			return chaineIn  # renvoie la chaine 
+		else:
+			return False # si pas de chaine
+	
+	#--- lecture de tout ce qui arrive en réception 
+	def waitingAll(self): # lecture de tout en reception sur port serie 
+		
+		global uartPort
+		
+		#-- variables de reception -- 
+		chaineIn=""
+		charIn=""
+		
+		#delay(20) # laisse temps aux caracteres d'arriver
+		
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
+			charIn=uartPort.read() # on lit le caractere
+			#print charIn # debug
+			chaineIn=chaineIn+charIn
+			# print chaineIn # debug
+			
+		#-- une fois sorti du while : on se retrouve ici - attention indentation 
+		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
+			#print(chaineIn) # affiche la chaine # debug
+			return chaineIn  # renvoie la chaine 
+		else:
+			return False # si pas de chaine
+
+# ajouter write / read   / flush 
+
+# fin classe Uart
+
+
+########################### --------- initialisation ------------ #################
 
 Serial = Serial() # declare une instance Serial pour acces aux fonctions depuis code principal
+Ethernet = Ethernet() # declare instance Ethernet implicite pour acces aux fonctions 
+Uart = Uart() # declare instance Uart implicite 
 
 micros0Syst=microsSyst() # mémorise microsSyst au démarrage
 millis0Syst=millisSyst() # mémorise millisSyst au démarrage
