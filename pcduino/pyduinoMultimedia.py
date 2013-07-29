@@ -1428,12 +1428,12 @@ def showImage():
 	
 """
 
-def addTextOnImage(textIn, xPosIn, yPosIn, bgrIn):
+def addTextOnImage(textIn, xPosIn, yPosIn, bgrIn, fontScaleIn):
 	global Buffer
-	# bgr est soit un des identifiants prédéfinis soit un (b,g,r)
+	# bgr est soit un des identifiants predefinis soit un (b,g,r)
 	
 	#  initFont(name_font, hscale, vscale, shear=0, thickness=1, line_type=8 ) -> cvFont
-	font=cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, 1, 1, 0, 2, 8) 
+	font=cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, fontScaleIn, fontScaleIn, 0, 2, 8) 
 	cv.PutText(Buffer, textIn, (xPosIn,yPosIn),font, bgrIn)# cv.PutText(img, text, org, font, color) -> None
 	
 	
