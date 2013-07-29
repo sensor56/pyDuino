@@ -1329,9 +1329,40 @@ yellow=(0,255,255)
 
 #--- creation d'un buffer principal RGB utilise par les fonctions 
 Buffer=None # déclare buffer principal non initialisé
-		
+webcam=None # declare webcam - non initialise 
+
+def initWebcam(*arg):
+	# arg : indexIn, widthIn, heightIn
+	
+	# prise en compte des parametres 
+	if len(arg)==3:
+		indexCam=arg[0]
+		widthCam=arg[1]
+		heightCam=arg[2]
+	else:
+		indexCam=0
+		widthCam=320
+		heightCam=240
+	
+	print ("Parametres capture image : index cam = " + str(indexCam) 
+	+ " | " + str (widthCam) + "x" + str(heightCam))
+	
+	#-- initialisation de la camera
+	#indexCam=0 # index de la webcam a utiliser - voir ls /dev/video* - utiliser -1 si pas d'indice
+	global webcam
+	webcam=cv.CaptureFromCAM(indexCam) # declare l'objet capture sans designer la camera - remplace CreateCameraCapture
+	#print (webcam) # debug
+
+	cv.SetCaptureProperty(webcam,cv.CV_CAP_PROP_FRAME_WIDTH,widthCam) # definit largeur image capture
+	cv.SetCaptureProperty(webcam,cv.CV_CAP_PROP_FRAME_HEIGHT,heightCam) # definit hauteur image capture
+	
+	# creation buffer image taille idem capture
+	global Buffer 
+	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
+
+
 def captureImage(*arg):
-	# arg : pathImageIn, indexIn, widthIn, heightIn
+	# arg : pathImageIn
 	
 	# gestion des arguments recus
 	if len(arg)==0:
@@ -1340,21 +1371,10 @@ def captureImage(*arg):
 	elif len(arg)>0: # si arguments recus
 		filepathImage=arg[0]
 		
-		if len(arg)==4:
-			indexCam=arg[1]
-			widthCam=arg[2]
-			heightCam=arg[3]
-		else:
-			indexCam=0
-			widthCam=320
-			heightCam=240
-	
-	print ("Parametres capture image : index cam = " + str(indexCam) 
-	+ " | " + str (widthCam) + "x" + str(heightCam))
-	
 	#--- capture Image 
 	# webcam testee out of the box : Logitech C170
 	
+	"""
 	#-- initialisation de la camera
 	#indexCam=0 # index de la webcam a utiliser - voir ls /dev/video* - utiliser -1 si pas d'indice
 	webcam=cv.CaptureFromCAM(indexCam) # declare l'objet capture sans designer la camera - remplace CreateCameraCapture
@@ -1364,7 +1384,8 @@ def captureImage(*arg):
 	
 	global Buffer 
 	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
-	
+	"""
+	global webcam 
 	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
 	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
 
