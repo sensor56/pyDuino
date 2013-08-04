@@ -1214,7 +1214,7 @@ def captureImage(*arg):
 	global Buffer 
 	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
 	"""
-	global webcam 
+	global webcam, Buffer 
 	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
 	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
 
