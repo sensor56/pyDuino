@@ -1330,6 +1330,7 @@ yellow=(0,255,255)
 #--- creation d'un buffer principal RGB utilise par les fonctions 
 Buffer=None # déclare buffer principal non initialisé
 webcam=None # declare webcam - non initialise 
+iplImgSrc=None # declare objet pour capture image
 
 def initWebcam(*arg):
 	# arg : indexIn, widthIn, heightIn
@@ -1359,7 +1360,19 @@ def initWebcam(*arg):
 	# creation buffer image taille idem capture
 	global Buffer 
 	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
+	
+	captureAutoLive() # premier appel captureAutoLive
+	
 
+# fonction interne pour lecture automatique frames webcam a frequence = ~ fps
+def captureAutoLive():
+	global webcam, Buffer, iplImgSrc
+	
+	cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le iplImage Source
+	
+	timer(200, captureAutoLive) # auto appel de la fonction de capture de facon a lire 5 - 6 frame par seconde
+	# le but ici est uniquement de lire les frames pour eviter decalage lors captureImage...
+	# qui sinon renvoie frame precedent et non derniere capture
 
 def captureImage(*arg):
 	# arg : pathImageIn
@@ -1385,10 +1398,22 @@ def captureImage(*arg):
 	global Buffer 
 	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
 	"""
-	global webcam, Buffer
+	global webcam, Buffer, iplImgSrc
+	
+	"""
+	# lire les premieres images pour eviter probleme decalage
+	for i in range(7):
+		iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam
+	
 	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
 	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
-
+	#Buffer=cv.QueryFrame(webcam)
+	"""
+	# preferer utilisation fonction capture live auto permettant copier/lire derniere frame a tout moment
+	# la derniere frame live est dans iplImgSrc - ici recapturer pour avoir derniere frame... 
+	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
+	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
+	
 	# une alternative possible à opencv = gstreamer 
 	# pipeline : 
 	#  gst-launch v4l2src device=/dev/video0 num-buffers=1 ! jpegenc ! filesink location=test.jpg
@@ -1427,6 +1452,15 @@ def showImage():
 	# ne fonctionne pas... 
 	
 """
+
+def closeImage(): # ferme le visionneur d'image si ouvert 
+	# ferme visionneur image 
+	try :
+		executeCmdWait("killall gpicview") # ferme image precedente 
+		delay(1000)
+	except:
+		pass
+	
 
 def addTextOnImage(textIn, xPosIn, yPosIn, bgrIn, fontScaleIn):
 	global Buffer
