@@ -45,7 +45,12 @@ La librairie existe en plusieurs versions :
 * sur le raspberryPi, dans un Terminal, saisir la commande :
 
 	sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/RaspberryPi/pyduino.py /usr/lib/python2.7/dist-packages
-	
+
+## Exemples 
+
+* Les codes d'exemple sont rassemblés ici : https://github.com/sensor56/pyduino-exemples
+* Des pages didactiques par plateformes sont disponibles ici : 
+ * pcduino : http://www.mon-club-elec.fr/pmwiki_mon_club_elec/pmwiki.php?n=MAIN.PCDUINO
 
 ## Documentation officielle 
 
