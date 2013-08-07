@@ -1457,7 +1457,6 @@ def closeImage(): # ferme le visionneur d'image si ouvert
 	# ferme visionneur image 
 	try :
 		executeCmdWait("killall gpicview") # ferme image precedente 
-		delay(1000)
 	except:
 		pass
 	
@@ -1481,7 +1480,7 @@ def height(): # renvoie le height (hauteur) courante du Buffer image
 	return Buffer.height
 	
 
-#================= AUDIO ==========================
+#================= AUDIO / VOIX ==========================
 
 PICO='pico'
 ESPEAK='espeak'
@@ -1536,6 +1535,25 @@ def analyzeVoice(filepathIn):
 	
 	print (result) # debug
 	return str(result)
+	
+
+#============================ VIDEO ======================================
+def playVideo(filepathIn):
+	#print os.path.dirname(filepathIn) # debug
+	if os.path.dirname(filepathIn)=='':
+		filepathIn=mainPath()+sourcesPath(AUDIO)+filepathIn # chemin par défaut si nom fichier seul
+		
+	#print filepathIn  #debug
+	executeCmd("mplayer -msglevel all=-1 -fs " + filepathIn) # seul message erreur cf 0   fatal messages only
+	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
+	# -fs pour fullscreen - sortie avec esc..
+
+def stopVideo():
+	# ferme mplayer
+	try :
+		executeCmdWait("killall mplayer") # ferme mplayer
+	except:
+		pass
 	
 #---- classes utiles multimedia --------
 
