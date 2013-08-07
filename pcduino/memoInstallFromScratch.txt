@@ -62,6 +62,7 @@ gpicview
 pulseaudio 
 pavucontrol
 mplayer
+sudo geany     /etc/mplayer/mplayer.conf et ajouter nolirc=yes
 mencoder
 audacity
 wget -4 http://www.mon-club-elec.fr/mes_downloads/pyduino_sons.tar.gz
