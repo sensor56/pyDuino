@@ -21,7 +21,7 @@ $ sudo apt-get install geany
 Ce fichier est la version 0.1.20130706 pour le pcDuino
 """
 # message d'accueil 
-print "Pyduino for PC Desktop 0.2 by www.mon-club-elec.fr - 2013 "
+print "Pyduino for PC Desktop - v0.2 - by www.mon-club-elec.fr - 2013 "
 
 # modules utiles 
 
@@ -181,6 +181,7 @@ def analogRead(pinAnalog):
 	print ("analogRead("+str(pinAnalog)+")") # debug
 
 	out=Uart.waiting() # attend la reponse
+	print out # debug
 
 	return int(out) # renvoie la valeur
 
