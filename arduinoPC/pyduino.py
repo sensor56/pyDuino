@@ -21,7 +21,7 @@ $ sudo apt-get install geany
 Ce fichier est la version 0.1.20130706 pour le pcDuino
 """
 # message d'accueil 
-print "Pyduino 0.2 by www.mon-club-elec.fr - 2013 "
+print "Pyduino for PC Desktop 0.2 by www.mon-club-elec.fr - 2013 "
 
 # modules utiles 
 
@@ -37,9 +37,9 @@ from math import *  # pour acces direct aux fonctions math..
 import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
 
 #-- pour PWM - accès kernel + transposition C to Python -- 
-import fcntl # module pour fonction ioctl
+#import fcntl # module pour fonction ioctl
 #from ctypes import *
-import ctypes # module pour types C en Python 
+#import ctypes # module pour types C en Python 
 
 #-- système -- 
 import subprocess
@@ -63,21 +63,15 @@ import socket
 # par exemple noLoop
 
 
-# sur le pcDuino, la plupart des operations passent par des fichiers systeme
-
-# fichiers broches E/S pcDuino
-pathMode="/sys/devices/virtual/misc/gpio/mode/"
-pathState="/sys/devices/virtual/misc/gpio/pin/"
-
 # constantes Arduino like
 INPUT="0"
 OUTPUT="1"
 PULLUP="8"
 
 # pour uart
-UART="3"
-RX=0
-TX=1
+#UART="3"
+#RX=0
+#TX=1
 uartPort=None
 
 HIGH = 1
@@ -143,15 +137,30 @@ def pinMode(pin, mode):
 
 # digitalWrite 
 def digitalWrite(pin, state):
+	global uartPort
+	
+	if not uartPort : 
+		Uart.begin(115200)
+
 	Uart.println("digitalWrite("+str(pin)+","+str(state)+")") # 
 	print ("digitalWrite("+str(pin)+","+str(state)+")") # debug
 
 # digitalRead
 def digitalRead(pin):
+	global uartPort
+	
+	if not uartPort : 
+		Uart.begin(115200)
+
 	return 
 
 
 def toggle(pin): # inverse l'etat de la broche
+	global uartPort
+	
+	if not uartPort : 
+		Uart.begin(115200)
+
 	if digitalRead(pin)==HIGH:
 		digitalWrite(pin,LOW)
 		return LOW
@@ -163,15 +172,19 @@ def toggle(pin): # inverse l'etat de la broche
 
 # analogRead - entrées analogiques 
 def analogRead(pinAnalog):
-	# A0 et A1 : résolution 6 bits (0-63) en 0-2V
-	# A2, A3, A4, A5 : résolution 12 bits (0-4095) en 0-3.3V
+	global uartPort
+	
+	if not uartPort : 
+		Uart.begin(115200)
 	
 	return int(out) # renvoie la valeur
 
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
 def analogReadmV(pinAnalog):
-	# A0 et A1 : résolution 6 bits (0-63) en 0-2V
-	# A2, A3, A4, A5 : résolution 12 bits (0-4095) en 0-3.3V
+	global uartPort
+	
+	if not uartPort : 
+		Uart.begin(115200)
 	
 	mesure=analogRead(pinAnalog)
 	mesure=rescale(mesure,0,1023,0,5000)
@@ -182,10 +195,18 @@ def analogReadmV(pinAnalog):
 
 # analogWrite # idem Arduino en 0-255
 def analogWrite(pinPWMIn, largeurIn):
-	return
+	global uartPort
+	
+	if not uartPort : 
+		Uart.begin(115200)
 
 # analogWritePercent(pinPWMIn, largeurIn)=> rescale 0-100 vers 0-255
 def analogWritePercent(pinPWMIn, largeurIn):
+	global uartPort
+	
+	if not uartPort : 
+		Uart.begin(115200)
+
 	analogWrite(pinPWMIn,rescale(largeurIn,0,100,0,255))
 	
 
