@@ -177,8 +177,8 @@ def analogRead(pinAnalog):
 	if not uartPort : 
 		Uart.begin(115200)
 
-	Uart.println("analogRead("+str(pin)+")") # 
-	print ("analogRead("+str(pin)+")") # debug
+	Uart.println("analogRead("+str(pinAnalog)+")") # 
+	print ("analogRead("+str(pinAnalog)+")") # debug
 
 	out=Uart.waiting() # attend la reponse
 
