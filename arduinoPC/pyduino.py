@@ -176,7 +176,12 @@ def analogRead(pinAnalog):
 	
 	if not uartPort : 
 		Uart.begin(115200)
-	
+
+	Uart.println("analogRead("+str(pin)+")") # 
+	print ("analogRead("+str(pin)+")") # debug
+
+	out=Uart.waiting() # attend la reponse
+
 	return int(out) # renvoie la valeur
 
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
