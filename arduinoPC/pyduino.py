@@ -180,6 +180,8 @@ def analogRead(pinAnalog):
 	Uart.println("analogRead("+str(pinAnalog)+")") # 
 	print ("analogRead("+str(pinAnalog)+")") # debug
 
+	delay(50) # laisse temps réponse
+	
 	out=Uart.waiting() # attend la reponse
 	print out # debug
 
