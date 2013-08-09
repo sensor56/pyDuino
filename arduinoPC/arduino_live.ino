@@ -71,9 +71,11 @@ void loop() {
             
             state=digitalRead(pin); // appelle fonction voulue
             
-            Serial.print("[");
-            Serial.print(state); // envoi valeur sous la forme [ .. ]
-            Serial.println("]");
+            //Serial.print("[");
+            //Serial.print(state); // envoi valeur sous la forme [ .. ]
+            //Serial.println("]");
+
+            Serial.print(state); // envoi valeur sous la forme .. 
             
   
       } // fin si testInstructionLong==true
