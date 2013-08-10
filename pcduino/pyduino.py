@@ -21,7 +21,7 @@ $ sudo apt-get install geany
 Ce fichier est la version pour le pcDuino
 """
 # message d'accueil 
-print "Pyduino for pcDuino - v0.2 - by www.mon-club-elec.fr - 2013 "
+print "Pyduino for pcDuino - v0.3 - by www.mon-club-elec.fr - 2013 "
 
 # modules utiles 
 
