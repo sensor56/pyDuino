@@ -103,11 +103,14 @@ python-scipy
 
 Procedure pyqtgraph
  cd Downloads 
- wget http://www.pyqtgraph.org/downloads/pyqtgraph-0.9.7.tar.gz 
+ wget -4 http://www.pyqtgraph.org/downloads/pyqtgraph-0.9.7.tar.gz 
  tar xvfz pyqtgraph-0.9.7.tar.gz 
  cd pyqtgraph-0.9.7 
- python setup.py install 
- test avec : python -m pyqtgraph.examples 
+ sudo python setup.py install 
+
+test avec : 
+ cd /usr/local/lib/python2.7/dist-packages/pyqtgraph
+ python -m pyqtgraph.examples 
 
 
 +/- python-qwt
