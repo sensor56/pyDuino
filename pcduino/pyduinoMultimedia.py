@@ -18,7 +18,7 @@ L'editeur conseille pour l'edition des codes Pyduino est Geany
 A installer dans un Terminal avec la commande
 $ sudo apt-get install geany
 
-Ce fichier est la version 0.1.20130706 pour le pcDuino
+Ce fichier est la version pour le pcDuino
 """
 
 """ 
@@ -77,7 +77,7 @@ $ sudo apt-get install mencoder
 """
 
 # message d'accueil 
-print "Pyduino Multimedia 0.2 by www.mon-club-elec.fr - 2013 "
+print "Pyduino Multimedia for pcDuino - v0.3 - by www.mon-club-elec.fr - 2013 "
 
 # modules utiles 
 
@@ -114,6 +114,7 @@ except:
 
 # reseau 
 import socket 
+import smtplib # serveur mail 
 
 #--- multimedia --- 
 #from PyQt4.QtGui import *
@@ -1122,6 +1123,132 @@ class EthernetClient(socket.socket) : # attention recoit classe du module, pas l
 		print rec
 """
 # close() -- module socket -- classe socket -- Python --> http://docs.python.org/2/library/socket.html#socket.socket.close
+
+# classe MailServer
+
+class MailServer():
+	
+	def __init__(self):
+		self.name=""
+		self.port=0
+		self.fromMail=""
+		self.fromPassword=""
+		self.toMail=""
+		
+		self.subject=""
+		self.msg=""
+		self.imageToJoin=""
+	
+	def setName(self,nameIn):
+		self.name=nameIn
+	
+	def setPort(self,portIn):
+		self.port=portIn
+		
+	def setFromMail(self,fromMailIn):
+		self.fromMail=fromMailIn
+		
+	def setFromPassword(self,fromPasswordIn):
+		self.fromPassword=fromPasswordIn
+		
+	def setToMail(self,toMailIn):
+		self.toMail=toMailIn
+		
+	def setSubject(self,subjectIn):
+		self.subject=subjectIn
+	
+	def setMsg(self,msgIn):
+		self.msg=msgIn
+	
+	def setImageToJoin(self,pathIn):
+		self.imageToJoin=pathIn
+	
+	def getHeader(self):
+		#header
+		header='To:' + self.toMail + '\n'
+		header=header+ 'From:' + self.fromMail +'\n'
+		header=header + 'Subject:' + self.subject + '\n'
+		return header
+		
+	def sendMail(self):
+		
+		from email.mime.text import MIMEText
+		
+		# connexion serveur smtp
+		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver.ehlo()
+		smtpserver.starttls()
+		smtpserver.ehlo()
+		print smtpserver.login(self.fromMail, self.fromPassword)
+		
+		"""
+		# preparation du mail 
+		mail=self.getHeader()+self.msg+"\n\n"
+		print mail # debug
+		"""
+		
+		# preparation du mail - utilise module email
+		mail = MIMEText(self.msg)
+		mail['Subject'] = self.subject
+		mail['From'] = self.fromMail
+		mail['To'] = self.toMail
+		print ""
+		print mail.as_string() # debug
+		
+		# envoi du mail 
+		smtpserver.sendmail(self.fromMail, [self.toMail], mail.as_string())
+		
+		# fermeture serveur smtp
+		#smtpserver.close()
+		print smtpserver.quit()
+	
+	def sendMailImage(self):
+		
+		from email.mime.text import MIMEText
+		from email.mime.image import MIMEImage
+		from email.mime.multipart import MIMEMultipart
+		
+		# connexion serveur smtp
+		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver.ehlo()
+		smtpserver.starttls()
+		smtpserver.ehlo()
+		smtpserver.login(self.fromMail, self.fromPassword)
+		
+		"""
+		# preparation du mail 
+		mail=self.getHeader()+self.msg+"\n\n"
+		print mail # debug
+		"""
+		
+		# preparation du mail - utilise module email
+		#mail = MIMEText(self.msg)
+		mail=MIMEMultipart()
+		mail['Subject'] = self.subject
+		mail['From'] = self.fromMail
+		mail['To'] = self.toMail
+		mail.preamble = self.subject
+		
+		msg = MIMEText(self.msg) # le texte
+		mail.attach(msg) # attache le texte au mail
+		
+		fp=open(self.imageToJoin,'rb') # ouvre fichier image en lecture binaire
+		img=img = MIMEImage(fp.read()) # lit le fichier et récupere l'objet image obtenu
+		fp.close()# ferme le fichier
+		
+		mail.attach(img) # attache l'image au mail
+		
+		print mail.as_string() # debug
+		
+		# envoi du mail 
+		smtpserver.sendmail(self.fromMail, [self.toMail], mail.as_string())
+		
+		# fermeture serveur smtp
+		#smtpserver.close()
+		smtpserver.quit()
+
+
+#------ fin serveur mail --- 
 
 # classe Uart pour communication série UART 
 class Uart():
