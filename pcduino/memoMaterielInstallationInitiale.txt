@@ -53,5 +53,7 @@
 > ensuite a lieu un upgrade automatique : valider avec Y quand on le demande. 
 > patienter pendant messages de mise à jour
 
-> ensuite vous devez obtenir le bureau graphique (appelé LXDE) du système : prenez le temps de faire connaissance avant de continuer. 
+> ensuite vous devez obtenir le bureau graphique (appelé LXDE) du système : 
+> prenez le temps de faire connaissance avant de continuer. 
 
+> Ensuite passer à la procédure d'installation "from scratch"
