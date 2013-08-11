@@ -55,18 +55,22 @@ sudo apt-get install git --yes (10MB)
 sudo apt-get install midori --yes (50MB)
 sudo apt-get install gdebi --yes (5MB)
 
-# +/- enlever ce qui ne sert a rien 
-liste occupation disques : df -h 
+# +/- enlever ce qui ne sert a rien - pas obligatoire - pourra être fait à tout moment ultérieurement 
+liste occupation disques : df -h  => voir la NAND restante libre : environ 500Mo libre...
 liste paquets lourds : dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
-sudo apt-get remove pcduino-arduino-ide
-sudo apt-get remove pcduino-xbmc
-sudo apt-get autoremove 
+sudo apt-get remove pcduino-arduino-ide --yes
+sudo apt-get remove pcduino-xbmc --yes
+sudo apt-get remove chromium-browser --yes
+sudo apt-get autoremove --yes
+refaire : df -h => voir la NAND restante libre : environ 736 Mo soit près de 250Mo de libérés !
 
 # espace dev Pyduino
-dreampie (4MB) + modifier couleurs en light
-python-serial
+sudo apt-get install dreampie --yes (4MB) + modifier couleurs en light
+sudo apt-get install python-serial --yes (0,380MB) 
 cd /usr/lib/python2.7/dist-packages
 sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py
+
+########## à ce stade, vous êtes opérationnel pour tous les codes Pyduino hors multimédia ############
 
 # espace dev Pyduino Multimedia
 ## image
