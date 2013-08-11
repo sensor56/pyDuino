@@ -4,6 +4,11 @@
 
 # 1er boot = écran de config
 # une fois boot ok - redémarrer une 2eme fois
+# pendant le boot, il est possible par appuyer F8 d'ouvrir le menu de config
+
+# une première chose : ouvrir navigateur fichier et regarder dans le bas à droite la place dispo en NAND...
+# quelque chose comme 580 Mo free / 1.9 Go : ayez conscience de la place limitée en mémoire NAND... 
+# ... mais largement suffisante en la jouant "fine". Suivez le guide.
 
 # adaptation LXDE
 tableau de bord en haut
