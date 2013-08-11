@@ -25,26 +25,35 @@ maj liste paquets : sudo apt-get update (et pas upgrade !)
 enleve paquets inutiles : sudo apt-get autoremove
 
 # paquets indisp d'emblee
-sudo apt-get install geany (7MB)
-config geany pour espace et tab  et diminuer police
+sudo apt-get install geany --yes (7MB)
+config geany pour espace et tab (view>editor>) et diminuer police (Edit>preferences>interface)
 
 # install VNC d'emblee (dejà installé...)
-sudo apt-get install vino
+sudo apt-get install vino --yes
 vino-preferences (pas sudo +++)
 /usr/lib/vino/vino-server (pas sudo)
-ifconfig
-=> tester depuis client
+
+# ouvrir un autre terminal : ifconfig
+=> tester depuis client : xtightvncviewer <ip.pc.dui.no> -compresslevel 3
 
 # ensuite on reprend sur le pcduino :
 sudo geany /etc/xdg/lxsession/Lubuntu/autostart
 @/usr/lib/vino/vino-server
 
-# logiciels utiles
-sudo apt-get install htop
-xarchiver (1,4MB)
-git (10MB)
-midori (50MB)
-gdebi (5MB)
+# enregistrer, quitter et rebooter
+# se reconnecter depuis le pcfixe : si OK : vous pouvez débrancher écran, clavier, souris
+
+###### à partir de maintenant vous pouvez travailler uniquement à partir du PC fixe #######
+# la suite se déroule dans la fenêtre VNC : vous travaillez sur le pcduino depuis le poste fixe !
+
+# logiciels utilesà installer :
+sudo apt-get install htop --yes (0,140MB)
+> on peut lancer htop avec la commande $ htop et voir l'état du système : RAM 73Mo (top!) usage moyen CPU (8% via VNC)
+> quitter avec q
+sudo apt-get install xarchiver --yes (1,4MB)
+sudo apt-get install git --yes (10MB)
+sudo apt-get install midori --yes (50MB)
+sudo apt-get install gdebi --yes (5MB)
 
 # +/- enlever ce qui ne sert a rien 
 liste occupation disques : df -h 
