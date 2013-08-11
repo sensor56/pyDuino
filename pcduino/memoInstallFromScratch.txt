@@ -2,6 +2,8 @@
 # par X. HINAULT - www.mon-club-elec.fr
 # en attendant de faire un script de post install...
 
+# on présuppose ici kernel et système fichier installés au préalable : voir procédure séparée.
+
 # 1er boot = écran de config
 # une fois boot ok - redémarrer une 2eme fois
 # pendant le boot, il est possible par appuyer F8 d'ouvrir le menu de config
