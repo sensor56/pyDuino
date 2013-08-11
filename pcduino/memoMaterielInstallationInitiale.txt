@@ -57,3 +57,7 @@
 > prenez le temps de faire connaissance avant de continuer. 
 
 > Ensuite passer à la procédure d'installation "from scratch"
+
+> A savoir : pendant les boots suivants, l'appui sur F8 permet de rentrer à nouveau dans le menu de boot
+> on peut aussi l'obtenir à partir de la ligne de commande
+
