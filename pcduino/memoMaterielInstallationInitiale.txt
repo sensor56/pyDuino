@@ -1,0 +1,12 @@
+# Pour l'installation initiale, il faut disposer de : 
+> du pcDuino
+> d'une alimentation micro-USB 5V@1A
+
+> d'un écran HDMI
+> d'un câble HDMI
+> d'une souris USB
+> d'un clavier USB
+
+> d'une carte micro-SD avec l'image du kernel gravée avec dd
+> d'une carte micro-SD avec la copie du système de fichiers
+
