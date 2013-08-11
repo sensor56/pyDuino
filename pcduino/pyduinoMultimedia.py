@@ -1612,6 +1612,7 @@ def height(): # renvoie le height (hauteur) courante du Buffer image
 PICO='pico'
 ESPEAK='espeak'
 
+#--------------- Audio -----------------
 def playSound(filepathIn):
 	#print os.path.dirname(filepathIn) # debug
 	if os.path.dirname(filepathIn)=='':
@@ -1621,6 +1622,18 @@ def playSound(filepathIn):
 	executeCmdWait("mplayer -msglevel all=-1 " + filepathIn) # seul message erreur cf 0   fatal messages only
 	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
 
+def waitSound(*args):
+	
+	
+	# arg : soit rien, soit duree detect, seuil detect
+	if len(args)==0 :
+		executeCmdWait("rec -q trans.wav silence 1 0.1 10% trim 0 1") # seuil 10% pendant 0,1sec - enreg 1 sec..
+	if len(args)==2:
+		executeCmdWait("rec -q trans.wav silence 1 " + str(args[1]) +" "+str(args[0])+"% trim 0 1") # seuil n% pendant nsec - enreg 1 sec..
+		# attention seuil = arg[0] et duree =arg[1]
+
+
+#---------- Voix ------------- 
 def speak(textIn, *arg):
 	
 	
