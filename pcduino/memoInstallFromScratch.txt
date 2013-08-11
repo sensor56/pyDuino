@@ -71,6 +71,16 @@ cd /usr/lib/python2.7/dist-packages
 sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py
 
 ########## à ce stade, vous êtes opérationnel pour tous les codes Pyduino hors multimédia ############
+# pour tester que pyduino est fonctionnel
+> ouvrir Dreampie
+from pyduino import *
+> vous devez obtenir le message d'accueil sans erreur
+> ensuite, tester simplement quelques commandes : 
+pinMode(2,OUTPUT)
+digitalWrite(2,HIGH)
+
+#### voir les nombreux exemples de la doc Pyduino ####
+#### la suite concerne l'installation des fonctions multimédia ###
 
 # espace dev Pyduino Multimedia
 ## image
