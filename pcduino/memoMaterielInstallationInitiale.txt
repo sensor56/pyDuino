@@ -1,12 +1,57 @@
 # Pour l'installation initiale, il faut disposer de : 
+> d'un plan de travail assez grand et propre, sans éléments métalliques pouvant être en contact avec le mini-PC
 > du pcDuino
 > d'une alimentation micro-USB 5V@1A
 
-> d'un écran HDMI
+> d'un écran HDMI et son alim'
 > d'un câble HDMI
 > d'une souris USB
 > d'un clavier USB
 
-> d'une carte micro-SD avec l'image du kernel gravée avec dd
-> d'une carte micro-SD avec la copie du système de fichiers
+> d'un routeur connecté à internet 
+> ou un hub réseau connecté à un routeur
+> 2 câbles RJ-45 +/- 3ème entre routeur et hub
+
+> d'une carte micro-SD avec l'image du kernel gravée avec dd (à préparer préalablement)
+> d'une carte micro-SD avec la copie du système de fichiers (à préparer préalablement)
+
+# Procédure de l'installation initiale
+> brancher le clavier USB
+> brancher la souris USB
+> brancher l'écran HDMI
+
+> brancher le pcduino au routeur ou hub
+
+> mettre en place la carte micro-SD avec le kernel dans l'emplacement (contacts tournés vers le haut)
+> connecter l'alimentation micro-USB : ATTENTION ne pas forcer, mettre dans le bon sens, le connecteur est fragile !
+> une LED verte clignote doucement pendant 30 secondes environ
+
+> une fois que la LED arrête de clignoter : retirer carte micro-SD kernel et appui RESET
+> on voit défiler message lancement puis noyau cherche système fichier
+> à ce moment là, mettre la micro-SD du système de fichier en place
+> ensuite c'est parti pour 10 minutes 1 LED clignote
+
+> quand les 2 LEDs clignotent ensemble : retirer la carte micro-SD système et appuyer sur RESET. 
+
+# 1er boot
+> les messages défilent et on obtient l'écran de config
+> si ce n'est déjà fait : connecté le pcduino au routeur ou hub avec câble RJ45
+
+> dans le menu de config, se déplacer avec flèches HAUT/BAS
+
+> option change screen : choisir 800x600 @ 60 hz
+> change_window_percent : passer
+> change_password : conseillé de changer. Eviter a,q,z et w dans le mot de passe. ubuntu par defaut
+> set_locale : laisser english (français pas disponible)
+> set_timezone : choisir la vôtre. Europe > Paris pour la France
+> set_keyboard : choisir Generic 105-key > French > The default > choisir touche discriminante > Yes pour stop X
+> set_boot : choisir boot to command line
+> update : passer
+
+> ensuite valider avec Done (flèches <- et ->)
+
+> ensuite a lieu un upgrade automatique : valider avec Y quand on le demande. 
+> patienter pendant messages de mise à jour
+
+> ensuite vous devez obtenir le bureau graphique (appelé LXDE) du système : prenez le temps de faire connaissance avant de continuer. 
 
