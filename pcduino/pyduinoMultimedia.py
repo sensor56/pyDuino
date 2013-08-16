@@ -1623,7 +1623,7 @@ def playSound(filepathIn):
 	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
 
 def waitSound(*args):
-	
+	# ( [seuil], [duree] )
 	
 	# arg : soit rien, soit duree detect, seuil detect
 	if len(args)==0 :
@@ -1658,13 +1658,33 @@ def analyzeVoice(filepathIn):
 	
 	workdir=os.path.dirname(filepathIn)+"/" # repertoire du fichier son 
 	
+	# élimine les silences 
+	executeCmdWait("sox " + str(filepathIn)+" "+ str(workdir)+"trim.wav silence 1 0.1 1% -1 0.1 1%") # elimine les silences du fichier son
+	#print ("sox " + str(filepathIn)+" "+ str(workdir)+"trim.wav silence 1 0.1 1% -1 0.1 1%") # debug
+	print ("Effacement des silences")
+	
+	# test duree après effacement silence
+	duration=executeCmdOutput("soxi -D "+ str(workdir)+"trim.wav") # recupere duree fichier
+	#print ("soxi -D "+ str(workdir)+"trim.wav") # debug
+	print "duree = " + duration
+	
+	# si duree insuffisante : sortie de la fonction = evite connexion inutile au serveur
+	if float(duration)<0.1 :
+		print "Duree < 0.1 seconde : pas de connexion au serveur !"
+		return "" # renvoi chaine vide 
+	
+	# si la duree est suffisante : la suite est executee = envoi chaine vers serveur vocal 
+	
 	# formatage du fichier son pour reconnaissance de voix google en ligne 
 	executeCmdWait("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # convertit le fichier *.wav en fichier *.flac avec echantillonage 16000hz
-	print ("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # debug 
+	#print ("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # debug 
+	print ("Conversion fichier voix...")
+	
 	
 	out=executeCmdOutput("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ")
-	print ("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ") # debug
-	print out # debug
+	#print ("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ") # debug
+	#print out # debug
+	print ("Connexion serveur reconnaissance vocale...")
 	
 	# extraction de la chaine reconnue au sein de la reponse google voice a l'aide des expressions regulieres
 	result=re.findall(r'^.*\[\{.*:"(.*)",".*$', out) # trouve le texte place --[{--:"**"-- au niveau des **
