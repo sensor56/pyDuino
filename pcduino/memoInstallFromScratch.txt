@@ -66,6 +66,7 @@ refaire : df -h => voir la NAND restante libre : environ 736 Mo soit près de 25
 
 # espace dev Pyduino
 sudo apt-get install dreampie --yes (4MB) + modifier couleurs en light
+> lancer depuis App > programming puis Edit>Preferences>Colors>Light 
 sudo apt-get install python-serial --yes (0,380MB) 
 cd /usr/lib/python2.7/dist-packages
 sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py
