@@ -19,6 +19,8 @@ void setup() {
 
   Serial.begin(115200); // Initialisation vitesse port Série
   // Utiliser vitesse idem coté Terminal série
+  
+  Serial.println("Arduino OK!"); // message debut Arduino OK - nécessaire pour initialisation Pyduino
 
 } // fin setup
 
