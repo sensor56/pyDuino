@@ -42,7 +42,7 @@ void loop() {
             
             pinMode(pin,mode); // attention mode 1 = output et mode 0 = Input... 
 
-            Serial.println(); // renvoi saut de ligne de validation
+            Serial.println(">"); // renvoi saut de ligne de validation
               
       } // fin si testInstructionLong==true
 
@@ -77,7 +77,7 @@ void loop() {
             //Serial.print(state); // envoi valeur sous la forme [ .. ]
             //Serial.println("]");
 
-            Serial.print(state); // envoi valeur sous la forme .. 
+            Serial.println(state); // envoi valeur sous la forme .. 
             
   
       } // fin si testInstructionLong==true
