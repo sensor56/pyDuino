@@ -145,7 +145,7 @@ test avec :
 
 
 +/- python-qwt
-+/- python-opengl
++/- python-opengl (6Mo)
 
 
 
