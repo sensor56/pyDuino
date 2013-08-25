@@ -54,6 +54,7 @@ sudo apt-get install xarchiver --yes (1,4MB)
 sudo apt-get install git --yes (10MB)
 sudo apt-get install midori --yes (50MB)
 sudo apt-get install gdebi --yes (5MB)
++/- sudo apt-get install bluefish --yes (22MB)  Editeur html 
 
 # +/- enlever ce qui ne sert a rien - pas obligatoire - pourra être fait à tout moment ultérieurement 
 liste occupation disques : df -h  => voir la NAND restante libre : environ 500Mo libre...
