@@ -18,6 +18,8 @@ ajout moniteur systeme
 ajout dans lancement rapide : lxterm et virer chromium
 preferences lxterm : modifier police à 8 
 
+desactiver economisateur d'ecran : App > Preferences > ScreenSaver > mettre sur desactiver
+
 # param initial
 clavier : rien si fait au 1er boot - sinon: sudo dpkg-reconfigure keyboard-configuration
 langue fr : sudo apt-get install language-pack-fr
