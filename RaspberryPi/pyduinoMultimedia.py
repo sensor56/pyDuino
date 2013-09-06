@@ -36,48 +36,62 @@ Ce fichier est la version pour le raspberryPi version B
 
 """
 
-""" 
-La librairie pyduinoMultimedia necessite l'installation prealable de : 
+"""
+La librairie pyduinoMultimedia necessite l'installation prealable de :
 
-IMAGE : 
+IMAGE :
 
-installation de la librairie opencv pour Python avec la ligne de commande suivante : 
+installation de la librairie opencv pour Python avec la ligne de commande suivante :
 $ sudo apt-get install python-opencv
 
-presence sur le systeme du visualisateur lxde gpicview a installer si besoin avec : 
+presence sur le systeme du visualisateur lxde gpicview a installer si besoin avec :
 $ sudo apt-get install gpicview
 
-AUDIO : 
+AUDIO :
 
-ajout des paquets utiles du lecteur de fichiers audio / video : 
+ajout des paquets utiles pour la gestion de l'interface audio du systeme
+$ sudo apt-get install pulseaudio
+$ sudo apt-get install pavucontrol
+
+ajout des paquets utiles du lecteur de fichiers audio / video :
 $ sudo apt-get install mplayer
 $ sudo apt-get install mencoder
 
 quelques fichiers sons pour commencer :
-$ wget  http://www.mon-club-elec.fr/mes_downloads/mes_sons.tar.gz
+$ wget http://www.mon-club-elec.fr/mes_downloads/mes_sons.tar.gz
 
-pour la synthese vocale espeak (un peu metallique...) 
+pour la synthese vocale espeak (un peu metallique...)
 $ sudo apt-get install espeak
 $ sudo apt-get install gespeaker
 
-pour la synthese vocale "pico" (la mieux) : 
-voir documentation sur www.mon-club-elec.fr
+pour la synthese vocale "pico" (la mieux) : ajout des sources suivantes à /etc/apt/sources.list :
+# ajout pour pico
+deb http://ports.ubuntu.com/ubuntu-ports/ precise main multiverse
+deb-src http://ports.ubuntu.com/ubuntu-ports/ precise main multiverse
+#deb http://ports.ubuntu.com/ubuntu-ports/ precise-security main multiverse
+#deb-src http://ports.ubuntu.com/ubuntu-ports/ precise-security main multiverse
+deb http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
+deb-src http://ports.ubuntu.com/ubuntu-ports/ precise-updates main multiverse
 
-installation des paquets utiles pour la reconnaissance vocale : 
+installation des paquets de synthese vocale pico :
+$ sudo apt-get update
+$ sudo apt-get install libttspico0 libttspico-utils libttspico-data
+
+installation des paquets utiles pour la reconnaissance vocale :
 $ sudo apt-get install sox
 
-VIDEO / Webcam : 
+VIDEO / Webcam :
 
-installation de la librairie opencv pour Python avec la ligne de commande suivante : 
+installation de la librairie opencv pour Python avec la ligne de commande suivante :
 $ sudo apt-get install python-opencv
 
-ajout des paquets utiles du lecteur de fichiers audio / video : 
+ajout des paquets utiles du lecteur de fichiers audio / video :
 $ sudo apt-get install mplayer
 $ sudo apt-get install mencoder
 
 """
 # message d'accueil
-print "Pyduino 0.2 by www.mon-club-elec.fr - 2013 "
+print "Pyduino for Raspberry Pi - v0.3 - by www.mon-club-elec.fr - 2013 "
 
 # modules utiles
 
@@ -114,15 +128,15 @@ except:
 
 # reseau
 import socket 
+import smtplib # serveur mail 
 
-
-#--- multimedia --- 
+#--- multimedia ---
 #from PyQt4.QtGui import *
 #from PyQt4.QtCore import * # inclut QTimer..
 
 try:
 	from cv2 import * # importe module OpenCV Python - le module cv est un sous module de cv2
-except: 
+except:
 	print "ATTENTION : Module OpenCV manquant : installer le paquet python-opencv "
 
 
@@ -310,8 +324,6 @@ def analogWritePercent(pin, value):
 #############################################################################
 #==================== Fonctions Pyduino communes ============================
 ##############################################################################
-
-################ Fonctions communes ####################
 
 ################ Fonctions communes ####################
 
@@ -952,6 +964,133 @@ class EthernetClient(socket.socket) : # attention recoit classe du module, pas l
 """
 # close() -- module socket -- classe socket -- Python --> http://docs.python.org/2/library/socket.html#socket.socket.close
 
+
+# classe MailServer
+
+class MailServer():
+	
+	def __init__(self):
+		self.name=""
+		self.port=0
+		self.fromMail=""
+		self.fromPassword=""
+		self.toMail=""
+		
+		self.subject=""
+		self.msg=""
+		self.imageToJoin=""
+	
+	def setName(self,nameIn):
+		self.name=nameIn
+	
+	def setPort(self,portIn):
+		self.port=portIn
+		
+	def setFromMail(self,fromMailIn):
+		self.fromMail=fromMailIn
+		
+	def setFromPassword(self,fromPasswordIn):
+		self.fromPassword=fromPasswordIn
+		
+	def setToMail(self,toMailIn):
+		self.toMail=toMailIn
+		
+	def setSubject(self,subjectIn):
+		self.subject=subjectIn
+	
+	def setMsg(self,msgIn):
+		self.msg=msgIn
+	
+	def setImageToJoin(self,pathIn):
+		self.imageToJoin=pathIn
+	
+	def getHeader(self):
+		#header
+		header='To:' + self.toMail + '\n'
+		header=header+ 'From:' + self.fromMail +'\n'
+		header=header + 'Subject:' + self.subject + '\n'
+		return header
+		
+	def sendMail(self):
+		
+		from email.mime.text import MIMEText
+		
+		# connexion serveur smtp
+		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver.ehlo()
+		smtpserver.starttls()
+		smtpserver.ehlo()
+		print smtpserver.login(self.fromMail, self.fromPassword)
+		
+		"""
+		# preparation du mail 
+		mail=self.getHeader()+self.msg+"\n\n"
+		print mail # debug
+		"""
+		
+		# preparation du mail - utilise module email
+		mail = MIMEText(self.msg)
+		mail['Subject'] = self.subject
+		mail['From'] = self.fromMail
+		mail['To'] = self.toMail
+		print ""
+		print mail.as_string() # debug
+		
+		# envoi du mail 
+		smtpserver.sendmail(self.fromMail, [self.toMail], mail.as_string())
+		
+		# fermeture serveur smtp
+		#smtpserver.close()
+		print smtpserver.quit()
+	
+	def sendMailImage(self):
+		
+		from email.mime.text import MIMEText
+		from email.mime.image import MIMEImage
+		from email.mime.multipart import MIMEMultipart
+		
+		# connexion serveur smtp
+		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver.ehlo()
+		smtpserver.starttls()
+		smtpserver.ehlo()
+		smtpserver.login(self.fromMail, self.fromPassword)
+		
+		"""
+		# preparation du mail 
+		mail=self.getHeader()+self.msg+"\n\n"
+		print mail # debug
+		"""
+		
+		# preparation du mail - utilise module email
+		#mail = MIMEText(self.msg)
+		mail=MIMEMultipart()
+		mail['Subject'] = self.subject
+		mail['From'] = self.fromMail
+		mail['To'] = self.toMail
+		mail.preamble = self.subject
+		
+		msg = MIMEText(self.msg) # le texte
+		mail.attach(msg) # attache le texte au mail
+		
+		fp=open(self.imageToJoin,'rb') # ouvre fichier image en lecture binaire
+		img=img = MIMEImage(fp.read()) # lit le fichier et récupere l'objet image obtenu
+		fp.close()# ferme le fichier
+		
+		mail.attach(img) # attache l'image au mail
+		
+		print mail.as_string() # debug
+		
+		# envoi du mail 
+		smtpserver.sendmail(self.fromMail, [self.toMail], mail.as_string())
+		
+		# fermeture serveur smtp
+		#smtpserver.close()
+		smtpserver.quit()
+
+
+#------ fin serveur mail --- 
+
 # classe Uart pour communication série UART 
 class Uart():
 	
@@ -1144,7 +1283,6 @@ class Uart():
 
 # fin classe Uart
 
-
 ########################## FONCTIONS MULTIMEDIA ################################
 
 #================= IMAGE ==========================
@@ -1159,6 +1297,7 @@ yellow=(0,255,255)
 #--- creation d'un buffer principal RGB utilise par les fonctions 
 Buffer=None # déclare buffer principal non initialisé
 webcam=None # declare webcam - non initialise 
+iplImgSrc=None # declare objet pour capture image
 
 def initWebcam(*arg):
 	# arg : indexIn, widthIn, heightIn
@@ -1188,7 +1327,19 @@ def initWebcam(*arg):
 	# creation buffer image taille idem capture
 	global Buffer 
 	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
+	
+	captureAutoLive() # premier appel captureAutoLive
+	
 
+# fonction interne pour lecture automatique frames webcam a frequence = ~ fps
+def captureAutoLive():
+	global webcam, Buffer, iplImgSrc
+	
+	cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le iplImage Source
+	
+	timer(200, captureAutoLive) # auto appel de la fonction de capture de facon a lire 5 - 6 frame par seconde
+	# le but ici est uniquement de lire les frames pour eviter decalage lors captureImage...
+	# qui sinon renvoie frame precedent et non derniere capture
 
 def captureImage(*arg):
 	# arg : pathImageIn
@@ -1214,10 +1365,22 @@ def captureImage(*arg):
 	global Buffer 
 	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
 	"""
-	global webcam, Buffer 
+	global webcam, Buffer, iplImgSrc
+	
+	"""
+	# lire les premieres images pour eviter probleme decalage
+	for i in range(7):
+		iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam
+	
 	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
 	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
-
+	#Buffer=cv.QueryFrame(webcam)
+	"""
+	# preferer utilisation fonction capture live auto permettant copier/lire derniere frame a tout moment
+	# la derniere frame live est dans iplImgSrc - ici recapturer pour avoir derniere frame... 
+	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
+	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
+	
 	# une alternative possible à opencv = gstreamer 
 	# pipeline : 
 	#  gst-launch v4l2src device=/dev/video0 num-buffers=1 ! jpegenc ! filesink location=test.jpg
@@ -1257,9 +1420,17 @@ def showImage():
 	
 """
 
+def closeImage(): # ferme le visionneur d'image si ouvert 
+	# ferme visionneur image 
+	try :
+		executeCmdWait("killall gpicview") # ferme image precedente 
+	except:
+		pass
+	
+
 def addTextOnImage(textIn, xPosIn, yPosIn, bgrIn, fontScaleIn):
 	global Buffer
-	# bgr est soit un des identifiants prédéfinis soit un (b,g,r)
+	# bgr est soit un des identifiants predefinis soit un (b,g,r)
 	
 	#  initFont(name_font, hscale, vscale, shear=0, thickness=1, line_type=8 ) -> cvFont
 	font=cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, fontScaleIn, fontScaleIn, 0, 2, 8) 
@@ -1276,11 +1447,12 @@ def height(): # renvoie le height (hauteur) courante du Buffer image
 	return Buffer.height
 	
 
-#================= AUDIO ==========================
+#================= AUDIO / VOIX ==========================
 
 PICO='pico'
 ESPEAK='espeak'
 
+#--------------- Audio -----------------
 def playSound(filepathIn):
 	#print os.path.dirname(filepathIn) # debug
 	if os.path.dirname(filepathIn)=='':
@@ -1290,6 +1462,18 @@ def playSound(filepathIn):
 	executeCmdWait("mplayer -msglevel all=-1 " + filepathIn) # seul message erreur cf 0   fatal messages only
 	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
 
+def waitSound(*args):
+	# ( [seuil], [duree] )
+	
+	# arg : soit rien, soit duree detect, seuil detect
+	if len(args)==0 :
+		executeCmdWait("rec -q trans.wav silence 1 0.1 10% trim 0 1") # seuil 10% pendant 0,1sec - enreg 1 sec..
+	if len(args)==2:
+		executeCmdWait("rec -q trans.wav silence 1 " + str(args[1]) +" "+str(args[0])+"% trim 0 1") # seuil n% pendant nsec - enreg 1 sec..
+		# attention seuil = arg[0] et duree =arg[1]
+
+
+#---------- Voix ------------- 
 def speak(textIn, *arg):
 	
 	
@@ -1314,13 +1498,33 @@ def analyzeVoice(filepathIn):
 	
 	workdir=os.path.dirname(filepathIn)+"/" # repertoire du fichier son 
 	
+	# élimine les silences 
+	executeCmdWait("sox " + str(filepathIn)+" "+ str(workdir)+"trim.wav silence 1 0.1 1% -1 0.1 1%") # elimine les silences du fichier son
+	#print ("sox " + str(filepathIn)+" "+ str(workdir)+"trim.wav silence 1 0.1 1% -1 0.1 1%") # debug
+	print ("Effacement des silences")
+	
+	# test duree après effacement silence
+	duration=executeCmdOutput("soxi -D "+ str(workdir)+"trim.wav") # recupere duree fichier
+	#print ("soxi -D "+ str(workdir)+"trim.wav") # debug
+	print "duree = " + duration
+	
+	# si duree insuffisante : sortie de la fonction = evite connexion inutile au serveur
+	if float(duration)<0.1 :
+		print "Duree < 0.1 seconde : pas de connexion au serveur !"
+		return "" # renvoi chaine vide 
+	
+	# si la duree est suffisante : la suite est executee = envoi chaine vers serveur vocal 
+	
 	# formatage du fichier son pour reconnaissance de voix google en ligne 
 	executeCmdWait("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # convertit le fichier *.wav en fichier *.flac avec echantillonage 16000hz
-	print ("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # debug 
+	#print ("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # debug 
+	print ("Conversion fichier voix...")
+	
 	
 	out=executeCmdOutput("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ")
-	print ("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ") # debug
-	print out # debug
+	#print ("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ") # debug
+	#print out # debug
+	print ("Connexion serveur reconnaissance vocale...")
 	
 	# extraction de la chaine reconnue au sein de la reponse google voice a l'aide des expressions regulieres
 	result=re.findall(r'^.*\[\{.*:"(.*)",".*$', out) # trouve le texte place --[{--:"**"-- au niveau des **
@@ -1332,11 +1536,31 @@ def analyzeVoice(filepathIn):
 	print (result) # debug
 	return str(result)
 	
+
+#============================ VIDEO ======================================
+def playVideo(filepathIn):
+	#print os.path.dirname(filepathIn) # debug
+	if os.path.dirname(filepathIn)=='':
+		filepathIn=mainPath()+sourcesPath(AUDIO)+filepathIn # chemin par défaut si nom fichier seul
+		
+	#print filepathIn  #debug
+	executeCmd("mplayer -msglevel all=-1 -fs " + filepathIn) # seul message erreur cf 0   fatal messages only
+	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
+	# -fs pour fullscreen - sortie avec esc..
+
+def stopVideo():
+	# ferme mplayer
+	try :
+		executeCmdWait("killall mplayer") # ferme mplayer
+	except:
+		pass
+	
 #---- classes utiles multimedia --------
 
 # ...
 
 ########################## fin multimedia #########################################
+
 
 ########################### --------- initialisation ------------ #################
 
