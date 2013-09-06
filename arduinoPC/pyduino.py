@@ -21,7 +21,7 @@ $ sudo apt-get install geany
 Ce fichier est la version 0.1.20130706 pour le pcDuino
 """
 # message d'accueil 
-print "Pyduino for PC Desktop - v0.2 - by www.mon-club-elec.fr - 2013 "
+print "Pyduino for PC Desktop with Arduino - v0.3 - by www.mon-club-elec.fr - 2013 "
 
 # modules utiles 
 
@@ -56,6 +56,7 @@ except:
 
 # reseau 
 import socket 
+import smtplib # serveur mail 
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -72,7 +73,6 @@ PULLUP="8"
 #UART="3"
 #RX=0
 #TX=1
-uartPort=None
 
 HIGH = 1
 LOW =  0
@@ -87,6 +87,7 @@ OCT=8
 
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
+#debug=False # pour message debug
 
 #--- chemin de reference --- 
 #user_name=getpass.getuser()
@@ -123,44 +124,71 @@ src_dir_video="sources/videos/" # sources video
 
 # pinMode 
 def pinMode(pin, mode):
-	global uartPort
 	
-	if not uartPort : 
-		Uart.begin(115200)
-		
+	
+	
 	if mode==OUTPUT : 
-		Uart.println("pinMode("+str(pin)+",1)") # attention OUTPUT c'est 1
-		print ("pinMode("+str(pin)+",1)") # debug 
+		Uart.println("pinMode("+str(pin)+",1)") # envoi commande - attention OUTPUT c'est 1
+		
+		out=None
+		while not out : # attend reponse 
+			out=Uart.waitingAll() # lit les caracteres
+		
+		print out # debug
+		
 	elif mode==INPUT : 
-		Uart.println("pinMode("+str(pin)+",0)") # attention OUTPUT c'est 1
-		print ("pinMode("+str(pin)+",0)") # debug 
-
+		out=None
+		while not out : # tant que pas de reponse envoie une requete
+			Uart.println("pinMode("+str(pin)+",0)") # attention input c'est 0
+			#print ("pinMode("+str(pin)+",0)") # debug 
+			
+			out=Uart.waitingAll() # lit les caracteres
+		
+		print out # debug
+		
+	elif mode==PULLUP : 
+		Uart.println("pinMode("+str(pin)+",0)") # attention INPUT c'est 0
+		delay(100) # laisse temps reponse arriver
+		print "pinMode("+str(pin)+",0)"
+		
+		out=None
+		while not out : # attend reponse
+			out=Uart.waitingAll() # lit les caracteres
+		
+		print out # debug
+		
+		digitalWrite(pin,HIGH) # activation du pullup 
+	
 # digitalWrite 
 def digitalWrite(pin, state):
-	global uartPort
 	
-	if not uartPort : 
-		Uart.begin(115200)
-
+	
 	Uart.println("digitalWrite("+str(pin)+","+str(state)+")") # 
-	print ("digitalWrite("+str(pin)+","+str(state)+")") # debug
+	#print ("digitalWrite("+str(pin)+","+str(state)+")") # debug
 
 # digitalRead
 def digitalRead(pin):
-	global uartPort
 	
-	if not uartPort : 
-		Uart.begin(115200)
+	
+	# envoi de la commande
+	Uart.println("digitalRead("+str(pin)+")") 
+	print ("digitalRead("+str(pin)+")")
+	# attend un reponse
+	out=None
+	while not out : # tant que pas de reponse envoie une requete
+		out=Uart.waiting() # lit les caracteres
+	
+	print out # debug
+	#out=out.splitlines()
+	
+	return out # renvoie la valeur
 
-	return 
 
 
 def toggle(pin): # inverse l'etat de la broche
-	global uartPort
 	
-	if not uartPort : 
-		Uart.begin(115200)
-
+	
+	
 	if digitalRead(pin)==HIGH:
 		digitalWrite(pin,LOW)
 		return LOW
@@ -172,29 +200,32 @@ def toggle(pin): # inverse l'etat de la broche
 
 # analogRead - entrées analogiques 
 def analogRead(pinAnalog):
-	global uartPort
 	
+	
+	""" # mis en fin de lib' = exécution obligatoire au démarrage 
+	# au besoin : initialisation port série 
+	global uartPort
 	if not uartPort : 
 		Uart.begin(115200)
-		delay(1000)
+		Uart.waitOK() # attend port serie OK 
+	"""
+	# envoi la commande
+	Uart.println("analogRead("+str(pinAnalog)+")") # 
 	
+	# attend une réponse 
 	out=None
-	while not out : # tant que pas de reponse envoie une requete
-		Uart.println("analogRead("+str(pinAnalog)+")") # 
+	while not out : # tant que pas de reponse 
 		#print ("analogRead("+str(pinAnalog)+")") # debug
-		delay(50) # attend reponse
+		#delay(50) # attend reponse
 		out=Uart.waiting() # lit les caracteres
 	
-	print out # debug
-
-	return int(out) # renvoie la valeur
+	#print out # debug
+	outlines=out.splitlines() # extrait les lignes... une manière simple de supprimer le fin de ligne
+	
+	return int(outlines[0]) # renvoie la valeur
 
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
 def analogReadmV(pinAnalog):
-	global uartPort
-	
-	if not uartPort : 
-		Uart.begin(115200)
 	
 	mesure=analogRead(pinAnalog)
 	mesure=rescale(mesure,0,1023,0,5000)
@@ -205,10 +236,9 @@ def analogReadmV(pinAnalog):
 
 # analogWrite # idem Arduino en 0-255
 def analogWrite(pinPWMIn, largeurIn):
-	global uartPort
 	
-	if not uartPort : 
-		Uart.begin(115200)
+	Uart.println("analogWrite("+str(pinPWMIn)+","+str(largeurIn)+")") # 
+	print ("analogWrite("+str(pinPWMIn)+","+str(largeurIn)+")") # debug 
 
 # analogWritePercent(pinPWMIn, largeurIn)=> rescale 0-100 vers 0-255
 def analogWritePercent(pinPWMIn, largeurIn):
@@ -698,6 +728,35 @@ def rmdir(pathIn): # efface le répertoire
 		print "Effacement impossible"
 		return False
 
+def listdirs(pathIn): # liste les repertoires 
+	if exists(pathIn):
+		onlydirs = [ f for f in os.listdir(pathIn) if os.path.isdir(os.path.join(pathIn,f)) ]
+		return sorted(onlydirs)
+	else: 
+		return False
+
+def listfiles(pathIn): # liste les fichiers 
+	if exists(pathIn):
+		onlyfiles = [ f for f in os.listdir(pathIn) if os.path.isfile(os.path.join(pathIn,f)) ]
+		# voir : http://stackoverflow.com/questions/3207219/how-to-list-all-files-of-a-directory-in-python
+		return sorted(onlyfiles)
+	else: 
+		return False
+
+def dircontent(pathIn): # liste rep suivi des fichiers
+	if exists(pathIn):
+		out=""
+		for dirname in listdirs(pathIn): # les rép
+			out=out+dirname+"/\n"
+		
+		for filename in listfiles(pathIn):   # les fichiers
+			out=out+filename+"\n"
+		
+		return out 
+	else: 
+		return False
+
+
 # open (path, mode) avec mode parmi r, w ou a -- fonction native Python --> renvoie un objet file 
 
 def remove(filepathIn):
@@ -792,19 +851,33 @@ class EthernetServer(socket.socket) : # attention recoit classe du module, pas l
 		
 	
 	
-	def begin(self):
-		self.listen(5)
+	def begin(self, *arg):
+		
+		
+		if len(arg)==0: # si pas de nombre client precise
+			self.listen(5) # fixe a 5 
+		elif len(arg)==1: # si nombre client
+			self.listen(arg[0]) # fixe au nombre voulu
 	
-	def available(self):
-		return self.accept() # attend client entrant
+	def clientAvailable(self):
+		client,adresseDistante=self.accept() # attend client entrant
+		return client, adresseDistante[0]
+		# l'adresse recue est un tuple - ip est le 1er element
 
-	def readDataFrom(self, clientDistantIn):
-		chaineRecue=clientDistantIn.recv(1024).strip()
+	def readDataFrom(self, clientDistantIn, *arg):
+		
+		# arg = rien ou maxIn
+		if len(arg)==0:
+			maxIn=1024
+		elif len(arg)==1:
+			maxIn=arg[0]
+		
+		chaineRecue=clientDistantIn.recv(maxIn)#.strip() 
 		chaineRecue.decode('utf-8')
 		return chaineRecue
 	
 	def writeDataTo(self, clientDistantIn, reponseIn):
-		clientDistantIn.send(reponseIn)
+		clientDistantIn.send(reponseIn) # préférer sendAll ? 
 """
 class EthernetClient(socket.socket) : # attention recoit classe du module, pas le module !
 	
@@ -814,8 +887,139 @@ class EthernetClient(socket.socket) : # attention recoit classe du module, pas l
 		rec.decode('utf-8')
 		print rec
 """
+# close() -- module socket -- classe socket -- Python --> http://docs.python.org/2/library/socket.html#socket.socket.close
+
+
+# classe MailServer
+
+class MailServer():
+	
+	def __init__(self):
+		self.name=""
+		self.port=0
+		self.fromMail=""
+		self.fromPassword=""
+		self.toMail=""
+		
+		self.subject=""
+		self.msg=""
+		self.imageToJoin=""
+	
+	def setName(self,nameIn):
+		self.name=nameIn
+	
+	def setPort(self,portIn):
+		self.port=portIn
+		
+	def setFromMail(self,fromMailIn):
+		self.fromMail=fromMailIn
+		
+	def setFromPassword(self,fromPasswordIn):
+		self.fromPassword=fromPasswordIn
+		
+	def setToMail(self,toMailIn):
+		self.toMail=toMailIn
+		
+	def setSubject(self,subjectIn):
+		self.subject=subjectIn
+	
+	def setMsg(self,msgIn):
+		self.msg=msgIn
+	
+	def setImageToJoin(self,pathIn):
+		self.imageToJoin=pathIn
+	
+	def getHeader(self):
+		#header
+		header='To:' + self.toMail + '\n'
+		header=header+ 'From:' + self.fromMail +'\n'
+		header=header + 'Subject:' + self.subject + '\n'
+		return header
+		
+	def sendMail(self):
+		
+		from email.mime.text import MIMEText
+		
+		# connexion serveur smtp
+		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver.ehlo()
+		smtpserver.starttls()
+		smtpserver.ehlo()
+		print smtpserver.login(self.fromMail, self.fromPassword)
+		
+		"""
+		# preparation du mail 
+		mail=self.getHeader()+self.msg+"\n\n"
+		print mail # debug
+		"""
+		
+		# preparation du mail - utilise module email
+		mail = MIMEText(self.msg)
+		mail['Subject'] = self.subject
+		mail['From'] = self.fromMail
+		mail['To'] = self.toMail
+		print ""
+		print mail.as_string() # debug
+		
+		# envoi du mail 
+		smtpserver.sendmail(self.fromMail, [self.toMail], mail.as_string())
+		
+		# fermeture serveur smtp
+		#smtpserver.close()
+		print smtpserver.quit()
+	
+	def sendMailImage(self):
+		
+		from email.mime.text import MIMEText
+		from email.mime.image import MIMEImage
+		from email.mime.multipart import MIMEMultipart
+		
+		# connexion serveur smtp
+		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver.ehlo()
+		smtpserver.starttls()
+		smtpserver.ehlo()
+		smtpserver.login(self.fromMail, self.fromPassword)
+		
+		"""
+		# preparation du mail 
+		mail=self.getHeader()+self.msg+"\n\n"
+		print mail # debug
+		"""
+		
+		# preparation du mail - utilise module email
+		#mail = MIMEText(self.msg)
+		mail=MIMEMultipart()
+		mail['Subject'] = self.subject
+		mail['From'] = self.fromMail
+		mail['To'] = self.toMail
+		mail.preamble = self.subject
+		
+		msg = MIMEText(self.msg) # le texte
+		mail.attach(msg) # attache le texte au mail
+		
+		fp=open(self.imageToJoin,'rb') # ouvre fichier image en lecture binaire
+		img=img = MIMEImage(fp.read()) # lit le fichier et récupere l'objet image obtenu
+		fp.close()# ferme le fichier
+		
+		mail.attach(img) # attache l'image au mail
+		
+		print mail.as_string() # debug
+		
+		# envoi du mail 
+		smtpserver.sendmail(self.fromMail, [self.toMail], mail.as_string())
+		
+		# fermeture serveur smtp
+		#smtpserver.close()
+		smtpserver.quit()
+
+
+#------ fin serveur mail --- 
 
 # classe Uart pour communication série UART 
+
+uartPort=None # objet global 
+
 class Uart():
 	
 	# def __init__(self): # constructeur principal
@@ -833,15 +1037,27 @@ class Uart():
 		try:
 			if len(arg)==0: # si pas d'arguments
 				#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 10) # initialisation port serie uart
-				uartPort=serial.Serial('/dev/ttyACM0', rateIn, timeout = 10) # initialisation port serie uart
+				#uartPort=serial.Serial('/dev/ttyACM0', rateIn, timeout = 10) # initialisation port serie uart
+				uartPort=serial.Serial('/dev/ttyACM0', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, 10)
+				uartPort.flushInput() # vide la file d'attente série
 			if len(arg)==1 : # si timeout
 				#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
 				uartPort=serial.Serial('/dev/ttyACM0', rateIn, timeout = arg[0]) # initialisation port serie uart
+				uartPort.flushInput() # vide la file d'attente série
+				
 			print("Initialisation Port Serie : /dev/ttyACM0 @ " + str(rateIn) +" = OK ") # affiche debug
 			
 		except:
 			print ("Erreur lors initialisation port Serie") 
 			
+	def waitOK(self): # fonction pour attendre reponse OK suite initialisation
+		out=None
+		while not out : # attend une réponse 
+			out=Uart.waitingAll() # lit tous les caracteres
+		
+		print out
+	
+	
 	def println(self,text, *arg):  # message avec saut de ligne
 		# Envoi chaine sur port serie uart 
 		# Supporte formatage chaine façon Arduino avec DEC, BIN, OCT, HEX
@@ -857,23 +1073,23 @@ class Uart():
 		
 		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
 			if arg[0]==DEC and text.isdigit():
-				print(text)
+				# print(text)
 				out=text
 			elif arg[0]==BIN and text.isdigit():
 				out=bin(int(text))
-				print(out)
+				# print(out)
 			elif arg[0]==OCT and text.isdigit():
 				out=oct(int(text))
-				print(out)
+				# print(out)
 			elif arg[0]==HEX and text.isdigit():
 				out=hex(int(text))
-				print(out)
+				# print(out)
 		else: # si pas de formatage de chaine = affiche tel que 
 			out=text
-			print(out)
+			# print(out)
 		
 		uartPort.write(out+chr(10)) # + saut de ligne 
-		print "Envoi sur le port serie Uart : " + out+chr(10)
+		#print "Envoi sur le port serie Uart : " + out+chr(10) # debug
 		
 		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
 		# si type est long ou int
@@ -891,6 +1107,19 @@ class Uart():
 		if uartPort.inWaiting() : return True
 		else: return False
 		
+	def flush(self):
+		global uartPort
+		return uartPort.flush()
+	
+	def read(self):
+		global uartPort
+		return uartPort.read()
+	
+	def write(self, strIn):
+		global uartPort
+		uartPort.write(strIn)
+		
+	#--- lecture d'une ligne jusqu'a caractere de fin indique
 	def waiting(self, *arg): # lecture d'une chaine en reception sur port serie 
 		
 		global uartPort
@@ -904,7 +1133,7 @@ class Uart():
 		
 		#delay(20) # laisse temps aux caracteres d'arriver
 		
-		while (uartPort.inWaiting()): # tant que au moins un caractere en reception
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
 			charIn=uartPort.read() # on lit le caractere
 			#print charIn # debug
 			
@@ -917,16 +1146,315 @@ class Uart():
 			
 		#-- une fois sorti du while : on se retrouve ici - attention indentation 
 		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
-			# print(chaineIn) # affiche la chaine # debug
+			#print(chaineIn) # affiche la chaine # debug
 			return chaineIn  # renvoie la chaine 
 		else:
 			return False # si pas de chaine
-			
+	
+	#--- lecture de tout ce qui arrive en réception 
+	def waitingAll(self): # lecture de tout en reception sur port serie 
 		
+		global uartPort
+		
+		#-- variables de reception -- 
+		chaineIn=""
+		charIn=""
+		
+		#delay(20) # laisse temps aux caracteres d'arriver
+		
+		while uartPort.inWaiting(): # tant que au moins un caractere en reception
+			charIn=uartPort.read() # on lit le caractere
+			#print charIn # debug
+			chaineIn=chaineIn+charIn
+			# print chaineIn # debug
+			
+		#-- une fois sorti du while : on se retrouve ici - attention indentation 
+		if len(chaineIn)>0: # ... pour ne pas avoir d'affichage si ""	
+			#print(chaineIn) # affiche la chaine # debug
+			return chaineIn  # renvoie la chaine 
+		else:
+			return False # si pas de chaine
 
-# ajouter write / read   / flush 
 
 # fin classe Uart
+
+########################## FONCTIONS MULTIMEDIA ################################
+
+#================= IMAGE ==========================
+
+# constante brg pour couleur police
+
+blue=(255,0,0)
+red=(0,0,255)
+green=(0,255,0)
+yellow=(0,255,255)
+
+#--- creation d'un buffer principal RGB utilise par les fonctions 
+Buffer=None # déclare buffer principal non initialisé
+webcam=None # declare webcam - non initialise 
+iplImgSrc=None # declare objet pour capture image
+
+def initWebcam(*arg):
+	# arg : indexIn, widthIn, heightIn
+	
+	# prise en compte des parametres 
+	if len(arg)==3:
+		indexCam=arg[0]
+		widthCam=arg[1]
+		heightCam=arg[2]
+	else:
+		indexCam=0
+		widthCam=320
+		heightCam=240
+	
+	print ("Parametres capture image : index cam = " + str(indexCam) 
+	+ " | " + str (widthCam) + "x" + str(heightCam))
+	
+	#-- initialisation de la camera
+	#indexCam=0 # index de la webcam a utiliser - voir ls /dev/video* - utiliser -1 si pas d'indice
+	global webcam
+	webcam=cv.CaptureFromCAM(indexCam) # declare l'objet capture sans designer la camera - remplace CreateCameraCapture
+	#print (webcam) # debug
+
+	cv.SetCaptureProperty(webcam,cv.CV_CAP_PROP_FRAME_WIDTH,widthCam) # definit largeur image capture
+	cv.SetCaptureProperty(webcam,cv.CV_CAP_PROP_FRAME_HEIGHT,heightCam) # definit hauteur image capture
+	
+	# creation buffer image taille idem capture
+	global Buffer 
+	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
+	
+	captureAutoLive() # premier appel captureAutoLive
+	
+
+# fonction interne pour lecture automatique frames webcam a frequence = ~ fps
+def captureAutoLive():
+	global webcam, Buffer, iplImgSrc
+	
+	cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le iplImage Source
+	
+	timer(200, captureAutoLive) # auto appel de la fonction de capture de facon a lire 5 - 6 frame par seconde
+	# le but ici est uniquement de lire les frames pour eviter decalage lors captureImage...
+	# qui sinon renvoie frame precedent et non derniere capture
+
+def captureImage(*arg):
+	# arg : pathImageIn
+	
+	# gestion des arguments recus
+	if len(arg)==0:
+		print ("Preciser le chemin d'enregistrement de l'image")
+		return
+	elif len(arg)>0: # si arguments recus
+		filepathImage=arg[0]
+		
+	#--- capture Image 
+	# webcam testee out of the box : Logitech C170
+	
+	"""
+	#-- initialisation de la camera
+	#indexCam=0 # index de la webcam a utiliser - voir ls /dev/video* - utiliser -1 si pas d'indice
+	webcam=cv.CaptureFromCAM(indexCam) # declare l'objet capture sans designer la camera - remplace CreateCameraCapture
+	#print (webcam) # debug
+	cv.SetCaptureProperty(webcam,cv.CV_CAP_PROP_FRAME_WIDTH,widthCam) # definit largeur image capture
+	cv.SetCaptureProperty(webcam,cv.CV_CAP_PROP_FRAME_HEIGHT,heightCam) # definit hauteur image capture
+	
+	global Buffer 
+	Buffer=cv.CreateImage((widthCam,heightCam), cv.IPL_DEPTH_8U, 3) # buffer principal 3 canaux 8 bits non signes - RGB --
+	"""
+	global webcam, Buffer, iplImgSrc
+	
+	"""
+	# lire les premieres images pour eviter probleme decalage
+	for i in range(7):
+		iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam
+	
+	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
+	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
+	#Buffer=cv.QueryFrame(webcam)
+	"""
+	# preferer utilisation fonction capture live auto permettant copier/lire derniere frame a tout moment
+	# la derniere frame live est dans iplImgSrc - ici recapturer pour avoir derniere frame... 
+	iplImgSrc=cv.QueryFrame(webcam) # recupere un IplImage en provenance de la webcam dans le Buffer
+	cv.Copy( iplImgSrc,Buffer)# cv.Copy(src, dst, mask=None) -> None
+	
+	# une alternative possible à opencv = gstreamer 
+	# pipeline : 
+	#  gst-launch v4l2src device=/dev/video0 num-buffers=1 ! jpegenc ! filesink location=test.jpg
+	
+
+def loadImage(filepathImageIn):
+	global Buffer
+	Buffer=cv.LoadImage(filepathImageIn, cv.CV_LOAD_IMAGE_COLOR) # charge l'image sous forme d'une iplImage 3 canaux
+	
+
+def saveImage(filepathImageIn):
+	global Buffer
+	cv.SaveImage(filepathImageIn, Buffer)
+
+def showImage(*arg):
+	
+	
+	# filepathIn ou rien 
+	
+	if len(arg)==0: # si pas de nom de fichier précisé => on utilise un fichier transitoire.. 
+		filepathImage=homePath()+"imageTrans.jpg"
+		saveImage(filepathImage)
+		executeCmd("gpicview " + str(filepathImage)) # affiche image avec viewer lxde = gpicview
+	elif len(arg)==1: # si chemin recu 
+		filepathIn=arg[0]
+		if exists(filepathIn):
+			executeCmd("gpicview " + str(filepathIn)) # affiche image avec viewer lxde = gpicview
+		else : 
+			print ("Fichier image n'existe pas !")
+
+"""
+def showImage():
+	global Buffer
+	cv.NamedWindow("Buffer") #cv.NamedWindow(name, flags=CV_WINDOW_AUTOSIZE) 
+	cv.ShowImage("Buffer", Buffer) # cv.ShowImage(name, image) -> None
+	# ne fonctionne pas... 
+	
+"""
+
+def closeImage(): # ferme le visionneur d'image si ouvert 
+	# ferme visionneur image 
+	try :
+		executeCmdWait("killall gpicview") # ferme image precedente 
+	except:
+		pass
+	
+
+def addTextOnImage(textIn, xPosIn, yPosIn, bgrIn, fontScaleIn):
+	global Buffer
+	# bgr est soit un des identifiants predefinis soit un (b,g,r)
+	
+	#  initFont(name_font, hscale, vscale, shear=0, thickness=1, line_type=8 ) -> cvFont
+	font=cv.InitFont(cv.CV_FONT_HERSHEY_SIMPLEX, fontScaleIn, fontScaleIn, 0, 2, 8) 
+	cv.PutText(Buffer, textIn, (xPosIn,yPosIn),font, bgrIn)# cv.PutText(img, text, org, font, color) -> None
+	
+	
+def width(): # renvoie la width (largeur) courante du Buffer image
+	global Buffer
+	return Buffer.width 
+	
+
+def height(): # renvoie le height (hauteur) courante du Buffer image
+	global Buffer
+	return Buffer.height
+	
+
+#================= AUDIO / VOIX ==========================
+
+PICO='pico'
+ESPEAK='espeak'
+
+#--------------- Audio -----------------
+def playSound(filepathIn):
+	#print os.path.dirname(filepathIn) # debug
+	if os.path.dirname(filepathIn)=='':
+		filepathIn=mainPath()+sourcesPath(AUDIO)+filepathIn # chemin par défaut si nom fichier seul
+		
+	#print filepathIn  #debug
+	executeCmdWait("mplayer -msglevel all=-1 " + filepathIn) # seul message erreur cf 0   fatal messages only
+	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
+
+def waitSound(*args):
+	# ( [seuil], [duree] )
+	
+	# arg : soit rien, soit duree detect, seuil detect
+	if len(args)==0 :
+		executeCmdWait("rec -q trans.wav silence 1 0.1 10% trim 0 1") # seuil 10% pendant 0,1sec - enreg 1 sec..
+	if len(args)==2:
+		executeCmdWait("rec -q trans.wav silence 1 " + str(args[1]) +" "+str(args[0])+"% trim 0 1") # seuil n% pendant nsec - enreg 1 sec..
+		# attention seuil = arg[0] et duree =arg[1]
+
+
+#---------- Voix ------------- 
+def speak(textIn, *arg):
+	
+	
+	# arg : soit rien, soit ESPEAK ou PICO
+	if len(arg)==0 : # si pas précisé = pico par defaut 
+		executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
+		executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
+	elif len(arg)==1 : # sinon, on utilise le moteur tts voulu
+		if arg[0]==PICO:
+			executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
+			executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
+		elif arg[0]==ESPEAK:
+			executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\"" )
+
+def recordSound(filepathIn, dureeIn):
+	if not exists(os.path.dirname(filepathIn)): # cree le rep si existe pas 
+		mkdir(os.path.dirname(filepathIn))
+	
+	executeCmdWait("arecord -d "+str(dureeIn)+" -r 16000 -f cd "+ str(filepathIn)) # enregistre 5 secondes en qualite CD a 16000hz dans fichier voulu
+	
+def analyzeVoice(filepathIn):
+	
+	workdir=os.path.dirname(filepathIn)+"/" # repertoire du fichier son 
+	
+	# élimine les silences 
+	executeCmdWait("sox " + str(filepathIn)+" "+ str(workdir)+"trim.wav silence 1 0.1 1% -1 0.1 1%") # elimine les silences du fichier son
+	#print ("sox " + str(filepathIn)+" "+ str(workdir)+"trim.wav silence 1 0.1 1% -1 0.1 1%") # debug
+	print ("Effacement des silences")
+	
+	# test duree après effacement silence
+	duration=executeCmdOutput("soxi -D "+ str(workdir)+"trim.wav") # recupere duree fichier
+	#print ("soxi -D "+ str(workdir)+"trim.wav") # debug
+	print "duree = " + duration
+	
+	# si duree insuffisante : sortie de la fonction = evite connexion inutile au serveur
+	if float(duration)<0.1 :
+		print "Duree < 0.1 seconde : pas de connexion au serveur !"
+		return "" # renvoi chaine vide 
+	
+	# si la duree est suffisante : la suite est executee = envoi chaine vers serveur vocal 
+	
+	# formatage du fichier son pour reconnaissance de voix google en ligne 
+	executeCmdWait("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # convertit le fichier *.wav en fichier *.flac avec echantillonage 16000hz
+	#print ("sox " + str(filepathIn)+" "+ str(workdir)+"fichier.flac rate 16k") # debug 
+	print ("Conversion fichier voix...")
+	
+	
+	out=executeCmdOutput("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ")
+	#print ("wget -4 -q -U \"Mozilla/5.0\" --post-file "+ str(workdir)+"fichier.flac"+" --header=\"Content-Type: audio/x-flac; rate=16000\" -O  - \"http://www.google.com/speech-api/v1/recognize?lang=fr&client=chromium\" ") # debug
+	#print out # debug
+	print ("Connexion serveur reconnaissance vocale...")
+	
+	# extraction de la chaine reconnue au sein de la reponse google voice a l'aide des expressions regulieres
+	result=re.findall(r'^.*\[\{.*:"(.*)",".*$', out) # trouve le texte place --[{--:"**"-- au niveau des **
+	print (result) # debug
+	
+	if len(result)>0:result=str(result[0])
+	else: result=""
+	
+	print (result) # debug
+	return str(result)
+	
+
+#============================ VIDEO ======================================
+def playVideo(filepathIn):
+	#print os.path.dirname(filepathIn) # debug
+	if os.path.dirname(filepathIn)=='':
+		filepathIn=mainPath()+sourcesPath(AUDIO)+filepathIn # chemin par défaut si nom fichier seul
+		
+	#print filepathIn  #debug
+	executeCmd("mplayer -msglevel all=-1 -fs " + filepathIn) # seul message erreur cf 0   fatal messages only
+	# voir : http://www.mplayerhq.hu/DOCS/man/en/mplayer.1.txt
+	# -fs pour fullscreen - sortie avec esc..
+
+def stopVideo():
+	# ferme mplayer
+	try :
+		executeCmdWait("killall mplayer") # ferme mplayer
+	except:
+		pass
+	
+#---- classes utiles multimedia --------
+
+# ...
+
+########################## fin multimedia #########################################
 
 
 ########################### --------- initialisation ------------ #################
@@ -937,5 +1465,11 @@ Uart = Uart() # declare instance Uart implicite
 
 micros0Syst=microsSyst() # mémorise microsSyst au démarrage
 millis0Syst=millisSyst() # mémorise millisSyst au démarrage
+
+
+# initialisation port série dès le début car va communiquer ave Arduino
+Uart.begin(115200) # initialise comm' série 
+delay(3000) # laisse le temps à la réponse d'arriver
+Uart.waitOK() # attend réponse port serie OK 
 
 
