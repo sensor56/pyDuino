@@ -152,7 +152,8 @@ HIGH = 1
 LOW =  0
 
 A0, A1, A2, A3, A4,A5 =0,1,2,3,4,5 # identifiant broches analogiques
-PWM0, PWM1, PWM2, PWM3, PWM4,PWM5 =3,5,6,9,10,11 # identifiant broches PWM
+PWM=[3,5,6,9,10,11] # list pour acces par indice
+PWM0, PWM1, PWM2, PWM3, PWM4,PWM5 =PWM[0],PWM[1],PWM[2],PWM[3],PWM[4],PWM[5] # identifiant broches PWM
 
 DEC=10
 BIN=2
@@ -373,7 +374,7 @@ def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 			if frequencePWMIn==195 or frequencePWMIn==260 or frequencePWMIn==390 or frequencePWMIn==520 or frequencePWMIn==781: 
 				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)  # fixe la frequence voulue 
 				#initPwmFlag[pinPWMIn]=True # flag temoin config freq PWM mis à True
-				initPwmFlag[pinPWMIn]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
+				initPwmFlag[PWM.index(pinPWMIn)]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
 				#print ret # debug
 				if ret<0 :
 					print ("Problème lors configuration PWM")
@@ -397,7 +398,7 @@ def setFrequencyPWM(pinPWMIn, frequencePWMIn):
 				# -- fixe frequence pwm
 				ret=fcntl.ioctl(fd, PWM_FREQ, pwmfreq)
 				#initPwmFlag[pinPWMIn]=True # flag temoin config freq PWM mis à True
-				initPwmFlag[pinPWMIn]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
+				initPwmFlag[PWM.index(pinPWMIn)]= frequencePWMIn # flag temoin config freq PWM mis à valeur courante freq
 				#print ret
 				if ret<0 :
 					print ("Probleme lors configuration PWM")
@@ -415,7 +416,7 @@ def analogWriteHardware(pinPWMIn, largeurIn):
 	
 	global initPwmFlag
 		
-	if initPwmFlag[pinPWMIn]==False :  # si frequence PWM pas initialisee
+	if initPwmFlag[PWM.index(pinPWMIn)]==False :  # si frequence PWM pas initialisee
 		setFrequencyPWM(pinPWMIn,defaultPwmFreq) # utilise la frequence PWM par defaut 
 	
 	pin=ctypes.c_int(pinPWMIn) # broche
@@ -469,7 +470,7 @@ def analogWrite(pinPWMIn, largeurIn):
 	
 	global initPwmFlag
 	
-	if initPwmFlag[pinPWMIn]==False :  # si frequence PWM pas initialisee
+	if initPwmFlag[PWM.index(pinPWMIn)]==False :  # si frequence PWM pas initialisee
 		setFrequencyPWM(pinPWMIn,defaultPwmFreq) # utilise la frequence PWM par defaut 
 
 	if pinPWMIn==3 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11: # duty natif 0-60 pour ces  broches en 520Hz
