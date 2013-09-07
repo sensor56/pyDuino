@@ -474,7 +474,7 @@ def analogWrite(pinPWMIn, largeurIn):
 		setFrequencyPWM(pinPWMIn,defaultPwmFreq) # utilise la frequence PWM par defaut 
 
 	if pinPWMIn==3 or pinPWMIn==9 or pinPWMIn==10 or pinPWMIn==11: # duty natif 0-60 pour ces  broches en 520Hz
-		maxDuty=int(33000/initPwmFlag[pinPWMIn]) # initPwmFlag contient la valeur de la freq courante
+		maxDuty=int(33000/initPwmFlag[PWM.index(pinPWMIn)]) # initPwmFlag contient la valeur de la freq courante
 		
 		largeurIn=rescale(largeurIn,0,255,0,maxDuty) # rescale 0-255 vers 0-maxDuty
 	#elif pinPWMIn==5 or pinPWMIn==6: # duty natif 0-255 pour ces 2 broches = inchangé
