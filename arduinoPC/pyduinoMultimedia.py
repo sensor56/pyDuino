@@ -87,7 +87,7 @@ OCT=8
 
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
-#debug=False # pour message debug
+debug=False # pour message debug
 
 #--- chemin de reference --- 
 #user_name=getpass.getuser()
@@ -255,6 +255,12 @@ def analogWritePercent(pinPWMIn, largeurIn):
 	
 
 ################ Fonctions communes ####################
+
+#-- fonction internes pyduino 
+# setDebug : pour activer message debug 
+def setDebug( boolIn):
+	global debug
+	debug=boolIn
 
 #--- temps ---
  
