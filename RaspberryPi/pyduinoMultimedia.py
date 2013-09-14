@@ -183,6 +183,7 @@ uartPort=None
 
 # constantes Pyduino
 noLoop=False 
+debug=False # pour message debug
 
 READ="r"
 WRITE="w"
@@ -326,6 +327,13 @@ def analogWritePercent(pin, value):
 ##############################################################################
 
 ################ Fonctions communes ####################
+
+#-- fonction internes pyduino 
+# setDebug : pour activer message debug 
+def setDebug( boolIn):
+	global debug
+	debug=boolIn
+
 
 #--- temps ---
  
