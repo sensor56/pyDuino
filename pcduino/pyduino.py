@@ -97,6 +97,7 @@ OCT=8
 
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
+debug=False # pour message debug
 
 READ="r"
 WRITE="w"
@@ -263,6 +264,8 @@ def analogRead(pinAnalog):
 	out=out.split(":") # scinde en 2 la chaine "adc 0 : valeur"
 	out=out[1] # garde la 2eme partie = la valeur
 	
+	if debug: print out # debug
+	
 	return int(out) # renvoie la valeur
 
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
@@ -422,6 +425,13 @@ def analogWritePercent(pinPWMIn, largeurIn):
 	
 
 ################ Fonctions communes ####################
+
+#-- fonction internes pyduino 
+# setDebug : pour activer message debug 
+def setDebug( boolIn):
+	global debug
+	debug=boolIn
+	
 
 #--- temps ---
  
