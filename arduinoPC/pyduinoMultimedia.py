@@ -219,7 +219,8 @@ def analogRead(pinAnalog):
 		#delay(50) # attend reponse
 		out=Uart.waiting() # lit les caracteres
 	
-	#print out # debug
+	if debug: print out # debug
+	
 	outlines=out.splitlines() # extrait les lignes... une manière simple de supprimer le fin de ligne
 	
 	outlines=out.splitlines() # extrait les lignes... une manière simple de supprimer le fin de ligne
