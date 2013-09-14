@@ -222,7 +222,11 @@ def analogRead(pinAnalog):
 	#print out # debug
 	outlines=out.splitlines() # extrait les lignes... une manière simple de supprimer le fin de ligne
 	
-	return int(outlines[0]) # renvoie la valeur
+	outlines=out.splitlines() # extrait les lignes... une manière simple de supprimer le fin de ligne
+	if outlines[0].isdigit() :
+		return int(outlines[0]) # renvoie la valeur
+	else:
+		return(-1)	
 
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
 def analogReadmV(pinAnalog):
