@@ -86,7 +86,7 @@ OCT=8
 
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
-#debug=False # pour message debug
+debug=False # pour message debug
 
 #--- chemin de reference --- 
 #user_name=getpass.getuser()
@@ -218,7 +218,8 @@ def analogRead(pinAnalog):
 		#delay(50) # attend reponse
 		out=Uart.waiting() # lit les caracteres
 	
-	#print out # debug
+	if debug: print out # debug
+	
 	outlines=out.splitlines() # extrait les lignes... une manière simple de supprimer le fin de ligne
 	if outlines[0].isdigit() :
 		return int(outlines[0]) # renvoie la valeur
@@ -252,6 +253,12 @@ def analogWritePercent(pinPWMIn, largeurIn):
 	
 
 ################ Fonctions communes ####################
+
+#-- fonction internes pyduino 
+# setDebug : pour activer message debug 
+def setDebug( boolIn):
+	global debug
+	debug=boolIn
 
 #--- temps ---
  
