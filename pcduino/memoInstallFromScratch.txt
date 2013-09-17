@@ -154,6 +154,11 @@ test avec :
 > sudo apt-get install python-qt4-gl (0,8Mo)
 >  sudo apt-get install python-opengl (6Mo)
 
+ensuite : 
+> partage fichiers NFS... 
+> wifi..
+> etc.. 
+
 
 
 
