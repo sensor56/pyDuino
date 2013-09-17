@@ -58,6 +58,7 @@ sudo apt-get install midori --yes (50MB)
 sudo apt-get install gdebi --yes (5MB)
 sudo apt-get install cbm --yes (moniteur bande passante réseau) 
 +/- sudo apt-get install bluefish --yes (22MB)  Editeur html 
++/- sudo apt-get install gnome-disk-utility --yes 
 
 # +/- enlever ce qui ne sert a rien - pas obligatoire - pourra être fait à tout moment ultérieurement 
 liste occupation disques : df -h  => voir la NAND restante libre : environ 500Mo libre...
