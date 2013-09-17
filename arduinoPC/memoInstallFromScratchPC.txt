@@ -54,7 +54,7 @@ sudo apt-get install htop --yes (0,140MB)
 > quitter avec q
 sudo apt-get install xarchiver --yes (1,4MB)
 sudo apt-get install git --yes (10MB)
-sudo apt-get install firefox --yes (50MB) - ajouter speeddial - lien pyduino 
+sudo apt-get install firefox --yes (50MB) - ajouter speeddial - lien pyduino - préf- enreg : toujours demander
 sudo apt-get install gdebi --yes (5MB)
 sudo apt-get install cbm --yes (moniteur bande passante réseau) 
 sudo apt-get install bluefish --yes (22MB)  Editeur html 
@@ -68,7 +68,8 @@ refaire : df -h => voir la NAND restante libre : environ 736 Mo soit près de 25
 
 # installation Arduino
 sudo apt-get install arduino
-Télécharger aussi arduino 1.0.5 => lancer depuis Terminal
+Télécharger aussi arduino 1.0.5 
+=> lancer depuis Terminal : ./Téléchargements/arduino-1.0.x/arduino
 
 
 # espace dev Pyduino
@@ -86,6 +87,8 @@ pour info : ls /dev/ttyACM*
 cd /usr/lib/python2.7/dist-packages
 sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/arduinoPC/pyduino.py
 
+installer la lib' Arduino suivante : https://github.com/sensor56/Utils
+programmer Arduino avec le code suivant : https://raw.github.com/sensor56/pyDuino/master/arduinoPC/arduino_live.ino
 
 ########## à ce stade, vous êtes opérationnel pour tous les codes Pyduino hors multimédia ############
 # pour tester que pyduino est fonctionnel
