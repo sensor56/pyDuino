@@ -358,8 +358,18 @@ def today(*arg):
 			sep=str(arg[0])
 			return year()+sep+month()+sep+day()
 	
+"""	
 def nowdatetime():
 	return today("/") + " " + nowtime(":")
+"""
+def nowdatetime(*arg):
+	if len(arg)==0:
+		return today("/") + " " + nowtime(":")
+	elif len(arg)==1:
+		if arg[0]==-1:
+			return today("/",-1) + " " + nowtime(":")
+		else:
+			return today("/") + " " + nowtime(":")
 	
 
 #----------- MATH -------------
