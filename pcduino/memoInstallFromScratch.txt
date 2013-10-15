@@ -22,6 +22,12 @@ sudo geany /etc/xdg/lxsession/Lubuntu/autostart
 # enregistrer, quitter et rebooter
 # se reconnecter depuis le pcfixe : si OK : vous pouvez débrancher écran, clavier, souris
 
+# installer pyduino
+cd /usr/lib/python2.7/dist-packages
+sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py
+
+# installer scripts Python utiles 
+
 
 ###################### version détaillée ########################
 
