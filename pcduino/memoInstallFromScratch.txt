@@ -6,6 +6,7 @@
 # paquets indisp d'emblee
 sudo apt-get install geany --yes (7MB)
 config geany pour espace et tab (view>editor>) et diminuer police (Edit>preferences>interface)
+sudo apt-get install xarchiver --yes
 
 # install VNC d'emblee (dejà installé...)
 sudo apt-get install vino --yes
@@ -22,12 +23,19 @@ sudo geany /etc/xdg/lxsession/Lubuntu/autostart
 # enregistrer, quitter et rebooter
 # se reconnecter depuis le pcfixe : si OK : vous pouvez débrancher écran, clavier, souris
 
+# installer paquet Python utile 
+sudo apt-get python-serial
+
 # installer pyduino
 cd /usr/lib/python2.7/dist-packages
 sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py
 
 # installer scripts Python utiles 
+créer rép  scripts_python
+créer rép data/text
 
+dans scripts python :
+wget -4 -N  https://raw.github.com/sensor56/pyduino-exemples/master/SD/WriteTimerAnalogReadDygraphsAutoToday.py
 
 ###################### version détaillée ########################
 
