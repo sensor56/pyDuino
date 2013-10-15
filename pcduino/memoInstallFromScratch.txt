@@ -2,6 +2,29 @@
 # par X. HINAULT - www.mon-club-elec.fr
 # en attendant de faire un script de post install...
 
+###################### version "essentiel" #####################
+# paquets indisp d'emblee
+sudo apt-get install geany --yes (7MB)
+config geany pour espace et tab (view>editor>) et diminuer police (Edit>preferences>interface)
+
+# install VNC d'emblee (dejà installé...)
+sudo apt-get install vino --yes
+vino-preferences (pas sudo +++)
+/usr/lib/vino/vino-server (pas sudo)
+
+# ouvrir un autre terminal : ifconfig
+=> tester depuis client : xtightvncviewer <ip.pc.dui.no> -compresslevel 3
+
+# ensuite on reprend sur le pcduino :
+sudo geany /etc/xdg/lxsession/Lubuntu/autostart
+@/usr/lib/vino/vino-server
+
+# enregistrer, quitter et rebooter
+# se reconnecter depuis le pcfixe : si OK : vous pouvez débrancher écran, clavier, souris
+
+
+###################### version détaillée ########################
+
 # on présuppose ici kernel et système fichier installés au préalable : voir procédure séparée.
 
 # 1er boot = écran de config
