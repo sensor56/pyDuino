@@ -585,12 +585,32 @@ def executeCmdWait(cmd):
 	
 	if len(subcmd)==1: # si pas de chaine 
 		subprocess.check_call(subsubcmd)
-	elif len(subcmd)>1: 
+	elif len(subcmd)>1: # si au moins une chaine 
 		subsubcmd.append("\"" + str(subcmd[1] )+"\"") # ajoute la chaine en + encadree par " "
 		#print (" \" " + str(subcmd[1] )+"\"") # debug
 		#print subsubcmd # debug
-		subprocess.check_call(subsubcmd ) 
+		
+		
+		if len(subcmd)>2: # si argument après chaine
+			# attendion ne marche pas avec >/dev/null
+			
+			subsubcmd2=subcmd[2].split(" ") # pour avoir format liste
+			print subsubcmd2
+			
+			try:
+				subsubcmd2.remove('') # enleve '' car bloque commande si present... sinon provoque erreur d'ou try except
+			except:
+				pass
+			
+			print subsubcmd2
 
+			for elem in subsubcmd2:
+				subsubcmd.append(elem) # ajoute 3ème argument - enlève espace initial
+			
+			print subsubcmd
+
+		subprocess.check_call(subsubcmd ) 
+		
 
 def executeCmdOutput(cmd):
 	# execute la ligne de commande systeme passee en parametre
