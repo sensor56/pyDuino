@@ -1504,7 +1504,16 @@ def speak(textIn, *arg):
 			executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
 			executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
 		elif arg[0]==ESPEAK:
-			executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\"" )
+			#executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\" &> /dev/null" ) # &> /dev/null pour pas messages warning
+			# appel direct de la commande car >/dev/null ne marche pas sinon
+			FNULL = open(os.devnull, 'w')
+			#subprocess.call(['echo', 'foo'], stdout=FNULL, stderr=subprocess.STDOUT)
+			cmdEspeak=['espeak', '-v', 'fr', '-s', '140', str(textIn)]
+			#print cmdEspeak # debug
+			subprocess.check_call(cmdEspeak, stdout=FNULL, stderr=subprocess.STDOUT)
+			# voir : http://stackoverflow.com/questions/11269575/how-to-hide-output-of-subprocess-in-python-2-7
+			
+
 
 def recordSound(filepathIn, dureeIn):
 	if not exists(os.path.dirname(filepathIn)): # cree le rep si existe pas 
