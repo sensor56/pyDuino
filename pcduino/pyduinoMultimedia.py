@@ -1669,7 +1669,7 @@ def speak(textIn, *arg):
 			executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
 			executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
 		elif arg[0]==ESPEAK:
-			executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\"" )
+			executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\" &> /dev/null" ) # &> /dev/null pour pas messages warning
 
 def recordSound(filepathIn, dureeIn):
 	if not exists(os.path.dirname(filepathIn)): # cree le rep si existe pas 
