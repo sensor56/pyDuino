@@ -825,11 +825,32 @@ def executeCmdWait(cmd):
 	
 	if len(subcmd)==1: # si pas de chaine 
 		subprocess.check_call(subsubcmd)
-	elif len(subcmd)>1: 
+	elif len(subcmd)>1: # si au moins une chaine 
 		subsubcmd.append("\"" + str(subcmd[1] )+"\"") # ajoute la chaine en + encadree par " "
 		#print (" \" " + str(subcmd[1] )+"\"") # debug
 		#print subsubcmd # debug
+		
+		
+		if len(subcmd)>2: # si argument après chaine
+			# attendion ne marche pas avec >/dev/null
+			
+			subsubcmd2=subcmd[2].split(" ") # pour avoir format liste
+			print subsubcmd2
+			
+			try:
+				subsubcmd2.remove('') # enleve '' car bloque commande si present... sinon provoque erreur d'ou try except
+			except:
+				pass
+			
+			print subsubcmd2
+
+			for elem in subsubcmd2:
+				subsubcmd.append(elem) # ajoute 3ème argument - enlève espace initial
+			
+			print subsubcmd
+
 		subprocess.check_call(subsubcmd ) 
+		
 
 
 def executeCmdOutput(cmd):
@@ -1669,7 +1690,15 @@ def speak(textIn, *arg):
 			executeCmdWait("pico2wave -l fr-FR -w " + homePath()+"pico.wav " + "\""+str(textIn)+"\"") # encadre chaine de " "
 			executeCmdWait("mplayer -msglevel all=-1 " + homePath()+"pico.wav " )
 		elif arg[0]==ESPEAK:
-			executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\" &> /dev/null" ) # &> /dev/null pour pas messages warning
+			#executeCmdWait("espeak -v fr -s 140 "+"\""+str(textIn)+"\" &> /dev/null" ) # &> /dev/null pour pas messages warning
+			# appel direct de la commande car >/dev/null ne marche pas sinon
+			FNULL = open(os.devnull, 'w')
+			#subprocess.call(['echo', 'foo'], stdout=FNULL, stderr=subprocess.STDOUT)
+			cmdEspeak=['espeak', '-v', 'fr', '-s', '140', str(textIn)]
+			#print cmdEspeak # debug
+			subprocess.check_call(cmdEspeak, stdout=FNULL, stderr=subprocess.STDOUT)
+			# voir : http://stackoverflow.com/questions/11269575/how-to-hide-output-of-subprocess-in-python-2-7
+			
 
 def recordSound(filepathIn, dureeIn):
 	if not exists(os.path.dirname(filepathIn)): # cree le rep si existe pas 
