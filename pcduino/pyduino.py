@@ -767,19 +767,19 @@ def executeCmdWait(cmd):
 			# attendion ne marche pas avec >/dev/null
 			
 			subsubcmd2=subcmd[2].split(" ") # pour avoir format liste
-			print subsubcmd2
+			#print subsubcmd2
 			
 			try:
 				subsubcmd2.remove('') # enleve '' car bloque commande si present... sinon provoque erreur d'ou try except
 			except:
 				pass
 			
-			print subsubcmd2
+			#print subsubcmd2
 
 			for elem in subsubcmd2:
 				subsubcmd.append(elem) # ajoute 3ème argument - enlève espace initial
 			
-			print subsubcmd
+			#print subsubcmd
 
 		subprocess.check_call(subsubcmd ) 
 		
