@@ -59,37 +59,12 @@ http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.Reference
 
 http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.DebuterPresentationLogiciel
 
-## Exemple : 
+## Exemples : 
 
-# exemple pyDuino - par X. HINAULT - www.mon-club-elec.fr
-# Juin 2013 - Tous droits réservés - GPLv3
-# LED clignote
-
-# entete declarative
-LED=2  # declare la broche a utiliser
-
-#--- setup ---
-def setup():
-        pinMode(LED,OUTPUT) # met la broche en sortie
-        Serial.println("La broche " +str(LED)+ " est en sortie !")
-
-# -- fin setup --
-
-# -- loop --
-def loop():
-
-        digitalWrite(LED,HIGH) # allume la LED
-        Serial.println("La LED est allumée !")
-
-        delay(1000) # pause en millisecondes
-
-        digitalWrite(LED,LOW) # eteint la LED
-        Serial.println("La LED est éteinte !")
-
-        delay(1000) # pause en millisecondes
+http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.ApprendreExemples
+http://www.mon-club-elec.fr/pmwiki_mon_club_elec/pmwiki.php?n=MAIN.PCDUINO#toc7
 
 
-# -- fin loop --
 
 
 
