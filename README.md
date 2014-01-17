@@ -38,13 +38,8 @@ La librairie existe en plusieurs versions :
 
 ## Installation 
 
-* sur le pcDuino, dans un Terminal, saisir la commande : 
+http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.Telecharger
 
-	sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/pcduino/pyduino.py /usr/lib/python2.7/dist-packages
-	
-* sur le raspberryPi, dans un Terminal, saisir la commande :
-
-	sudo wget -4 -N https://raw.github.com/sensor56/pyDuino/master/RaspberryPi/pyduino.py /usr/lib/python2.7/dist-packages
 
 ## Exemples 
 
@@ -58,79 +53,43 @@ http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.HomePage
 
 ## Fonctions Arduino implémentées 
 
-* pinMode(broche, mode)
-* digitalWrite(broche, valeur)
-* digitalRead(broche) --> int
-* toggle(broche) 
-
-* analogRead(brocheAnalog) --> int
-* analogReadmV(brocheAnalog) --> float 
-
-* analogWrite(brochePWM, valeur) - PWM 0-255
-* analogWritePercent(brochePWM, valeur) - PWM 0-100%
-* analogWriteHardware(brochePWM, valeur) - PWM
-* setFrequencyPWM(broche, frequence) 
-
-* millis() --> int
-* micros() --> int
-* delay(ms)
-* delayMicroseconds(us)
-* year() -->int
-* month() -->int
-* day() -->int
-* hour() -->int
-* minutes() -->int
-* seconds() -->int
-* unixtime() -->int 
+http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.ReferenceEtendue
 
 ## Utilisation 
 
-L'utilisation se veut la plus simple possible : un seul fichier à installer dans le répertoire du/des scripts Python.
-
-
-L'utilisation ensuite est simple : importation du module sous la forme : 
-	
-	from pyduino import * # importe les fonctions Arduino pour Python 
-	
-En fin de code, on ajoute les lignes suivantes pour rendre le script exécutable : 
-
-	if __name__=="__main__": # pour rendre le code executable 
-  		setup() # appelle la fonction main
-		while(1): loop() # appelle fonction loop sans fin
-	
-	
-Une fois fait, on accède au sein du code Python aux fonctions Arduino comme on le ferait dans un code Arduino natif. 
+http://www.mon-club-elec.fr/pmwiki_reference_pyduino/pmwiki.php?n=Main.DebuterPresentationLogiciel
 
 ## Exemple : 
 
-	#!/usr/bin/python
-	# -*- coding: utf-8 -*-
+# exemple pyDuino - par X. HINAULT - www.mon-club-elec.fr
+# Juin 2013 - Tous droits réservés - GPLv3
+# LED clignote
 
-	from arduino import * # importe les fonctions Arduino pour Python
+# entete declarative
+LED=2  # declare la broche a utiliser
 
-	# entete declarative
-	LED=2   # broche utilisée pour la LED
-	
-	#--- setup --- 
-	def setup():
- 	 
-		pinMode(LED,OUTPUT) # met la broche en sortie
+#--- setup ---
+def setup():
+        pinMode(LED,OUTPUT) # met la broche en sortie
+        Serial.println("La broche " +str(LED)+ " est en sortie !")
 
-	# -- loop -- 
-	def loop():
-	
-		digitalWrite(LED, HIGH) # allume la LED
-		Serial.println('LED allumée')
-		delay(1000)  # pause en millisecondes
-		
-		digitalWrite(LED,LOW) # eteint LED
-		Serial.println('LED éteinte')
-		delay(1000) # pause en millisecondes
+# -- fin setup --
 
-	# fin loop
-	
-	#--- obligatoire pour lancement du code -- 
-	if __name__=="__main__": # pour rendre le code executable 
-		setup() # appelle la fonction main
-		while(1): loop() # appelle fonction loop sans fin
+# -- loop --
+def loop():
+
+        digitalWrite(LED,HIGH) # allume la LED
+        Serial.println("La LED est allumée !")
+
+        delay(1000) # pause en millisecondes
+
+        digitalWrite(LED,LOW) # eteint la LED
+        Serial.println("La LED est éteinte !")
+
+        delay(1000) # pause en millisecondes
+
+
+# -- fin loop --
+
+
 
