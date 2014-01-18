@@ -15,8 +15,10 @@ La librairie existe en plusieurs versions :
 	* les fonctions de gestion des fichiers et données texte (équivalent librairie SD)
 	* les fonctions de gestion du réseau (équivalent de la librairie Ethernet) 
 	* les fonctions UART
+	* les fonctions gestion de servomoteurs (équivalent librairie Servo)
+	* les fonctions de gestion d'un afficheur LCD (équivalent librairie LiquiCrystal)
 	* à venir : les fonctions SPI, I2C
-	* à venir : les motorisations : moteurs CC, servomoteurs, pas à pas
+	* à venir : les motorisations : moteurs CC, pas à pas
 
 * en version multimédia qui implémente en plus : 
 	* la capture d'image, l'inscrustation de texte dans image
@@ -35,6 +37,9 @@ La librairie existe en plusieurs versions :
 
 * La librairie Pyduino est également portée en version PC standard tournant sous Gnu/Linux Lubuntu. Cette version permet contrôler une carte Arduino connectée au PC !
 
+* La librairie Pyduino est également disponible en version "light" c'est à dire sans les fonctions de gestion des broches E/S : cette version permet donc d'utiliser toutes les fonctions Pyduino pour réaliser du développement "classique" sur un PC. 
+
+* Bon à savoir : la librairie Pyduino est également utilisable en tant que module Python classique au sein d'un code Python et permet notamment un appel direct des fonctions Pyduino au sein d'un code PyQt par exemple. Ainsi, lors d'un appui sur un bouton graphique par exemple, on pourra appeler la fonction digitalWrite(broche, HIGH), etc... Quelques exemples d'interfaces PyQt intégrant les fonctions Pyduino ici : http://www.mon-club-elec.fr/pmwiki_mon_club_elec/pmwiki.php?n=MAIN.PCDUINO#toc8
 
 ## Installation 
 
