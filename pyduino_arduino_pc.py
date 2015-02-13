@@ -4,55 +4,14 @@
 # par X. HINAULT - Tous droits réservés - 2013
 # www.mon-club-elec.fr - Licence GPLv3
 
-"""
- * Copyright (c) 2013-2014 by Xavier HINAULT - support@mon-club-elec.fr
- *
- * This file is free software; you can redistribute it and/or modify
- * it under the terms of either the GNU General Public License version 3
- * or the GNU Lesser General Public License version 3, both as
- * published by the Free Software Foundation.
-"""
-
-""""
-Ce fichier est partie intégrante  du projet pyDuino.
-
-pyDuino apporte une couche d'abstraction au langage Python 
-afin de pouvoir utiliser les broches E/S de mini PC
-avec des instructions identiques au langage Arduino
-
-Ce fichier est la version pour une utilisation avec Arduino + PC 
-
-"""
 # message d'accueil 
 print "Pyduino for PC Desktop with Arduino - v0.5dev - by www.mon-club-elec.fr - 2014 "
 
-# modules utiles 
 
-"""
-#-- temps --
-import time
-import datetime # gestion date 
-
-from threading import Timer # importe l'objet Timer du module threading
-
-#-- math -- 
-# import math
-from math import *  # pour acces direct aux fonctions math..
-import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
-"""
-#-- pour PWM - accès kernel + transposition C to Python -- 
-#import fcntl # module pour fonction ioctl
-#from ctypes import *
-#import ctypes # module pour types C en Python 
-"""
-#-- système -- 
-import subprocess
-#import getpass # pour connaitre utilisateur systeme 
-import os  # gestion des chemins
-"""
+#--- expressions regulieres
 import re # expression regulieres pour analyse de chaines
 
-# serie 
+# serie Uart
 try:
 	import serial
 except: 
@@ -65,7 +24,7 @@ import smtplib # serveur mail
 """
 
 #--- module des variables communes partagées entre les éléments Pyduino -- 
-import pyduinoCoreCommon as common
+import CoreCommon as common
 
 # -- declarations --
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -90,92 +49,49 @@ common.PWM0, common.PWM1, common.PWM2, common.PWM3, common.PWM4,common.PWM5 =3,5
 
 
 #-- les sous modules Pyduino utilisés par ce module - à mettre après les variables spécifiques ci-dessus --
-from pyduinoCoreBase import *
-from pyduino_hardware_arduino_pc import *
-from pyduinoCoreSystem import *
-from pyduinoCoreLibs import *
+from CoreBase import *
+from CoreSystem import *
+from CoreLibs import *
 
-"""
-HIGH = 1
-LOW =  0
-
-DEC=10
-BIN=2
-HEX=16
-OCT=8
-
-# constantes utiles pyDuino
-noLoop=False # pour stopper loop
-debug=False # pour message debug
-
-#--- chemin de reference --- 
-#user_name=getpass.getuser()
-home_dir=os.getenv("HOME")+"/"  # chemin de référence
-main_dir=os.getenv("HOME")+"/"  # chemin de référence
-
-# constantes de SELECTION 
-TEXT='TEXT'
-IMAGE='IMAGE'
-AUDIO='AUDIO'
-VIDEO='VIDEO'
-
-#---- chemins data fichiers texte, sons, image, video
-
-data_dir_text="data/text/" # data texte relatif a main dir
-data_dir_audio="data/audio/" # data audio 
-data_dir_image="data/images/" # data images
-data_dir_video="data/videos/" # data video
-
-#---- chemins sources fichiers texte, sons, images, video
-src_dir_text="sources/text/" # sources texte relatif a main dir
-src_dir_audio="sources/audio/" # sources audio 
-src_dir_image="sources/images/" # sources images
-src_dir_video="sources/videos/" # sources video
-"""
-
-#==== diverses classes utiles utilisées par les fonctions Pyduino ===
+# variables globales du module 
 
 
 # ==================== Fonctions spécifiques pour une plateforme donnée =============================
-# =====================>>>>>>>>>> version PC desktop avec Arduino  <<<<<<<<<<< =======================================
+# =====================>>>>>>>>>> version Arduino + PC <<<<<<<<<<< =======================================
 
-#=======> from pyduino_hardware_arduino_pc
+# ---- gestion broches E/S numériques ---
 
-"""
 # ---- gestion broches E/S numériques ---
 
 # pinMode 
 def pinMode(pin, mode):
-	
-	
-	
 	if mode==OUTPUT : 
-		Uart.println("pinMode("+str(pin)+",1)") # envoi commande - attention OUTPUT c'est 1
+		common.Uart.println("pinMode("+str(pin)+",1)") # envoi commande - attention OUTPUT c'est 1
 		
 		out=None
 		while not out : # attend reponse 
-			out=Uart.waitingAll() # lit les caracteres
+			out=common.Uart.waitingAll() # lit les caracteres
 		
 		print out # debug
 		
 	elif mode==INPUT : 
 		out=None
 		while not out : # tant que pas de reponse envoie une requete
-			Uart.println("pinMode("+str(pin)+",0)") # attention input c'est 0
+			common.Uart.println("pinMode("+str(pin)+",0)") # attention input c'est 0
 			#print ("pinMode("+str(pin)+",0)") # debug 
 			
-			out=Uart.waitingAll() # lit les caracteres
+			out=common.Uart.waitingAll() # lit les caracteres
 		
 		print out # debug
 		
 	elif mode==PULLUP : 
-		Uart.println("pinMode("+str(pin)+",0)") # attention INPUT c'est 0
+		common.Uart.println("pinMode("+str(pin)+",0)") # attention INPUT c'est 0
 		delay(100) # laisse temps reponse arriver
 		print "pinMode("+str(pin)+",0)"
 		
 		out=None
 		while not out : # attend reponse
-			out=Uart.waitingAll() # lit les caracteres
+			out=common.Uart.waitingAll() # lit les caracteres
 		
 		print out # debug
 		
@@ -185,7 +101,7 @@ def pinMode(pin, mode):
 def digitalWrite(pin, state):
 	
 	
-	Uart.println("digitalWrite("+str(pin)+","+str(state)+")") # 
+	common.Uart.println("digitalWrite("+str(pin)+","+str(state)+")") # 
 	#print ("digitalWrite("+str(pin)+","+str(state)+")") # debug
 
 # digitalRead
@@ -193,12 +109,12 @@ def digitalRead(pin):
 	
 	
 	# envoi de la commande
-	Uart.println("digitalRead("+str(pin)+")") 
+	common.Uart.println("digitalRead("+str(pin)+")") 
 	print ("digitalRead("+str(pin)+")")
 	# attend un reponse
 	out=None
 	while not out : # tant que pas de reponse envoie une requete
-		out=Uart.waiting() # lit les caracteres
+		out=common.Uart.waiting() # lit les caracteres
 	
 	print out # debug
 	#out=out.splitlines()
@@ -218,29 +134,45 @@ def toggle(pin): # inverse l'etat de la broche
 		digitalWrite(pin,HIGH)
 		return HIGH
 
+def pulseOut(pin, duree): # crée une impulsion sur la broche de durée voulue
+	# pin : broche
+	# duree : duree du niveau INVERSE en ms
+	
+	if digitalRead(pin)==HIGH: # si broche au niveau HAUT
+		digitalWrite(pin,LOW) # mise au niveau BAS
+		delay(duree) # maintien le niveau la durée voulue
+		digitalWrite(pin,HIGH) # mise au niveau HAUT
+	else: # si broche au niveau BAS
+		digitalWrite(pin,HIGH) # mise au niveau HAUT
+		delay(duree) # maintien le niveau la durée voulue
+		digitalWrite(pin,LOW) # mise au niveau bas
+	
+	# cette fonction ne prétend pas à la précision à la µs près... 
+	# mais a pour but d'éviter la saisie des 3 instructions en la remplaçant par une seule
+
 #----- gestion broches analogique -----
 
 # analogRead - entrées analogiques 
 def analogRead(pinAnalog):
 	
 	
-""" 
-#	# mis en fin de lib' = exécution obligatoire au démarrage 
-#	# au besoin : initialisation port série 
-#	#global uartPort
-#	#if not uartPort : 
-#	#	Uart.begin(115200)
-#	#	Uart.waitOK() # attend port serie OK 
-"""
+	""" 
+	# mis en fin de lib' = exécution obligatoire au démarrage 
+	# au besoin : initialisation port série 
+	#global uartPort
+	#if not uartPort : 
+	#	Uart.begin(115200)
+	#	Uart.waitOK() # attend port serie OK 
+	"""
 	# envoi la commande
-	Uart.println("analogRead("+str(pinAnalog)+")") # 
+	common.Uart.println("analogRead("+str(pinAnalog)+")") # 
 	
 	# attend une réponse 
 	out=None
 	while not out : # tant que pas de reponse 
 		#print ("analogRead("+str(pinAnalog)+")") # debug
 		#delay(50) # attend reponse
-		out=Uart.waiting() # lit les caracteres
+		out=common.Uart.waiting() # lit les caracteres
 	
 	if debug: print out # debug
 	
@@ -250,15 +182,90 @@ def analogRead(pinAnalog):
 	else:
 		return(-1)	
 
+#----- analogRead avec repetition des mesures ---- 
+def analogReadRepeat(pinAnalogIn,repeatIn):
+	
+	sommeMesures=0
+	
+	# réalise n mesures 
+	for i in range(repeatIn): 
+		sommeMesures=sommeMesures+analogRead(pinAnalogIn)
+		# print i # debug 
+		
+	moyenne=float(sommeMesures)/repeatIn # calcul de la moyenne 
+	
+	return moyenne
+	
+
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
-def analogReadmV(pinAnalog):
+def analogReadmV(*args):
 	
-	mesure=analogRead(pinAnalog)
-	mesure=rescale(mesure,0,1023,0,5000)
+	# 2 formes :
+	#pinAnalog
+	#pinAnalog, rangeIn, mVIn où range est la resolution et mV la tension max = qui renvoie 4095
+	# la 2ème forme permet utiliser étalonnage réel de la mesure
 	
+	# A0 et A1 : résolution 6 bits (0-63) en 0-2V
+	# A2, A3, A4, A5 : résolution 12 bits (0-4095) en 0-3.3V
+	
+	# gestion paramètres 
+	if len(args)==1: # forme pinAnalog
+		pinAnalog=args[0]
+	
+		mesure=analogRead(pinAnalog)
+		
+		if pinAnalog==A0 or pinAnalog==A1:
+			mesure=rescale(mesure,0,63,0,2000)
+		elif pinAnalog==A2 or pinAnalog==A3 or pinAnalog==A4 or pinAnalog==A5:
+			#mesure=rescale(mesure,0,4095,0,3300)
+			mesure=rescale(mesure,0,4095,0,3000) # en pratique, la mesure 4095 est atteinte à 3V.. 
+			
+	else: # forme pinAnalog, range, mV où range est la resolution et mV la tension max = qui renvoie 4095
+		pinAnalog=args[0]
+		rangeIn=args[1] 
+		mVIn=args[2]
+		
+		mesure=analogRead(pinAnalog) # mesure sur la broche 
+		
+		mesure=rescale(mesure,0,rangeIn,0,mVIn) # en pratique, la mesure 4095 est atteinte à 3V.. 
+		
 	return mesure
 
+#----- analogRead avec repetition des mesures ---- 
+def analogReadmVRepeat(*args):
+	
+	# formes :
+	# pinAnalogIn,repeatIn
+	# pinAnalogIn,repeatIn, rangeIn, mVIn
+	
+	sommeMesures=0
+	
+	if len(args)==2: # si forme pinAnalogIn,repeatIn
+		pinAnalogIn=args[0]
+		repeatIn=args[1]
 
+		# réalise n mesures avec la forme analogReadmV(pinAnalogIn) 
+		for i in range(repeatIn): 
+			sommeMesures=sommeMesures+analogReadmV(pinAnalogIn)
+			# print i # debug 
+			
+		moyenne=float(sommeMesures)/repeatIn # calcul de la moyenne 
+		
+	else: 	# pinAnalogIn,repeatIn, rangeIn, mVIn
+		pinAnalogIn=args[0]
+		repeatIn=args[1]
+		rangeIn=args[2]
+		mVIn=args[3]
+		
+		# réalise n mesures avec la forme analogReadmV(pinAnalogIn, rangeIn, mVIn) 
+		for i in range(repeatIn): 
+			sommeMesures=sommeMesures+analogReadmV(pinAnalogIn, rangeIn, mVIn)
+			# print i # debug 
+			
+		moyenne=float(sommeMesures)/repeatIn # calcul de la moyenne 
+
+	return moyenne
+	
 
 # analogWrite # idem Arduino en 0-255
 def analogWrite(pinPWMIn, largeurIn):
@@ -276,15 +283,18 @@ def analogWritePercent(pinPWMIn, largeurIn):
 	analogWrite(pinPWMIn,rescale(largeurIn,0,100,0,255))
 	
 
-"""
+# tone
+def tone(pinPWMIn,frequencyIn):
+	setFrequencyPWM(pinPWMIn, frequencyIn) # modifie la fréquence - attention aux valeurs limites possibles
+	analogWrite(pinPWMIn,127) # onde 50% largeur 
+	
 
-################ Fonctions communes ####################
+# noTone
+def noTone(pinPWMIn):
+	setFrequencyPWM(pinPWMIn, 520) # restaure fréquence par défaut - et impulsion mise à 0%
+	analogWrite(pinPWMIn,0) # onde 0% largeur # pas indispensable normalement 
+	
 
-#--------> pyduinoCoreBase
-
-######################## Fonctions Système ################################
-
-#========= > voir pyduinoCoreSystem
 
 ######################## Fonctions Libs dédiées ################################
 

@@ -1,11 +1,8 @@
-############## Pyduino hardware rpi ##############
+# par X. HINAULT - Tous droits réservés - 2013
+# www.mon-club-elec.fr - Licence GPLv3
 
-# message d'accueil
 print("Pyduino for Raspberry Pi - by www.mon-club-elec.fr - 2015 ")
 
-#### pour PWM - accès kernel + transposition C to Python ####
-import fcntl # module pour fonction ioctl
-import ctypes # module pour types C en Python
 
 #### expressions regulieres ####
 import re # expression regulieres pour analyse de chaines
@@ -17,25 +14,46 @@ except:
 	print("ATTENTION : Module Serial manquant : installer le paquet python-serial ")
 
 """
-#### les sous modules Pyduino utilisés par ce module ####
-from CoreCommon import * # variables communes
-from CoreBase import *
-from CoreSystem import *
-from CoreLibs import * """
+# reseau 
+import socket 
+import smtplib # serveur mail 
+"""
+
+#--- module des variables communes partagées entre les éléments Pyduino -- 
+import CoreCommon as common
+
+# -- declarations --
+# NB : les variables déclarées ici ne sont pas modifiables en dehors du module
+# pour modifier la valeur d'une variable de ce module, la seule solution est de la réaffecter dans le programme 
+# par exemple noLoop ou de passer par un fichier commun... 
+
+# sur le pcDuino, la plupart des operations passent par des fichiers systeme
+# important : pour réaffecter la valeur d'une variable partagée = IL FAUT UTILISER LE NOM DU MODULE - sinon variable globale module, pas partagée... 
+
+common.PLATFORM="RPI"
 
 # fichiers broches E/S raspberryPi
-pathMain = "/sys/class/gpio/gpio"
+pathMain = "/sys/class/gpio/gpio/"
 
 pinList = ['17', '18', '27', '22', '23', '24', '25', '4'] # definition des borches I/O - version B
 #pin=['17', '18', '21', '22', '23', '24', '25', '4'] # definition des borches I/O - version A
 
-# constantes Arduino like
-INPUT = "in"
-OUTPUT = "out"
-PULLUP = "up" # accepte par commande gpio
-
-A0, A1, A2, A3, A4,A5 = 0,1,2,3,4,5 # identifiant broches analogiques
+A0, A1, A2, A3, A4, A5 = 0, 1, 2, 3, 4, 5 # identifiant broches analogiques
 PWM0 = 1 # identifiant broches PWM
+
+
+# constantes Arduino like spécifique de la plateforme utilisée 
+common.INPUT="in"
+common.OUTPUT="out"
+common.PULLUP="up" # accepter par la commande gpio
+
+#### les sous modules Pyduino utilisés par ce module ####
+from CoreBase import *
+from CoreSystem import *
+from CoreLibs import *
+#### pour PWM - accès kernel + transposition C to Python ####
+import fcntl # module pour fonction ioctl
+import ctypes # module pour types C en Python
 
 
 ############## Broche logique ##############
@@ -43,7 +61,7 @@ PWM0 = 1 # identifiant broches PWM
 # export
 def export(pin):
 	try:
-		file = open(pathMain + "/export", 'w')
+		file = open(pathMain + "export", 'w')
 		file.write(pinList[pin])
 		file.close()
 	except:
