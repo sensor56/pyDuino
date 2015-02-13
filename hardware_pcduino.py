@@ -192,7 +192,8 @@ def analogRead(pinAnalog):
 	
 	if debug: print out # debug
 	
-	correct=5 # valeur mesure à 0V 
+	#correct=5 # valeur mesure à 0V 
+	correct=0 # valeur mesure à 0V 
 	
 	return int(out)-correct # renvoie la valeur
 
@@ -231,8 +232,8 @@ def analogReadmV(*args):
 		if pinAnalog==A0 or pinAnalog==A1:
 			mesure=rescale(mesure,0,63,0,2000)
 		elif pinAnalog==A2 or pinAnalog==A3 or pinAnalog==A4 or pinAnalog==A5:
-			#mesure=rescale(mesure,0,4095,0,3300)
-			mesure=rescale(mesure,0,4095,0,3000) # en pratique, la mesure 4095 est atteinte à 3V.. 
+			mesure=rescale(mesure,0,4095,0,3300)
+			#mesure=rescale(mesure,0,4095,0,3000) # en pratique, la mesure 4095 est atteinte à 3V.. 
 			
 	else: # forme pinAnalog, range, mV où range est la resolution et mV la tension max = qui renvoie 4095
 		pinAnalog=args[0]
@@ -434,4 +435,3 @@ def tone(pinPWMIn,frequencyIn):
 def noTone(pinPWMIn):
 	setFrequencyPWM(pinPWMIn, 520) # restaure fréquence par défaut - et impulsion mise à 0%
 	analogWrite(pinPWMIn,0) # onde 0% largeur # pas indispensable normalement 
-	

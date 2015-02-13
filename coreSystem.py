@@ -39,6 +39,8 @@ import re # expression regulieres pour analyse de chaines
 import socket 
 import smtplib # serveur mail 
 
+import netifaces # pour acces interf reseaux - dépendance : python-netifaces
+
 # -- importe les autres modules Pyduino
 from pyduinoCoreCommon import * # variables communes
 from pyduinoCoreBase import *
@@ -395,7 +397,10 @@ class Ethernet():
 	
 	def localIP(self):
 		# return socket.gethostbyname(socket.gethostname()) ne fonctionne pas... 
+		#print socket.gethostbyname(socket.getfqdn()) # obtenir IP système active - ne marche pas...
 		
+		"""
+		# ce code dépend de la distro et tout changement le rend caduque 
 		sortieConsole=executeCmdOutput("ifconfig") # execute commande et attend 5s
 		#print sortieConsole - debug
 		
@@ -404,6 +409,14 @@ class Ethernet():
 		#print result
 		if len(result)>0 :return result[0]
 		else: return
+		"""
+		
+		addr=netifaces.ifaddresses('eth0')
+		#print addr # debug
+		#print addr[netifaces.AF_INET][0]['addr'] # debug
+		
+		return addr[netifaces.AF_INET][0]['addr'] # récupère l'élément voulu des adresses puis accès élément 0 (un dico) puis accès addr du dico
+		
 
 class EthernetServer(socket.socket) : # attention recoit classe du module, pas le module !
 

@@ -24,7 +24,7 @@ Ce fichier est la version pour une utilisation avec Arduino + PC
 
 """
 # message d'accueil 
-print "Pyduino for PC Desktop with Arduino - v0.4 - by www.mon-club-elec.fr - 2013 "
+print "Pyduino for PC Desktop with Arduino - v0.5dev - by www.mon-club-elec.fr - 2014 "
 
 # modules utiles 
 

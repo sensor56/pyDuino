@@ -24,7 +24,7 @@ Ce fichier est la version pour une utilisation avec Arduino + PC
 
 """
 # message d'accueil 
-print "Pyduino for PC Desktop with Arduino - v0.4 - by www.mon-club-elec.fr - 2013 "
+print "Pyduino light (without hardware support) - v0.5dev - by www.mon-club-elec.fr - 2014 "
 
 # modules utiles 
 
@@ -137,63 +137,21 @@ src_dir_video="sources/videos/" # sources video
 # pinMode 
 def pinMode(pin, mode):
 	
+	print "Fonction non supportée : vous utilisez la version light"
 	
-	
-	if mode==OUTPUT : 
-		Uart.println("pinMode("+str(pin)+",1)") # envoi commande - attention OUTPUT c'est 1
-		
-		out=None
-		while not out : # attend reponse 
-			out=Uart.waitingAll() # lit les caracteres
-		
-		print out # debug
-		
-	elif mode==INPUT : 
-		out=None
-		while not out : # tant que pas de reponse envoie une requete
-			Uart.println("pinMode("+str(pin)+",0)") # attention input c'est 0
-			#print ("pinMode("+str(pin)+",0)") # debug 
-			
-			out=Uart.waitingAll() # lit les caracteres
-		
-		print out # debug
-		
-	elif mode==PULLUP : 
-		Uart.println("pinMode("+str(pin)+",0)") # attention INPUT c'est 0
-		delay(100) # laisse temps reponse arriver
-		print "pinMode("+str(pin)+",0)"
-		
-		out=None
-		while not out : # attend reponse
-			out=Uart.waitingAll() # lit les caracteres
-		
-		print out # debug
-		
-		digitalWrite(pin,HIGH) # activation du pullup 
+
 	
 # digitalWrite 
 def digitalWrite(pin, state):
 	
+	print "Fonction non supportée : vous utilisez la version light"
 	
-	Uart.println("digitalWrite("+str(pin)+","+str(state)+")") # 
-	#print ("digitalWrite("+str(pin)+","+str(state)+")") # debug
 
 # digitalRead
 def digitalRead(pin):
 	
 	
-	# envoi de la commande
-	Uart.println("digitalRead("+str(pin)+")") 
-	print ("digitalRead("+str(pin)+")")
-	# attend un reponse
-	out=None
-	while not out : # tant que pas de reponse envoie une requete
-		out=Uart.waiting() # lit les caracteres
-	
-	print out # debug
-	#out=out.splitlines()
-	
-	return out # renvoie la valeur
+	print "Fonction non supportée : vous utilisez la version light"
 
 
 
@@ -201,12 +159,7 @@ def toggle(pin): # inverse l'etat de la broche
 	
 	
 	
-	if digitalRead(pin)==HIGH:
-		digitalWrite(pin,LOW)
-		return LOW
-	else:
-		digitalWrite(pin,HIGH)
-		return HIGH
+	print "Fonction non supportée : vous utilisez la version light"
 
 #----- gestion broches analogique -----
 
@@ -214,55 +167,24 @@ def toggle(pin): # inverse l'etat de la broche
 def analogRead(pinAnalog):
 	
 	
-	""" # mis en fin de lib' = exécution obligatoire au démarrage 
-	# au besoin : initialisation port série 
-	global uartPort
-	if not uartPort : 
-		Uart.begin(115200)
-		Uart.waitOK() # attend port serie OK 
-	"""
-	# envoi la commande
-	Uart.println("analogRead("+str(pinAnalog)+")") # 
-	
-	# attend une réponse 
-	out=None
-	while not out : # tant que pas de reponse 
-		#print ("analogRead("+str(pinAnalog)+")") # debug
-		#delay(50) # attend reponse
-		out=Uart.waiting() # lit les caracteres
-	
-	if debug: print out # debug
-	
-	outlines=out.splitlines() # extrait les lignes... une manière simple de supprimer le fin de ligne
-	if outlines[0].isdigit() :
-		return int(outlines[0]) # renvoie la valeur
-	else:
-		return(-1)	
+	print "Fonction non supportée : vous utilisez la version light"
 
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
 def analogReadmV(pinAnalog):
 	
-	mesure=analogRead(pinAnalog)
-	mesure=rescale(mesure,0,1023,0,5000)
-	
-	return mesure
+	print "Fonction non supportée : vous utilisez la version light"
 
 
 
 # analogWrite # idem Arduino en 0-255
 def analogWrite(pinPWMIn, largeurIn):
 	
-	Uart.println("analogWrite("+str(pinPWMIn)+","+str(largeurIn)+")") # 
-	print ("analogWrite("+str(pinPWMIn)+","+str(largeurIn)+")") # debug 
+	print "Fonction non supportée : vous utilisez la version light"
 
 # analogWritePercent(pinPWMIn, largeurIn)=> rescale 0-100 vers 0-255
 def analogWritePercent(pinPWMIn, largeurIn):
-	global uartPort
 	
-	if not uartPort : 
-		Uart.begin(115200)
-
-	analogWrite(pinPWMIn,rescale(largeurIn,0,100,0,255))
+	print "Fonction non supportée : vous utilisez la version light"
 	
 
 ################ Fonctions communes ####################

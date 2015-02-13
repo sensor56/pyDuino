@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 # par X. HINAULT - Tous droits réservés - 2013
 # www.mon-club-elec.fr - Licence GPLv3
 
@@ -24,37 +21,7 @@ avec des instructions identiques au langage Arduino
 Ce fichier est la version pour le pcDuino
 """
 # message d'accueil 
-print "Pyduino for pcDuino - v0.4 - by www.mon-club-elec.fr - 2013 "
-
-# modules utiles 
-
-"""
-#-- temps --
-import time
-import datetime # gestion date 
-
-from threading import Timer # importe l'objet Timer du module threading
-
-#-- math -- 
-# import math
-from math import *  # pour acces direct aux fonctions math..
-import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
-"""
-
-""" Pyduino hardware
-#-- pour PWM - accès kernel + transposition C to Python -- 
-import fcntl # module pour fonction ioctl
-#from ctypes import *
-import ctypes # module pour types C en Python 
-"""
-
-"""
-#-- système -- 
-import subprocess
-#import getpass # pour connaitre utilisateur systeme 
-import os  # gestion des chemins
-import glob # listing de fichiers
-"""
+print "Pyduino - by www.mon-club-elec.fr - 2015 "
 
 #--- expressions regulieres
 import re # expression regulieres pour analyse de chaines

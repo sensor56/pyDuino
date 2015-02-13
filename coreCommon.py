@@ -24,6 +24,17 @@ Ce fichier est definit des variables communes pour toutes les versions
 
 """
 
+"""
+Ce fichier est à importer dans les autres fichiers de la librairie sous la forme :
+import pyduinoCoreCommon as common # variables communes - doit être présente dans TOUS les modules
+
+Les variables communes sont à appeler ensuite sous la forme common.nomvariable
+
+Ce mécanisme permet d'assurer une utilisation "consciente" des variables communes 
+et est le seul qui fonctionne correctement apparemment
+ 
+"""
+
 # import utiles
 import os
 
@@ -40,6 +51,7 @@ OCT=8
 # constantes utiles pyDuino
 noLoop=False # pour stopper loop
 debug=False # pour message debug
+# print "init debug" # message debug de debug... 
 
 READ="r"
 WRITE="w"

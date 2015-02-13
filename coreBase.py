@@ -38,7 +38,8 @@ from math import *  # pour acces direct aux fonctions math..
 import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
 
 # -- importe les autres modules Pyduino
-import pyduinoCoreCommon as common
+import pyduinoCoreCommon as common # variables communes - doit être présente dans TOUS les modules
+#from pyduinoCoreCommon import * # variables communes - doit être présente dans TOUS les modules
 #from pyduinoCoreBase import *
 #from pyduinoCoreSystem import *
 #from pyduinoCoreLibs import *
@@ -48,9 +49,15 @@ import pyduinoCoreCommon as common
 #-- fonction internes pyduino 
 # setDebug : pour activer message debug 
 def setDebug( boolIn):
-	global debug
-	debug=boolIn
-	
+	#global debug # variable commune 
+	#print debug
+	#debug=boolIn
+	#print debug
+
+	#print "in setDebug:",common.debug # preferer nommage explicite module source # message debug de debug... 
+	#print "boolIn:",boolIn # message debug de debug... 
+	common.debug=boolIn # reference à common obligatoire pour affectation... 
+	#print "common.debug:",common.debug # message debug de debug... 
 
 #--- temps ---
  
