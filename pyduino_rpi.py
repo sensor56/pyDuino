@@ -1,7 +1,7 @@
-# par X. HINAULT - Tous droits réservés - 2013
+# par F. ILLIEN - Tous droits réservés - 2015
 # www.mon-club-elec.fr - Licence GPLv3
 
-print("Pyduino for Raspberry Pi - by www.mon-club-elec.fr - 2015 ")
+print "Pyduino for Raspberry Pi - by www.mon-club-elec.fr - 2015 "
 
 
 #### expressions regulieres ####
@@ -11,7 +11,7 @@ import re # expression regulieres pour analyse de chaines
 try:
 	import serial
 except:
-	print("ATTENTION : Module Serial manquant : installer le paquet python-serial ")
+	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
 """
 # reseau 
@@ -30,7 +30,7 @@ import CoreCommon as common
 # sur le pcDuino, la plupart des operations passent par des fichiers systeme
 # important : pour réaffecter la valeur d'une variable partagée = IL FAUT UTILISER LE NOM DU MODULE - sinon variable globale module, pas partagée... 
 
-common.PLATFORM="RPI"
+common.PLATFORM = "RPI"
 
 # fichiers broches E/S raspberryPi
 pathMain = "/sys/class/gpio/gpio/"
@@ -43,9 +43,9 @@ PWM0 = 1 # identifiant broches PWM
 
 
 # constantes Arduino like spécifique de la plateforme utilisée 
-common.INPUT="in"
-common.OUTPUT="out"
-common.PULLUP="up" # accepter par la commande gpio
+common.INPUT = "in"
+common.OUTPUT = "out"
+common.PULLUP = "up" # accepter par la commande gpio
 
 #### les sous modules Pyduino utilisés par ce module ####
 from CoreBase import *
@@ -65,7 +65,7 @@ def export(pin):
 		file.write(pinList[pin])
 		file.close()
 	except:
-		print("ERREUR : Impossible d'ouvrir la broche")
+		print "ERREUR : Impossible d'ouvrir la broche"
 		return -1
 	else:
 		return 0
@@ -84,7 +84,7 @@ def pinMode(pin, mode):
 				file.write(OUTPUT)
 				file.close()
 			except:
-				print("ERREUR : Impossible d'orienté la broche")
+				print "ERREUR : Impossible d'orienté la broche"
 				return -1
 			else:
 				return 0
@@ -93,7 +93,7 @@ def pinMode(pin, mode):
 			# fixe le mode de la broche E/S via ligne commande gpio 
 			cmd = "gpio mode " + str(pin) + " " + mode
 			subprocess.Popen(cmd, shell = True)
-			print(cmd) # debug
+			print cmd # debug
 
 		return 0
 
@@ -121,7 +121,7 @@ def digitalWrite(pin, state):
 		file.write(state)
 		file.close()
 	except:
-		print("ERREUR : Impossible d'ecrire sur la broche")
+		print "ERREUR : Impossible d'ecrire sur la broche"
 		return -1
 	else:
 		return 0
@@ -137,7 +137,7 @@ def digitalRead(pin):
 		state = file.read() #lit le fichier
 		file.close()
 	except:
-		print("ERREUR : Impossible de lire la broche")
+		print "ERREUR : Impossible de lire la broche"
 		return -1
 	else:
 		return int(state)  # renvoie valeur entiere
@@ -154,7 +154,7 @@ def toggle(pin): # inverse l'etat de la broche
 
 # analogRead
 def analogRead(pin):
-	print("ERREUR : analogRead non disponible sur le RaspberryPi")
+	print "ERREUR : analogRead non disponible sur le RaspberryPi"
 	return 0 # renvoie la valeur
 
 # analogWrite = generation pwm
@@ -165,14 +165,14 @@ def analogWrite(pin, value):
 	# fixe le mode pwm pour la broche E/S via ligne commande gpio 
 	cmd = "gpio mode " + str(pin) + " " + "pwm"
 	subprocess.Popen(cmd, shell=True)
-	print(cmd) # debug
+	print cmd # debug
 	
 	# gpio pwm <pin> <value> avec value entre 0 et 1023
 	
 	# fixe pwm via ligne commande gpio 
 	cmd = "gpio pwm " + str(pin) + " " + str(value)
 	subprocess.Popen(cmd, shell=True)
-	print(cmd) # debug
+	print cmd # debug
 	
 def analogWritePercent(pin, value):
 	analogWrite(pin, rescale(value,0,100,0,255)) # re-echelonne valeur 0-100% vers 0-255
@@ -196,17 +196,17 @@ class Uart():
 		if len(arg) == 0: # si pas d'arguments
 			#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = 10) # initialisation port serie uart
 			uartPort = serial.Serial('/dev/ttyAMA0', rateIn, timeout = 10) # initialisation port serie uart
-			print("Initialisation Port Serie : /dev/ttyAMA0 @ " + str(rateIn) + " = OK ") # affiche debug
+			print "Initialisation Port Serie : /dev/ttyAMA0 @ " + str(rateIn) + " = OK " # affiche debug
 		elif len(arg) == 1 : # si timeout
 			#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
 			uartPort = serial.Serial('/dev/ttyAMA0', rateIn, timeout = arg[0]) # initialisation port serie uart
-			print("Initialisation Port Serie : /dev/ttyAMA0 @ " + str(rateIn) + " = OK ") # affiche debug
-			print("timeout = " + str(arg[0] ))
+			print "Initialisation Port Serie : /dev/ttyAMA0 @ " + str(rateIn) + " = OK " # affiche debug
+			print "timeout = " + str(arg[0])
 		elif len(arg) == 2 : # si timeout et port 
 			#uartPort=serial.Serial('/dev/ttyS1', rateIn, serial.EIGHTBITS, serial.PARITY_NONE, serial.STOPBITS_ONE, timeout = arg[0]) # initialisation port serie uart
 			uartPort=serial.Serial(arg[1], rateIn, timeout = arg[0]) # initialisation port serie uart
-			print("Initialisation Port Serie : " + arg[1] + " @ " + str(rateIn) + " = OK ") # affiche debug
-			print("timeout = " + str(arg[0] ))
+			print "Initialisation Port Serie : " + arg[1] + " @ " + str(rateIn) + " = OK " # affiche debug
+			print "timeout = " + str(arg[0])
 		#except:
 		#	print ("Erreur lors initialisation port Serie") 
 			
