@@ -17,12 +17,6 @@ try:
 except: 
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
-"""
-# reseau 
-import socket 
-import smtplib # serveur mail 
-"""
-
 ### Module des variables communes partagées entre les éléments Pyduino ###
 import CoreCommon as common
 

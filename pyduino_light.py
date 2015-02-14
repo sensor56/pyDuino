@@ -9,28 +9,11 @@ print "Pyduino light (without hardware support) - v0.5dev - by www.mon-club-elec
 
 # modules utiles 
 
-"""
-#-- temps --
-import time
-import datetime # gestion date 
-
-from threading import Timer # importe l'objet Timer du module threading
-
-#-- math -- 
-# import math
-from math import *  # pour acces direct aux fonctions math..
-import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
-"""
-#-- pour PWM - accès kernel + transposition C to Python -- 
+### pour PWM - accès kernel + transposition C to Python ### 
 #import fcntl # module pour fonction ioctl
 #from ctypes import *
 #import ctypes # module pour types C en Python 
-"""
-#-- système -- 
-import subprocess
-#import getpass # pour connaitre utilisateur systeme 
-import os  # gestion des chemins
-"""
+
 import re # expression regulieres pour analyse de chaines
 
 # serie 
@@ -39,18 +22,13 @@ try:
 except: 
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
-"""
-# reseau 
-import socket 
-import smtplib # serveur mail 
-"""
-#-- les sous modules Pyduino utilisés par ce module --
+### les sous modules Pyduino utilisés par ce module ###
 from CoreCommon import * # variables communes
 from CoreBase import *
 from CoreSystem import *
 from CoreLibs import *
 
-# -- declarations --
+### declarations ###
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
 # pour modifier la valeur d'une variable de ce module, la seule solution est de la réaffecter dans le programme 
 # par exemple noLoop
@@ -61,72 +39,47 @@ INPUT  = "0"
 OUTPUT = "1"
 PULLUP = "8"
 
-# pour uart
-#UART="3"
-#RX=0
-#TX=1
-
 A0, A1, A2, A3, A4, A5  = 0, 1, 2, 3, 4, 5 # identifiant broches analogiques
 PWM0, PWM1, PWM2, PWM3, PWM4, PWM5 = 3, 5, 6, 9, 10, 11 # identifiant broches PWM
 
 
 ### diverses classes utiles utilisées par les fonctions Pyduino ###
 
-### Fonctions spécifiques pour une plateforme donnée ###
-# version PC desktop avec Arduino ###
+### Fonctions spécifiques pour une plateforme donnée: version PC desktop avec Arduino ###
 
-### gestion broches E/S numériques ---
+### gestion broches E/S numériques ###
 
 # pinMode 
 def pinMode(pin, mode):
-	
 	print "Fonction non supportée : vous utilisez la version light"
-	
-
 	
 # digitalWrite 
 def digitalWrite(pin, state):
-	
 	print "Fonction non supportée : vous utilisez la version light"
 	
-
 # digitalRead
 def digitalRead(pin):
-	
-	
 	print "Fonction non supportée : vous utilisez la version light"
 
-
-
 def toggle(pin): # inverse l'etat de la broche
-	
-	
-	
 	print "Fonction non supportée : vous utilisez la version light"
 
 ### gestion broches analogique ###
 
 # analogRead - entrées analogiques 
 def analogRead(pinAnalog):
-	
-	
 	print "Fonction non supportée : vous utilisez la version light"
 
 # analogReadmV - entrées analogiques - renvoie valeur en millivolts
 def analogReadmV(pinAnalog):
-	
 	print "Fonction non supportée : vous utilisez la version light"
-
-
 
 # analogWrite # idem Arduino en 0-255
 def analogWrite(pinPWMIn, largeurIn):
-	
 	print "Fonction non supportée : vous utilisez la version light"
 
 # analogWritePercent(pinPWMIn, largeurIn)=> rescale 0-100 vers 0-255
 def analogWritePercent(pinPWMIn, largeurIn):
-	
 	print "Fonction non supportée : vous utilisez la version light"
 	
 ### Fonctions Libs dédiées ###
@@ -136,12 +89,9 @@ def analogWritePercent(pinPWMIn, largeurIn):
 uartPort = None # objet global 
 
 class Uart():
-	
 	# def __init__(self): # constructeur principal
-	
-	
+
 	def begin(self,rateIn, *arg): # fonction pour émulation de begin... Ne fait rien... 
-		
 		global uartPort
 		
 		# configure pin 0 et 1 pour UART (mode = 3)
@@ -268,7 +218,6 @@ class Uart():
 	
 	### lecture de tout ce qui arrive en réception ###
 	def waitingAll(self): # lecture de tout en reception sur port serie 
-		
 		global uartPort
 		
 		### variables de reception ###

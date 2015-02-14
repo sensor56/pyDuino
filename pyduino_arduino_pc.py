@@ -17,12 +17,6 @@ try:
 except: 
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
-"""
-# reseau 
-import socket 
-import smtplib # serveur mail 
-"""
-
 ### module des variables communes partagées entre les éléments Pyduino ###
 import CoreCommon as common
 
@@ -37,11 +31,6 @@ common.PLATFORM = "ARDUINOPC"
 common.INPUT  = "0"
 common.OUTPUT = "1"
 common.PULLUP = "8"
-
-# pour uart
-#UART="3"
-#RX=0
-#TX=1
 
 common.A0, common.A1, common.A2, common.A3, common.A4, common.A5 = 0, 1, 2, 3, 4, 5 # identifiant broches analogiques
 common.PWM0, common.PWM1, common.PWM2, common.PWM3, common.PWM4,common.PWM5 = 3, 5, 6, 9, 10, 11 # identifiant broches PWM
