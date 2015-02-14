@@ -19,10 +19,10 @@ except:
 import re # expression regulieres pour analyse de chaines
 
 ### importe les autres modules Pyduino ###
-from CoreCommon import * # variables communes
-from CoreBase   import *
-from CoreSystem import *
-from CoreLibs   import *
+from coreCommon import * # variables communes
+from coreBase   import *
+from coreSystem import *
+from coreLibs   import *
 
 ### FONCTIONS MULTIMEDIA ###
 

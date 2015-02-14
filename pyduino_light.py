@@ -23,10 +23,10 @@ except:
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
 ### les sous modules Pyduino utilisés par ce module ###
-from CoreCommon import * # variables communes
-from CoreBase import *
-from CoreSystem import *
-from CoreLibs import *
+from coreCommon import * # variables communes
+from coreBase import *
+from coreSystem import *
+from coreLibs import *
 
 ### declarations ###
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module

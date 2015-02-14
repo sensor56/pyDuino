@@ -7,10 +7,10 @@
 ### importe les autres modules Pyduino ###
 
 #from pyduinoCoreCommon import * # variables communes
-import CoreCommon as common # variables communes - pour appel explicite variable commmune
+import coreCommon as common # variables communes - pour appel explicite variable commmune
 
-from CoreBase import *
-from CoreSystem import *
+from coreBase import *
+from coreSystem import *
 #from pyduinoCoreLibs import *
 
 ### Liquid Crystal ###

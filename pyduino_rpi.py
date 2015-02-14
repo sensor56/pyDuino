@@ -17,7 +17,7 @@ except:
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
 ### Module des variables communes partagées entre les éléments Pyduino ###
-import CoreCommon as common
+import coreCommon as common
 
 #### declarations ####
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -45,9 +45,9 @@ common.OUTPUT = "out"
 common.PULLUP = "up" # Accepter par la commande gpio
 
 ### Les sous modules Pyduino utilisés par ce module ###
-from CoreBase import *
-from CoreSystem import *
-from CoreLibs import *
+from coreBase import *
+from coreSystem import *
+from coreLibs import *
 ### Pour PWM - accès kernel + transposition C to Python ###
 import fcntl # Module pour fonction ioctl
 import ctypes # Module pour types C en Python
@@ -126,8 +126,8 @@ def digitalWrite(pin, state):
 # digitalRead
 def digitalRead(pin):
 	pin = int(pin)
-
-    try:
+	
+	try:
 		# Lit etat de la broche en acces direct 
 		file = open(pathMain + "gpio" + pinList[pin] + "/value",'r') # Ouvre le fichier en lecture
 		file.seek(0) # Se place au debut du fichier

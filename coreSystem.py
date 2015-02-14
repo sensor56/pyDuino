@@ -22,8 +22,8 @@ import smtplib # serveur mail
 import netifaces # pour acces interf reseaux - dépendance : python-netifaces
 
 ### importe les autres modules Pyduino ###
-from CoreCommon import * # variables communes
-from CoreBase import *
+from coreCommon import * # variables communes
+from coreBase import *
 #from pyduinoCoreSystem import *
 #from pyduinoCoreLibs import *
 

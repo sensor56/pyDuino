@@ -18,7 +18,7 @@ except:
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
 ### Module des variables communes partagées entre les éléments Pyduino ###
-import CoreCommon as common
+import coreCommon as common
 
 ### Declarations ###
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -45,9 +45,9 @@ common.PWM0, common.PWM1, common.PWM2, common.PWM3, common.PWM4,common.PWM5 = co
 
 
 ### Les sous modules Pyduino utilisés par ce module - à mettre après les variables spécifiques ci-dessus ###
-from CoreBase import *
-from CoreSystem import *
-from CoreLibs import *
+from coreBase import *
+from coreSystem import *
+from coreLibs import *
 ### Pour PWM - accès kernel + transposition C to Python ###
 import fcntl # Module pour fonction ioctl
 # from ctypes import *

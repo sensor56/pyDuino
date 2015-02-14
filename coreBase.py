@@ -18,11 +18,8 @@ from math import *  # pour acces direct aux fonctions math..
 import random as rd # pour fonctions aléatoires - alias pour éviter problème avec fonction arduino random()
 
 ### importe les autres modules Pyduino ###
-import CoreCommon as common # variables communes - doit être présente dans TOUS les modules
-#from pyduinoCoreCommon import * # variables communes - doit être présente dans TOUS les modules
-#from pyduinoCoreBase import *
-#from pyduinoCoreSystem import *
-#from pyduinoCoreLibs import *
+import coreCommon as common # variables communes - doit être présente dans TOUS les modules
+
 
 ### Fonctions Pyduino : Core : Base ###
 
