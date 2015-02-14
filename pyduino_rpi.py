@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Par F. ILLIEN - Tous droits réservés - 2015
 # www.mon-club-elec.fr - Licence GPLv3
 
@@ -7,7 +10,7 @@ print "Pyduino for Raspberry Pi - by www.mon-club-elec.fr - 2015 "
 ### Expressions regulieres ###
 import re # Expression regulieres pour analyse de chaines
 
-# Serie
+# Serie Uart
 try:
 	import serial
 except:
@@ -22,7 +25,7 @@ import smtplib # serveur mail
 ### Module des variables communes partagées entre les éléments Pyduino ###
 import CoreCommon as common
 
-##### declarations #####
+#### declarations ####
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
 # pour modifier la valeur d'une variable de ce module, la seule solution est de la réaffecter dans le programme 
 # par exemple noLoop ou de passer par un fichier commun... 
@@ -43,7 +46,7 @@ PWM0 = 1 # Identifiant broches PWM
 
 
 # Constantes Arduino like spécifique de la plateforme utilisée 
-common.INPUT = "in"
+common.INPUT  = "in"
 common.OUTPUT = "out"
 common.PULLUP = "up" # Accepter par la commande gpio
 
@@ -56,7 +59,7 @@ import fcntl # Module pour fonction ioctl
 import ctypes # Module pour types C en Python
 
 
-############## Broche logique ##############
+### Broche logique ###
 
 # export
 def export(pin):
@@ -72,7 +75,7 @@ def export(pin):
 
 # pinMode 
 def pinMode(pin, mode):
-	pin = int(pin) # Numero de la broche (int)
+	pin  = int(pin) # Numero de la broche (int)
 	mode = str(mode) # Mode de fonctionnement (str)
 	
 	if export(pin) == 0:
@@ -100,8 +103,6 @@ def pinMode(pin, mode):
 	else:
 		return -1
 
-
-############## Broche logique ##############
 
 # digitalWrite 
 def digitalWrite(pin, state):
@@ -150,7 +151,7 @@ def toggle(pin): # Inverse l'etat de la broche
 		digitalWrite(pin,HIGH)
 		return HIGH
 
-############## Broche analogique ##############
+### Broche analogique ###
 
 # analogRead
 def analogRead(pin):
@@ -159,7 +160,7 @@ def analogRead(pin):
 
 # analogWrite = generation pwm
 def analogWrite(pin, value): 
-	pin = int(pin)
+	pin   = int(pin)
 	value = int(rescale(value,0,255,0,1023))
 	
 	# Fixe le mode pwm pour la broche E/S via ligne commande gpio 
@@ -178,7 +179,7 @@ def analogWritePercent(pin, value):
 	analogWrite(pin, rescale(value,0,100,0,255)) # Re-echelonne valeur 0-100% vers 0-255
 	
 
-######################## Fonctions Libs dédiées ################################
+### Fonctions Libs dédiées ###
 
 # Classe Uart pour communication série UART 
 class Uart():
@@ -326,11 +327,11 @@ class Uart():
 
 # Ajouter write / read   / flush
 
-########################### --------- Initialisation ------------ #################
+### Initialisation###
 
-Serial = Serial() # Declare une instance Serial pour acces aux fonctions depuis code principal
+Serial   = Serial() # Declare une instance Serial pour acces aux fonctions depuis code principal
 Ethernet = Ethernet() # Declare instance Ethernet implicite pour acces aux fonctions 
-Uart = Uart() # Declare instance Uart implicite 
+Uart     = Uart() # Declare instance Uart implicite 
 
 micros0Syst = microsSyst() # Mémorise microsSyst au démarrage
 millis0Syst = millisSyst() # Mémorise millisSyst au démarrage
