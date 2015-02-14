@@ -4,35 +4,15 @@
 # par X. HINAULT - Tous droits réservés - 2013
 # www.mon-club-elec.fr - Licence GPLv3
 
-"""
- * Copyright (c) 2013-2014 by Xavier HINAULT - support@mon-club-elec.fr
- *
- * This file is free software; you can redistribute it and/or modify
- * it under the terms of either the GNU General Public License version 3
- * or the GNU Lesser General Public License version 3, both as
- * published by the Free Software Foundation.
-"""
+### imports ###
 
-""""
-Ce fichier est partie intégrante  du projet pyDuino.
-
-pyDuino apporte une couche d'abstraction au langage Python 
-afin de pouvoir utiliser les broches E/S de mini PC
-avec des instructions identiques au langage Arduino
-
-Ce fichier contient les fonctions communes de gestion du système (console, RTC, fichiers, réseau, mail) pour toutes les versions
-
-"""
-
-#### imports ####
-
-#-- système -- 
+### système ###
 import subprocess
 #import getpass # pour connaitre utilisateur systeme 
 import os  # gestion des chemins
 import glob # listing de fichiers
 
-#--- expressions regulieres
+### expressions regulieres ###
 import re # expression regulieres pour analyse de chaines
 
 # reseau 
@@ -41,19 +21,18 @@ import smtplib # serveur mail
 
 import netifaces # pour acces interf reseaux - dépendance : python-netifaces
 
-# -- importe les autres modules Pyduino
-from pyduinoCoreCommon import * # variables communes
-from pyduinoCoreBase import *
+### importe les autres modules Pyduino ###
+from CoreCommon import * # variables communes
+from CoreBase import *
 #from pyduinoCoreSystem import *
 #from pyduinoCoreLibs import *
 
-######################## Fonctions Système ################################
+#### Fonctions Système ####
 
-#-- Console -- 
+### Console ###
 
 # classe Serial pour émulation affichage message en console
 class Serial():
-	
 	# def __init__(self): # constructeur principal
 	
 	def println(self,text, *arg):  # message avec saut de ligne
@@ -62,23 +41,22 @@ class Serial():
 		
 		
 		# attention : arg est reçu sous la forme d'une liste, meme si 1 seul !
-		text=str(text) # au cas où
-		
-		arg=list(arg) # conversion en list... évite problèmes.. 
+		text = str(text) # au cas où
+		arg  = list(arg) # conversion en list... évite problèmes.. 
 		
 		#print arg - debug
 		
-		if not len(arg)==0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
-			if arg[0]==DEC and text.isdigit():
-				print(text)
-			elif arg[0]==BIN and text.isdigit():
-				print(bin(int(text)))
+		if not len(arg) == 0: # si arg a au moins 1 element (nb : None renvoie True.. car arg existe..)
+			if arg[0] == DEC and text.isdigit():
+				print text
+			elif arg[0] == BIN and text.isdigit():
+				print bin(int(text))
 			elif arg[0]==OCT and text.isdigit():
-				print(oct(int(text)))
+				print oct(int(text))
 			elif arg[0]==HEX and text.isdigit():
-				print(hex(int(text)))
+				print hex(int(text))
 		else: # si pas de formatage de chaine = affiche tel que 
-			print(text)
+			print text
 		
 		
 		# ajouter formatage Hexa, Bin.. cf fonction native bin... 
@@ -92,22 +70,22 @@ class Serial():
 	
 	
 	def begin(self,rate): # fonction pour émulation de begin... Ne fait rien... 
-		return
+		pass
 
 
 # fin classe Serial 
 
-#============ Système : ligne de commande ======================
+### Système : ligne de commande ###
 
 def executeCmd(cmd):
 	# execute la ligne de commande systeme passee en parametre
 	# sans attendre la fin de l'execution 
 	
 	#p=subprocess.Popen(cmd, shell=True) # exécute la commande et continue 
-	p=subprocess.Popen("exec "+ cmd, shell=True) # exécute la commande et continue - exec pour processus renvoyé sinon c'est le shell... 
+	p = subprocess.Popen("exec " + cmd, shell = True) # exécute la commande et continue - exec pour processus renvoyé sinon c'est le shell... 
 	# la sortie standard et la sortie erreur ne sont pas interceptées donc s'affieront dans le Terminal mais non accessible depuis le code..
 	
-	return(p)
+	return p
 
 
 def executeCmdWait(cmd):
@@ -117,9 +95,9 @@ def executeCmdWait(cmd):
 	# subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).wait # attention - wait attend pas si SHell=True !
 
 	# en cas de commande : cmd -params "chaine"
-	subcmd=cmd.split("\"") # pour extraire chaîne avant pour pas appliquer séparation par espace sur la chaîne
+	subcmd = cmd.split("\"") # pour extraire chaîne avant pour pas appliquer séparation par espace sur la chaîne
 	#print subcmd
-	subsubcmd=subcmd[0].split(" ") # pour avoir format liste [ arge, arg, arg] attendu par check_call - pose probleme si chaine en param
+	subsubcmd = subcmd[0].split(" ") # pour avoir format liste [ arge, arg, arg] attendu par check_call - pose probleme si chaine en param
 	#print subsubcmd  #debug
 	try:
 		subsubcmd.remove('') # enleve '' car bloque commande si present... sinon provoque erreur d'ou try except
@@ -128,10 +106,10 @@ def executeCmdWait(cmd):
 	
 	#print subsubcmd  #debug
 	
-	if len(subcmd)==1: # si pas de chaine 
+	if len(subcmd) == 1: # si pas de chaine 
 		subprocess.check_call(subsubcmd)
-	elif len(subcmd)>1: 
-		subsubcmd.append("\"" + str(subcmd[1] )+"\"") # ajoute la chaine en + encadree par " "
+	elif len(subcmd) > 1: 
+		subsubcmd.append("\"" + str(subcmd[1] ) + "\"") # ajoute la chaine en + encadree par " "
 		#print (" \" " + str(subcmd[1] )+"\"") # debug
 		#print subsubcmd # debug
 		subprocess.check_call(subsubcmd ) 
@@ -141,107 +119,88 @@ def executeCmdOutput(cmd):
 	# execute la ligne de commande systeme passee en parametre
 	# capture la sortie console et attend la fin de l'execution 
 	
-	pipe=subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout # execute la commande 
-	out=pipe.read() # lit la sortie console
+	pipe = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE).stdout # execute la commande 
+	out  = pipe.read() # lit la sortie console
 	pipe.close() # ferme la sortie console
 	
-	return(out)
+	return out
 	
 
-########################## fichiers et data texte ###############################
+### fichiers et data texte ####
 
-##------ gestion fichier et répertoires -------
-
-# les variables de chemin et leur valeur par defaut :
-#--- chemin de reference --- 
-#home_dir=os.getenv("HOME")+"/"  # chemin de référence
-#main_dir=os.getenv("HOME")+"/"  # chemin de référence
-
-#---- chemins data fichiers texte, sons, image, video
-#data_dir_text="data/text/" # data texte relatif a main dir
-#data_dir_audio="data/audio/" # data audio 
-#data_dir_image="data/images/" # data images
-#data_dir_video="data/videos/" # data video
-
-#---- chemins sources fichiers texte, sons, images, video
-#src_dir_text="sources/text/" # sources texte relatif a main dir
-#src_dir_audio="sources/audio/" # sources audio 
-#src_dir_image="sources/images/" # sources images
-#src_dir_video="sources/videos/" # sources video
-
-#--- les fonctions fichiers de la lib' Pyduino.. 
+### les fonctions fichiers de la lib' Pyduino.. ### 
 def homePath():
-	return os.getenv("HOME")+"/"
+	return os.getenv("HOME") + "/"
 
 def mainPath():
 	return main_dir
 
 def setMainPath(pathIn):
 	global main_dir
-	main_dir=pathIn
+	main_dir = pathIn
 
-#-- (get) data Path 
+### (get) data Path ### 
 def dataPath(typeIn):
-	if typeIn==TEXT:
+	if typeIn == TEXT:
 		return data_dir_text
-	elif typeIn==IMAGE:
+	elif typeIn == IMAGE:
 		return data_dir_image
-	elif typeIn==AUDIO:
+	elif typeIn == AUDIO:
 		return data_dir_audio
-	elif typeIn==VIDEO:
+	elif typeIn == VIDEO:
 		return data_dir_video
 	else: 
 		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
 
-#--- set data Path
+### set data Path ###
 def setDataPath(typeIn, dirIn):
-	if typeIn==TEXT:
+	if typeIn == TEXT:
 		global data_dir_text
-		data_dir_text=dirIn
-	elif typeIn==IMAGE:
+		data_dir_text = dirIn
+	elif typeIn == IMAGE:
 		global data_dir_image
-		data_dir_image=dirIn
-	elif typeIn==AUDIO:
+		data_dir_image = dirIn
+	elif typeIn == AUDIO:
 		global data_dir_audio
-		data_dir_audio=dirIn
-	elif typeIn==VIDEO:
+		data_dir_audio = dirIn
+	elif typeIn == VIDEO:
 		global data_dir_video
-		data_dir_video=dirIn
+		data_dir_video = dirIn
 	else: 
 		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
 
-#-- (get) source Path 
+### (get) source Path ###
 def sourcesPath(typeIn):
-	if typeIn==TEXT:
+	if typeIn == TEXT:
 		return src_dir_text
-	elif typeIn==IMAGE:
+	elif typeIn == IMAGE:
 		return src_dir_image
-	elif typeIn==AUDIO:
+	elif typeIn == AUDIO:
 		return src_dir_audio
-	elif typeIn==VIDEO:
+	elif typeIn == VIDEO:
 		return src_dir_video
 	else: 
 		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
 
-#--- set sources Path
+### set sources Path ###
 def setSourcesPath(typeIn, dirIn):
-	if typeIn==TEXT:
+	if typeIn == TEXT:
 		global src_dir_text
-		src_dir_text=dirIn
-	elif typeIn==IMAGE:
+		src_dir_text = dirIn
+	elif typeIn == IMAGE:
 		global src_dir_image
-		src_dir_image=dirIn
-	elif typeIn==AUDIO:
+		src_dir_image = dirIn
+	elif typeIn == AUDIO:
 		global src_dir_audio
-		src_dir_audio=dirIn
-	elif typeIn==VIDEO:
+		src_dir_audio = dirIn
+	elif typeIn == VIDEO:
 		global src_dir_video
-		src_dir_video=dirIn
+		src_dir_video = dirIn
 	else: 
 		print "Erreur : choisir parmi TEXT, IMAGE, AUDIO, VIDEO"
 
 
-#-- fonction gestion répertoires / fichiers 
+### fonction gestion répertoires / fichiers ### 
 
 def exists(filepathIn): # teste si le chemin ou fichier existe
 	#try:
@@ -263,11 +222,11 @@ def isfile(filepathIn):
 	return os.path.isfile(filepathIn)
 
 def dirname(pathIn):
-	return os.path.dirname(pathIn)+"/"
+	return os.path.dirname(pathIn) + "/"
 	
 
 def currentdir():
-	return os.getcwd()+"/"
+	return os.getcwd() + "/"
 
 def changedir(pathIn):
 	os.chdir(pathIn)
@@ -281,7 +240,7 @@ def mkdir(pathIn): # crée le répertoire si il n'existe pas
 		os.makedirs(pathIn) # cree les rep intermediaires
 		return True
 	except OSError:
-		print("Probleme creation")
+		print "Probleme creation"
 		return False
 
 def rmdir(pathIn): # efface le répertoire
@@ -309,12 +268,12 @@ def listfiles(pathIn): # liste les fichiers
 
 def dircontent(pathIn): # liste rep suivi des fichiers
 	if exists(pathIn):
-		out=""
+		out = ""
 		for dirname in listdirs(pathIn): # les rép
-			out=out+dirname+"/\n"
+			out = out + dirname + "/\n"
 		
 		for filename in listfiles(pathIn):   # les fichiers
-			out=out+filename+"\n"
+			out = out + filename + "\n"
 		
 		return out 
 	else: 
@@ -331,7 +290,7 @@ def remove(filepathIn):
 		print "Effacement impossible"
 		return False
 
-#---- fonctions objet file ----- 
+### fonctions objet file ###
 
 # voir http://docs.python.org/2/library/stdtypes.html#bltin-file-objects 
 
@@ -357,31 +316,31 @@ def size(filepathIn):
 
 # readLines() -- Python --> http://docs.python.org/2/library/stdtypes.html#file.readlines
 
-#-- fonctions Pyduino utiles files --- 
+## fonctions Pyduino utiles files ###
 
 def appendDataLine(filepathIn, dataIn):
 	if exists(filepathIn):
-		dataFile=open(filepathIn,'a') # ouvre pour ajout donnees
-		dataFile.write(str(dataIn)+"\n")
+		dataFile = open(filepathIn, 'a') # ouvre pour ajout donnees
+		dataFile.write(str(dataIn) + "\n")
 		dataFile.close()
 	elif not exists(filepathIn):
-		dataFile=open(filepathIn,'w') # cree fichier pour ajout donnees
-		dataFile.write(str(dataIn)+"\n")
+		dataFile = open(filepathIn, 'w') # cree fichier pour ajout donnees
+		dataFile.write(str(dataIn) + "\n")
 		dataFile.close()
 
-# --------- création des chemins si existent pas - mis après déclaration fonctions ------- 
+### création des chemins si existent pas - mis après déclaration fonctions ###
 
-if not exists(homePath()+data_dir_text): mkdir(homePath()+data_dir_text) # creation si existe pas
-if not exists(homePath()+data_dir_audio): mkdir(homePath()+data_dir_audio) # creation si existe pas
-if not exists(homePath()+data_dir_image): mkdir(homePath()+data_dir_image) # creation si existe pas
-if not exists(homePath()+data_dir_video): mkdir(homePath()+data_dir_video) # creation si existe pas
+if not exists(homePath() + data_dir_text): mkdir(homePath() + data_dir_text) # creation si existe pas
+if not exists(homePath() + data_dir_audio): mkdir(homePath() + data_dir_audio) # creation si existe pas
+if not exists(homePath() + data_dir_image): mkdir(homePath() + data_dir_image) # creation si existe pas
+if not exists(homePath() + data_dir_video): mkdir(homePath() + data_dir_video) # creation si existe pas
 
-if not exists(homePath()+src_dir_text): mkdir(homePath()+src_dir_text) # creation si existe pas
-if not exists(homePath()+src_dir_audio): mkdir(homePath()+src_dir_audio) # creation si existe pas
-if not exists(homePath()+src_dir_image): mkdir(homePath()+src_dir_image) # creation si existe pas
-if not exists(homePath()+src_dir_video): mkdir(homePath()+src_dir_video) # creation si existe pas
+if not exists(homePath() + src_dir_text): mkdir(homePath() + src_dir_text) # creation si existe pas
+if not exists(homePath() + src_dir_audio): mkdir(homePath() + src_dir_audio) # creation si existe pas
+if not exists(homePath() + src_dir_image): mkdir(homePath() + src_dir_image) # creation si existe pas
+if not exists(homePath() + src_dir_video): mkdir(homePath() + src_dir_video) # creation si existe pas
 
-############################ Reseau ##################################
+#### Reseau ####
 
 def httpResponse(): # reponse HTTP par defaut
 	return """
@@ -411,7 +370,7 @@ class Ethernet():
 		else: return
 		"""
 		
-		addr=netifaces.ifaddresses('eth0')
+		addr = netifaces.ifaddresses('eth0')
 		#print addr # debug
 		#print addr[netifaces.AF_INET][0]['addr'] # debug
 		
@@ -440,25 +399,25 @@ class EthernetServer(socket.socket) : # attention recoit classe du module, pas l
 	def begin(self, *arg):
 		
 		
-		if len(arg)==0: # si pas de nombre client precise
+		if len(arg) == 0: # si pas de nombre client precise
 			self.listen(5) # fixe a 5 
-		elif len(arg)==1: # si nombre client
+		elif len(arg) == 1: # si nombre client
 			self.listen(arg[0]) # fixe au nombre voulu
 	
 	def clientAvailable(self):
-		client,adresseDistante=self.accept() # attend client entrant
+		client,adresseDistante = self.accept() # attend client entrant
 		return client, adresseDistante[0]
 		# l'adresse recue est un tuple - ip est le 1er element
 
 	def readDataFrom(self, clientDistantIn, *arg):
 		
 		# arg = rien ou maxIn
-		if len(arg)==0:
-			maxIn=1024
-		elif len(arg)==1:
-			maxIn=arg[0]
+		if len(arg) == 0:
+			maxIn = 1024
+		elif len(arg) == 1:
+			maxIn = arg[0]
 		
-		chaineRecue=clientDistantIn.recv(maxIn)#.strip() 
+		chaineRecue = clientDistantIn.recv(maxIn)#.strip() 
 		chaineRecue.decode('utf-8')
 		return chaineRecue
 	
@@ -468,12 +427,12 @@ class EthernetServer(socket.socket) : # attention recoit classe du module, pas l
 	def sendResponse(self, clientDistantIn, responseIn):
 		# fonction d'envoi reponse Http + chaine + saut de ligne 
 		
-		responseOut=( # ( ... ) pour permettre multiligne.. 
+		responseOut = ( # ( ... ) pour permettre multiligne.. 
 		
 		httpResponse() # entete http OK 200 automatique fournie par la librairie Pyduino
 		+
 		responseIn
-		+"\n") # fin reponse 
+		+ "\n") # fin reponse 
 		
 		#self.writeDataTo(clientDistantIn, responseOut) # envoie donnees vers client d'un coup - pour test - hors try
 		
@@ -501,45 +460,44 @@ class EthernetClient(socket.socket) : # attention recoit classe du module, pas l
 class MailServer():
 	
 	def __init__(self):
-		self.name=""
-		self.port=0
-		self.fromMail=""
-		self.fromPassword=""
-		self.toMail=""
-		
-		self.subject=""
-		self.msg=""
-		self.imageToJoin=""
+		self.name         = ""
+		self.port         = 0
+		self.fromMail     = ""
+		self.fromPassword = ""
+		self.toMail       = ""
+		self.subject      = ""
+		self.msg          = ""
+		self.imageToJoin  = ""
 	
-	def setName(self,nameIn):
-		self.name=nameIn
+	def setName(self, nameIn):
+		self.name = nameIn
 	
-	def setPort(self,portIn):
-		self.port=portIn
+	def setPort(self, portIn):
+		self.port = portIn
 		
-	def setFromMail(self,fromMailIn):
-		self.fromMail=fromMailIn
+	def setFromMail(self, fromMailIn):
+		self.fromMail = fromMailIn
 		
-	def setFromPassword(self,fromPasswordIn):
-		self.fromPassword=fromPasswordIn
+	def setFromPassword(self, fromPasswordIn):
+		self.fromPassword = fromPasswordIn
 		
-	def setToMail(self,toMailIn):
-		self.toMail=toMailIn
+	def setToMail(self, toMailIn):
+		self.toMail = toMailIn
 		
-	def setSubject(self,subjectIn):
-		self.subject=subjectIn
+	def setSubject(self, subjectIn):
+		self.subject = subjectIn
 	
-	def setMsg(self,msgIn):
-		self.msg=msgIn
+	def setMsg(self, msgIn):
+		self.msg = msgIn
 	
-	def setImageToJoin(self,pathIn):
-		self.imageToJoin=pathIn
+	def setImageToJoin(self, pathIn):
+		self.imageToJoin = pathIn
 	
 	def getHeader(self):
 		#header
-		header='To:' + self.toMail + '\n'
-		header=header+ 'From:' + self.fromMail +'\n'
-		header=header + 'Subject:' + self.subject + '\n'
+		header = 'To:' + self.toMail + '\n'
+		header = header+ 'From:' + self.fromMail + '\n'
+		header = header + 'Subject:' + self.subject + '\n'
 		return header
 		
 	def sendMail(self):
@@ -547,7 +505,7 @@ class MailServer():
 		from email.mime.text import MIMEText
 		
 		# connexion serveur smtp
-		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver = smtplib.SMTP(self.name, self.port)
 		smtpserver.ehlo()
 		smtpserver.starttls()
 		smtpserver.ehlo()
@@ -560,10 +518,10 @@ class MailServer():
 		"""
 		
 		# preparation du mail - utilise module email
-		mail = MIMEText(self.msg)
+		mail            = MIMEText(self.msg)
 		mail['Subject'] = self.subject
-		mail['From'] = self.fromMail
-		mail['To'] = self.toMail
+		mail['From']    = self.fromMail
+		mail['To']      = self.toMail
 		print ""
 		print mail.as_string() # debug
 		
@@ -581,7 +539,7 @@ class MailServer():
 		from email.mime.multipart import MIMEMultipart
 		
 		# connexion serveur smtp
-		smtpserver=smtplib.SMTP(self.name, self.port)
+		smtpserver = smtplib.SMTP(self.name, self.port)
 		smtpserver.ehlo()
 		smtpserver.starttls()
 		smtpserver.ehlo()
@@ -595,17 +553,17 @@ class MailServer():
 		
 		# preparation du mail - utilise module email
 		#mail = MIMEText(self.msg)
-		mail=MIMEMultipart()
+		mail            = MIMEMultipart()
 		mail['Subject'] = self.subject
-		mail['From'] = self.fromMail
-		mail['To'] = self.toMail
-		mail.preamble = self.subject
+		mail['From']    = self.fromMail
+		mail['To']      = self.toMail
+		mail.preamble   = self.subject
 		
 		msg = MIMEText(self.msg) # le texte
 		mail.attach(msg) # attache le texte au mail
 		
-		fp=open(self.imageToJoin,'rb') # ouvre fichier image en lecture binaire
-		img=img = MIMEImage(fp.read()) # lit le fichier et récupere l'objet image obtenu
+		fp  = open(self.imageToJoin,'rb') # ouvre fichier image en lecture binaire
+		img = img = MIMEImage(fp.read()) # lit le fichier et récupere l'objet image obtenu
 		fp.close()# ferme le fichier
 		
 		mail.attach(img) # attache l'image au mail
@@ -620,4 +578,4 @@ class MailServer():
 		smtpserver.quit()
 
 
-#------ fin serveur mail --- 
+### fin serveur mail ###

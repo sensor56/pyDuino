@@ -16,12 +16,6 @@ try:
 except:
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
-"""
-# reseau 
-import socket 
-import smtplib # serveur mail 
-"""
-
 ### Module des variables communes partagées entre les éléments Pyduino ###
 import CoreCommon as common
 
@@ -57,6 +51,8 @@ from CoreLibs import *
 ### Pour PWM - accès kernel + transposition C to Python ###
 import fcntl # Module pour fonction ioctl
 import ctypes # Module pour types C en Python
+
+### Fonctions spécifiques pour une plateforme donnée: Version RaspberryPi ###
 
 
 ### Broche logique ###
