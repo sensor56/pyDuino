@@ -7,10 +7,10 @@
 ### importe les autres modules Pyduino ###
 
 #from pyduinoCoreCommon import * # variables communes
-import CoreCommon as common # variables communes - pour appel explicite variable commmune
+import coreCommon as common # variables communes - pour appel explicite variable commmune
 
-from CoreBase import *
-from CoreSystem import *
+from coreBase import *
+from coreSystem import *
 #from pyduinoCoreLibs import *
 
 ### Liquid Crystal ###
@@ -94,7 +94,7 @@ class LiquidCrystal():
 		digitalWrite(self.D5, HIGH)
 		digitalWrite(self.D4, HIGH)
 		# print "in begin : ",common.debug # message debug de debug... 
-		if common.debug: print("0011") # debug
+		if common.debug: print "0011" # debug
 		
 		self.pulseEnable()
 		
@@ -104,7 +104,7 @@ class LiquidCrystal():
 		digitalWrite(self.D6, LOW)
 		digitalWrite(self.D5, HIGH)
 		digitalWrite(self.D4, HIGH)
-		if common.debug: print("0011") # debug
+		if common.debug: print "0011" # debug
 		
 		self. pulseEnable()
 
@@ -113,7 +113,7 @@ class LiquidCrystal():
 		digitalWrite(self.D6, LOW)
 		digitalWrite(self.D5, HIGH)
 		digitalWrite(self.D4, HIGH)
-		if common.debug: print("0011") # debug
+		if common.debug: print "0011" # debug
 
 		self.pulseEnable()
 		
@@ -126,7 +126,7 @@ class LiquidCrystal():
 		digitalWrite(self.D6, LOW)
 		digitalWrite(self.D5, HIGH)
 		digitalWrite(self.D4, LOW)
-		if common.debug: print("0010") # debug
+		if common.debug: print "0010" # debug
 		
 		self.pulseEnable()
 

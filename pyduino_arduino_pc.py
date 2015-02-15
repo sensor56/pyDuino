@@ -18,7 +18,7 @@ except:
 	print "ATTENTION : Module Serial manquant : installer le paquet python-serial "
 
 ### module des variables communes partagées entre les éléments Pyduino ###
-import CoreCommon as common
+import coreCommon as common
 
 ### declarations ###
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module
@@ -38,9 +38,9 @@ common.PWM0, common.PWM1, common.PWM2, common.PWM3, common.PWM4,common.PWM5 = 3,
 
 
 ### les sous modules Pyduino utilisés par ce module - à mettre après les variables spécifiques ci-dessus ###
-from CoreBase import *
-from CoreSystem import *
-from CoreLibs import *
+from coreBase import *
+from coreSystem import *
+from coreLibs import *
 
 # variables globales du module 
 
@@ -305,7 +305,7 @@ class Uart():
 				common.uartPort = serial.Serial('/dev/ttyACM0', rateIn, timeout = arg[0]) # initialisation port serie uart
 				common.uartPort.flushInput() # vide la file d'attente série
 				
-			print "Initialisation Port Serie : /dev/ttyACM0 @ " + str(rateIn) + " = OK ") # affiche debug
+			print "Initialisation Port Serie : /dev/ttyACM0 @ " + str(rateIn) + " = OK " # affiche debug
 			
 		except:
 			print "Erreur lors initialisation port Serie" 
