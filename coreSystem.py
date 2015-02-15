@@ -18,8 +18,11 @@ import re # expression regulieres pour analyse de chaines
 # reseau 
 import socket 
 import smtplib # serveur mail 
+try:
+	import netifaces # pour acces interf reseaux - dépendance : python-netifaces
+except:
+	print "ATTENTION : Module netifaces manquant : installer le paquet python-netifaces "
 
-import netifaces # pour acces interf reseaux - dépendance : python-netifaces
 
 ### importe les autres modules Pyduino ###
 from coreCommon import * # variables communes
@@ -112,7 +115,7 @@ def executeCmdWait(cmd):
 		subsubcmd.append("\"" + str(subcmd[1] ) + "\"") # ajoute la chaine en + encadree par " "
 		#print (" \" " + str(subcmd[1] )+"\"") # debug
 		#print subsubcmd # debug
-		subprocess.check_call(subsubcmd ) 
+		subprocess.check_call(subsubcmd) 
 
 
 def executeCmdOutput(cmd):

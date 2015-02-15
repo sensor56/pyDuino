@@ -55,7 +55,6 @@ def millisSyst():
 def millis():
 	return millisSyst() - common.millis0Syst # renvoie difference entre milliSyst courant et millisSyst debut code
 	
-
 # fonction microsSyst : renvoie le nombre de microsecondes courant de l'horloge systeme
 def microsSyst():
 	return(int(round(time.time() * 1000000))) # microsecondes de l'horloge systeme
@@ -63,12 +62,10 @@ def microsSyst():
 # fonction millis : renvoie le nombre de millisecondes depuis le debut du programme
 def micros():
 	return microsSyst() - common.micros0Syst # renvoie difference entre microsSyst courant et microsSyst debut code
-	
 
 # fonction timer() : lance fonction avec intervalle en ms
 def timer(delaiIn, fonctionIn):
 	Timer(delaiIn / 1000.0, fonctionIn).start() # relance le timer
-
 
 # fonctions date - RTC - unixtime 
 def year():
@@ -227,7 +224,6 @@ def highByte(a):
 def bitRead(a, index):
 	# lit le bit de rang index de la valeur a
 	# le bit de poids faible a l'index 0
-	
 	out = bin(a) # '0b1011000101100101'
 	out = out[2:] # enleve 0b '1011000101100101'
 	out = out[len(out) - index - 1] # rang le plus faible = indice 0 = le plus a droite
@@ -239,7 +235,6 @@ def bitRead(a, index):
 def bitWrite(a, index, value):
 	# Met le bit d'index voulu de la valeur a a la valeur indiquee (HIGH ou LOW)
 	# le bit de poids faible a l'index 0 
-	
 	out = bin(a) # '0b1011000101100101'
 	out = out[2:] # enleve 0b '1011000101100101'
 	out = list(out) # bascule en list
@@ -260,12 +255,10 @@ def bitSet(a,index):
 def bitClear(a,index):
 	# Met le bit d'index voulu de la valeur a a LOW
 	# le bit de poids faible a l'index 0 
-	
 	return bitWrite(a, index, 0) # met le bit voulu a 0 - Index 0 pour 1er bit poids faible
 	
 
 def bit(index): # calcule la valeur du bit d'index specifie (le bits LSB a l'index 0)
 	# calcule la valeur du bit d'index specifie 
 	# le bits de poids faible a l'index 0 - calcule en fait 2 exposant index
-	
 	return pow(2, index) # cette fonction renvoie en fait la valeur 2^index
