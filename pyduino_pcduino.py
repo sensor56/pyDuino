@@ -45,9 +45,9 @@ common.PWM0, common.PWM1, common.PWM2, common.PWM3, common.PWM4,common.PWM5 = co
 
 
 ### Les sous modules Pyduino utilisés par ce module - à mettre après les variables spécifiques ci-dessus ###
-from coreBase import *
+from coreBase   import *
 from coreSystem import *
-from coreLibs import *
+from coreLibs   import *
 ### Pour PWM - accès kernel + transposition C to Python ###
 import fcntl # Module pour fonction ioctl
 # from ctypes import *

@@ -9,7 +9,7 @@
 #from pyduinoCoreCommon import * # variables communes
 import coreCommon as common # variables communes - pour appel explicite variable commmune
 
-from coreBase import *
+from coreBase   import *
 from coreSystem import *
 #from pyduinoCoreLibs import *
 

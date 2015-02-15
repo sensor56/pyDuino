@@ -30,13 +30,20 @@ import coreCommon as common
 common.PLATFORM = "RPI"
 
 # Fichiers broches E/S raspberryPi
-pathMain = "/sys/class/gpio/gpio/"
+pathMain = "/sys/class/gpio/"
 
-pinList = ['17', '18', '27', '22', '23', '24', '25', '4'] # Definition des borches I/O - version B
-#pin=['17', '18', '21', '22', '23', '24', '25', '4'] # Definition des borches I/O - version A
+pinList = {
+	"17": '17',
+	"18": '18',
+	"27": '27',
+	"22": '22',
+	"23": '23',
+	"24": '24',
+	"25": '25', 
+	"4" : '4'} # Definition des borches I/O - version B
 
-A0, A1, A2, A3, A4, A5 = 0, 1, 2, 3, 4, 5 # Identifiant broches analogiques
-PWM0 = 1 # Identifiant broches PWM
+# A0, A1, A2, A3, A4, A5 = 0, 1, 2, 3, 4, 5 # Identifiant broches analogiques
+# PWM0 = 1 # Identifiant broches PWM
 
 
 # Constantes Arduino like spécifique de la plateforme utilisée 
@@ -45,9 +52,9 @@ common.OUTPUT = "out"
 common.PULLUP = "up" # Accepter par la commande gpio
 
 ### Les sous modules Pyduino utilisés par ce module ###
-from coreBase import *
+from coreBase   import *
 from coreSystem import *
-from coreLibs import *
+from coreLibs   import *
 ### Pour PWM - accès kernel + transposition C to Python ###
 import fcntl # Module pour fonction ioctl
 import ctypes # Module pour types C en Python
@@ -71,26 +78,26 @@ def export(pin):
 
 # pinMode 
 def pinMode(pin, mode):
-	pin  = int(pin) # Numero de la broche (int)
 	mode = str(mode) # Mode de fonctionnement (str)
-	
+	pin = str(pin)
+
 	if export(pin) == 0:
 		# gpio mode <pin> in/out/pwm/clock/up/down/tri
 		if mode == INPUT or mode == OUTPUT : # Si in ou out 
 			# En acces direct = plus rapide 
 			try:
 				file = open(pathMain + "gpio" + pinList[pin] + "/direction",'w') # Ouvre le fichier en ecriture
-				file.write(OUTPUT) # Ecrie l'etat du pin demande
+				file.write(mode) # Ecrie l'etat du pin demande
 				file.close()
 			except:
-				print "ERREUR : Impossible d'orienté la broche"
+				# print "ERREUR : Impossible d'orienté la broche"
 				return -1
 			else:
 				return 0
 
 		elif mode == PULLUP : # Sinon = si up
 			# Fixe le mode de la broche E/S via ligne commande gpio 
-			cmd = "gpio mode " + str(pin) + " " + mode
+			cmd = "gpio mode " + pin + " " + mode
 			subprocess.Popen(cmd, shell = True)
 			print cmd # debug
 
@@ -102,7 +109,7 @@ def pinMode(pin, mode):
 
 # digitalWrite 
 def digitalWrite(pin, state):
-	pin = int(pin)
+	pin = str(pin)
 	state = str(state) # Transforme en chaine
 	
 	# gpio mode <pin> in/out/pwm/clock/up/down/tri
@@ -118,14 +125,14 @@ def digitalWrite(pin, state):
 		file.write(state)
 		file.close()
 	except:
-		print "ERREUR : Impossible d'ecrire sur la broche"
+		# print "ERREUR : Impossible d'ecrire sur la broche"
 		return -1
 	else:
 		return 0
 
 # digitalRead
 def digitalRead(pin):
-	pin = int(pin)
+	pin = str(pin)
 	
 	try:
 		# Lit etat de la broche en acces direct 
@@ -134,7 +141,7 @@ def digitalRead(pin):
 		state = file.read() # Lit le fichier
 		file.close()
 	except:
-		print "ERREUR : Impossible de lire la broche"
+		# print "ERREUR : Impossible de lire la broche"
 		return -1
 	else:
 		return int(state)  # Renvoie valeur entiere
@@ -156,18 +163,18 @@ def analogRead(pin):
 
 # analogWrite = generation pwm
 def analogWrite(pin, value): 
-	pin   = int(pin)
+	pin   = str(pin)
 	value = int(rescale(value,0,255,0,1023))
 	
 	# Fixe le mode pwm pour la broche E/S via ligne commande gpio 
-	cmd = "gpio mode " + str(pin) + " " + "pwm"
+	cmd = "gpio mode " + pin + " " + "pwm"
 	subprocess.Popen(cmd, shell=True)
 	print cmd # debug
 	
 	# gpio pwm <pin> <value> avec value entre 0 et 1023
 	
 	# Fixe pwm via ligne commande gpio 
-	cmd = "gpio pwm " + str(pin) + " " + str(value)
+	cmd = "gpio pwm " + pin + " " + str(value)
 	subprocess.Popen(cmd, shell=True)
 	print cmd # debug
 	
