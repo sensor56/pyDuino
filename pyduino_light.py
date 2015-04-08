@@ -24,9 +24,9 @@ except:
 
 ### les sous modules Pyduino utilisés par ce module ###
 from coreCommon import * # variables communes
-from coreBase import *
+from coreBase   import *
 from coreSystem import *
-from coreLibs import *
+from coreLibs   import *
 
 ### declarations ###
 # NB : les variables déclarées ici ne sont pas modifiables en dehors du module

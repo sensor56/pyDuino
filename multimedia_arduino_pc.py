@@ -19,9 +19,9 @@ except:
 
 #-- les sous modules Pyduino utilisés par ce module --
 from coreCommon import * # variables communes
-from coreBase import *
+from coreBase   import *
 from coreSystem import *
-from coreLibs import *
+from coreLibs   import *
 
 from coreMultimedia import *
 
